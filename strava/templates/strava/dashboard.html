@@ -1,0 +1,18 @@
+<h1>Dashboard</h1>
+<h2>{{ firstname }} {{ lastname }}</h2>
+<p>
+  <a href="{{ authlink }}">Auth</a>
+</p>
+<p>
+  <a href="{{ refreshlink }}">refresh</a>
+</p>
+
+<ul>
+  {% for activity in activites %}
+  <li>
+    <a href="{% url 'run' activity.id %}">{{ activity.name }} - {{ activity.distance }}</a>
+  </li>
+  {% empty %}
+  <li>No activites found</li>
+  {% endfor %}
+</ul>
