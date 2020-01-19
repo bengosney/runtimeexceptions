@@ -26,6 +26,7 @@ def auth_callback(request):
 def refreshToken(request, stravaid):
     runner = get_object_or_404(Runner, stravaID=stravaid)
     runner.refreshToken()
+    
     return HttpResponseRedirect(reverse('dashboard'))
 
 def dashboard(request):
@@ -33,11 +34,10 @@ def dashboard(request):
 
     activites = runner.getActivities()
 
-    assert True == False
-    
     return render(request, 'strava/dashboard.html', {
         'authlink': reverse('auth'),
         'refreshlink': reverse('refresh_token', args=[13735887]),
+        'runner': runner.getDetails(),
         'activites': activites,
     })
 
@@ -45,5 +45,7 @@ def dashboard(request):
 def run(request, runid):
     runner = get_object_or_404(Runner, stravaID=13735887)
     r = runner.run(runid)    
-    
+
+    # assert True == False    
+
     return render(request, 'strava/run.html', {'run': r})

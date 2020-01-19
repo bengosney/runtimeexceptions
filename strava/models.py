@@ -60,24 +60,16 @@ class Runner(models.Model):
         if response.status_code != 200:
             return False
 
-        expires = data['expires_at'] #make_aware(datetime.fromtimestamp(data['expires_at']))
+        expires = data['expires_at'] #make_aware(datetime.fromtimestamp(data['expires_at']))     
 
-        try:
-            runner = cls.objects.get(stravaID=data['athlete']['id'])
-            runner.stravaID = data['athlete']['id'],
-            runner.access_token = data['access_token'],
-            runner.access_expires = expires,
-            runner.refresh_token = data['refresh_token']
-        except cls.DoesNotExist:
-            runner = cls.objects.create(
-                stravaID=data['athlete']['id'],
-                access_token=data['access_token'],
-                access_expires=expires,
-                refresh_token=data['refresh_token'],
-            )
+        runner, _ = cls.objects.get_or_create(
+            stravaID=data['athlete']['id'],
+            access_token=data['access_token'],
+            access_expires=expires,
+            refresh_token=data['refresh_token'],
+        )
 
         runner.save()
-
         return True
 
 
@@ -122,9 +114,8 @@ class Runner(models.Model):
     def getAuthenticatedAthlete(cls):
         pass
 
-    @staticmethod
-    def makeCall(path, args={}):
-        url = 'https://www.strava.com/api/v3/{path}'
+    def makeCall(self, path, args={}):
+        url = f'https://www.strava.com/api/v3/{path}'
 
         headers = {
             'Accept': "application/json",            
@@ -140,40 +131,12 @@ class Runner(models.Model):
             return data.json()
 
         return False
+
+    def getDetails(self):
+        return self.makeCall('athlete')
     
     def getActivities(self):
-        #return self.__class__.makeCall('athlete/activities')
-        url = 'https://www.strava.com/api/v3/athlete/activities'
-
-        headers = {
-            'Accept': "application/json",            
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
-            'Authorization': f"Bearer {self.authCode}"
-        }
-        
-        data = requests.get(url, headers=headers)
-
-        if data.status_code == 200:
-            return data.json()
-
-        return False
+        return self.makeCall('athlete/activities')
 
     def run(self, runid):
-        url = f'https://www.strava.com/api/v3/activities/{runid}'
-
-        headers = {
-            'Accept': "application/json",
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
-            'Authorization': f"Bearer {self.authCode}"
-        }
-        
-        data = requests.get(url, headers=headers)
-
-        if data.status_code == 200:
-            return data.json()
-
-        return False
+        return self.makeCall(f'activities/{runid}')
