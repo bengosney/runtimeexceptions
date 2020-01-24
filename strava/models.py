@@ -4,7 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
 import requests
-
+from math import sin, cos, sqrt, atan2, radians
+        
 from datetime import datetime
 import time
 from django.utils import timezone
@@ -140,3 +141,26 @@ class Runner(models.Model):
 
     def run(self, runid):
         return self.makeCall(f'activities/{runid}')
+
+    def distanceFrom(self):
+        pass
+
+    @staticmethod
+    def getDistance(point1, point2):
+        R = 6373.0
+
+        lat1 = radians(point1[0])
+        lon1 = radians(point1[1])
+        lat2 = radians(point2[0])
+        lon2 = radians(point2[1])
+
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        
+        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        
+        distance = R * c
+
+        return distnce
+    
