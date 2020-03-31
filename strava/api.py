@@ -1,9 +1,16 @@
-import requests
-from websettings.models import setting
-from .models import Token
-import time;
-
+# Standard Library
+import time
 from pprint import pprint
+
+# Third Party
+import requests
+
+# First Party
+from websettings.models import setting
+
+# Locals
+from .models import Token
+
 
 class api:
     basePath = "https://www.strava.com/api/v3/"
@@ -11,7 +18,7 @@ class api:
     @staticmethod
     def _getHeaders():
         return {
-            'Accept': "application/json",            
+            'Accept': "application/json",
             'Cache-Control': "no-cache",
             'Accept-Encoding': "gzip, deflate",
             'Connection': "keep-alive",
@@ -22,7 +29,7 @@ class api:
         access = Token.getValue('access')
         print("----------- getting token -----------")
 
-        if access == None:
+        if access is None:
             refresh = Token.getValue('refresh')
             data = {
                 'client_id': setting.getValue('client_id'),
@@ -42,7 +49,6 @@ class api:
             Token.setToken('refresh', response_data['refresh_token'], time.time() + (86400 * 365))
 
         return access
-    
 
     @classmethod
     def req(cls, path):
@@ -51,10 +57,7 @@ class api:
         token = cls._getAccessToken()
         headers = cls._getHeaders()
         headers['Authorization'] = f"Bearer {token}"
-        
-        response = requests.request("GET", url, headers=headers)
-        
-        return response.json()
-    
 
-    
+        response = requests.request("GET", url, headers=headers)
+
+        return response.json()

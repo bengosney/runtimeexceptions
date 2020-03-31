@@ -1,20 +1,18 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+# Django
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 
-from PIL import Image, ImageDraw
-from datetime import datetime
+# Third Party
+from PIL import Image
 
+# Locals
 from .models import Runner
 
-from websettings.models import setting
-
-import requests
-from pprint import pprint
 
 def auth(request):
     return HttpResponseRedirect(Runner.getAuthUrl(request))
+
 
 def auth_callback(request):
     code = request.GET.get('code', '')
@@ -24,11 +22,13 @@ def auth_callback(request):
 
     return HttpResponse(status=500)
 
+
 def refreshToken(request, stravaid):
     runner = get_object_or_404(Runner, stravaID=stravaid)
     runner.refreshToken()
-    
+
     return HttpResponseRedirect(reverse('dashboard'))
+
 
 def dashboard(request):
     runner = get_object_or_404(Runner, stravaID=13735887)
@@ -45,9 +45,7 @@ def dashboard(request):
 
 def activity(request, activityid):
     runner = get_object_or_404(Runner, stravaID=13735887)
-    r = runner.activity(activityid)    
-
-    # assert True == False    
+    r = runner.activity(activityid)
 
     return render(request, 'strava/run.html', {'activity': r})
 
@@ -57,5 +55,5 @@ def activityImage(request, activityid):
 
     response = HttpResponse(content_type="image/png")
     img.save(response, "PNG")
-    
+
     return response
