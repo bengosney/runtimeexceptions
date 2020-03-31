@@ -4,11 +4,12 @@
 
 {% block content %}
 <h1>Run</h1>
-<h2>{{ run.name }}</h2>
+<h2>{{ activity.name }}</h2>
+<img src="{% url 'activity_image' activity.id %}" />
 <div>
-  {{ run.start_latlng.0 }} - {{ run.start_latlng.1 }}
+  {{ activity.start_latlng.0 }} - {{ activity.start_latlng.1 }}
 </div>
 <div>
-  {{ run.end_latlng.0 }} - {{ run.end_latlng.1 }}
+  {{ activity.end_latlng.0 }} - {{ activity.end_latlng.1 }}
 </div>
 {% endblock %}

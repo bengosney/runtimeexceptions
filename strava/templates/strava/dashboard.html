@@ -16,7 +16,7 @@
 <ul>
   {% for activity in activites %}
   <li>
-    <a href="{% url 'run' activity.id %}">{{ activity.name }} - {{ activity.distance }}</a>
+    <a href="{% url 'activity' activity.id %}">{{ activity.name }} - {{ activity.distance }}</a>
   </li>
   {% empty %}
   <li>No activites found</li>

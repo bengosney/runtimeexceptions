@@ -5,6 +5,7 @@ from django.urls import reverse
 
 import requests
 from math import sin, cos, sqrt, atan2, radians
+from functools import lru_cache
         
 from datetime import datetime
 import time
@@ -115,6 +116,7 @@ class Runner(models.Model):
     def getAuthenticatedAthlete(cls):
         pass
 
+    @lru_cache(512)
     def makeCall(self, path, args={}):
         url = f'https://www.strava.com/api/v3/{path}'
 
@@ -139,8 +141,8 @@ class Runner(models.Model):
     def getActivities(self):
         return self.makeCall('athlete/activities')
 
-    def run(self, runid):
-        return self.makeCall(f'activities/{runid}')
+    def activity(self, activityID):
+        return self.makeCall(f'activities/{activityID}')
 
     def distanceFrom(self):
         pass
@@ -164,3 +166,9 @@ class Runner(models.Model):
 
         return distnce
     
+
+class Renamer(models.Model):
+    lat = models.FloatField()
+    lng = models.FloatField()
+    name = models.CharField(max_length=200)
+    number = models.IntegerField()

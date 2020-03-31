@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 
+from PIL import Image, ImageDraw
 from datetime import datetime
 
 from .models import Runner
@@ -42,10 +43,19 @@ def dashboard(request):
     })
 
 
-def run(request, runid):
+def activity(request, activityid):
     runner = get_object_or_404(Runner, stravaID=13735887)
-    r = runner.run(runid)    
+    r = runner.activity(activityid)    
 
     # assert True == False    
 
-    return render(request, 'strava/run.html', {'run': r})
+    return render(request, 'strava/run.html', {'activity': r})
+
+
+def activityImage(request, activityid):
+    img = Image.new('RGB', (640, 480), color='red')
+
+    response = HttpResponse(content_type="image/png")
+    img.save(response, "PNG")
+    
+    return response
