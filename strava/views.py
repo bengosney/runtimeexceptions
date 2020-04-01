@@ -1,4 +1,5 @@
 # Django
+from django.contrib.auth import login
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -11,34 +12,36 @@ from .models import Runner
 
 
 def auth(request):
-    return HttpResponseRedirect(Runner.getAuthUrl(request))
+    return HttpResponseRedirect(Runner.get_auth_url(request))
 
 
 def auth_callback(request):
     code = request.GET.get('code', '')
 
-    if Runner.authCallBack(code):
+    user = Runner.auth_call_back(code)
+
+    if user is not None:
+        login(request, user)
         return HttpResponseRedirect(reverse('dashboard'))
 
     return HttpResponse(status=500)
 
 
-def refreshToken(request, stravaid):
+def refresh_token(request, stravaid):
     runner = get_object_or_404(Runner, stravaID=stravaid)
-    runner.refreshToken()
+    runner.do_refresh_token()
 
     return HttpResponseRedirect(reverse('dashboard'))
 
 
 def dashboard(request):
     runner = get_object_or_404(Runner, stravaID=13735887)
-
-    activites = runner.getActivities()
+    activites = runner.get_activities()
 
     return render(request, 'strava/dashboard.html', {
         'authlink': reverse('auth'),
         'refreshlink': reverse('refresh_token', args=[13735887]),
-        'runner': runner.getDetails(),
+        'runner': runner.get_details(),
         'activites': activites,
     })
 
@@ -50,7 +53,7 @@ def activity(request, activityid):
     return render(request, 'strava/run.html', {'activity': r})
 
 
-def activityImage(request, activityid):
+def activity_image(request, activityid):
     img = Image.new('RGB', (640, 480), color='red')
 
     response = HttpResponse(content_type="image/png")
