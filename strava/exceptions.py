@@ -1,0 +1,2 @@
+class StravaNotAuthenticated(Exception):
+    pass

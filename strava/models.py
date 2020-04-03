@@ -14,6 +14,9 @@ import requests
 # First Party
 from websettings.models import setting
 
+# Locals
+from .exceptions import StravaNotAuthenticated
+
 
 class Runner(models.Model):
     stravaID = models.CharField(max_length=200, unique=True)
@@ -66,16 +69,6 @@ class Runner(models.Model):
 
         expires = data['expires_at']  # make_aware(datetime.fromtimestamp(data['expires_at']))
 
-        cls.objects.update_or_create(
-            stravaID=data['athlete']['id'],
-            defaults={
-                'stravaID': data['athlete']['id'],
-                'access_token': data['access_token'],
-                'access_expires': expires,
-                'refresh_token': data['refresh_token'],
-            }
-        )
-
         user, _ = User.objects.update_or_create(
             username=data['athlete']['username'],
             defaults={
@@ -86,6 +79,17 @@ class Runner(models.Model):
         )
         user.set_unusable_password()
         user.save()
+
+        cls.objects.update_or_create(
+            stravaID=data['athlete']['id'],
+            defaults={
+                'stravaID': data['athlete']['id'],
+                'access_token': data['access_token'],
+                'access_expires': expires,
+                'refresh_token': data['refresh_token'],
+                'user': user,
+            }
+        )
 
         return user
 
@@ -146,7 +150,10 @@ class Runner(models.Model):
         if data.status_code == 200:
             return data.json()
 
-        return None
+        if data.status_code == 401:
+            raise StravaNotAuthenticated()
+
+        raise Exception(f'Got {data.status_code} from strava')
 
     def get_details(self):
         return self.make_call('athlete')
