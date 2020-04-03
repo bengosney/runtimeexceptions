@@ -1,8 +1,6 @@
 # Standard Library
 import time
-from functools import lru_cache
 from math import atan2, cos, radians, sin, sqrt
-from pprint import pprint
 
 # Django
 from django.contrib.auth.models import User
@@ -16,7 +14,7 @@ import requests
 from websettings.models import setting
 
 # Locals
-from .exceptions import StravaNotAuthenticated
+from .exceptions import StravaGenericError, StravaNotAuthenticated
 
 
 class Runner(models.Model):
@@ -47,7 +45,6 @@ class Runner(models.Model):
 
     @classmethod
     def auth_call_back(cls, code):
-        url = "https://www.strava.com/api/v3/oauth/token"
         data = {
             'client_id': setting.getValue('client_id'),
             'client_secret': setting.getValue('client_secret'),
@@ -55,19 +52,7 @@ class Runner(models.Model):
             'grant_type': 'authorization_code',
         }
 
-        headers = {
-            'Accept': "application/json",
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
-        }
-
-        response = requests.request("POST", url, headers=headers, data=data)
-
-        data = response.json()
-
-        if response.status_code != 200:
-            return None
+        data = cls._make_call('oauth/token', data, method='POST')
 
         expires = data['expires_at']  # make_aware(datetime.fromtimestamp(data['expires_at']))
 
@@ -97,7 +82,6 @@ class Runner(models.Model):
 
     def do_refresh_token(self):
         print("Refreshing token")
-        url = 'https://www.strava.com/api/v3/oauth/token'
         data = {
             'client_id': setting.getValue('client_id'),
             'client_secret': setting.getValue('client_secret'),
@@ -105,19 +89,7 @@ class Runner(models.Model):
             'grant_type': 'refresh_token',
         }
 
-        headers = {
-            'Accept': "application/json",
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
-        }
-
-        response = requests.request("POST", url, headers=headers, data=data)
-
-        data = response.json()
-
-        if response.status_code != 200:
-            return False
+        data = self._make_call('oauth/token', data, method='POST')
 
         self.access_token = data['access_token']
         self.access_expires = data['expires_at']  # str(datetime.fromtimestamp(data['expires_at']))
@@ -135,7 +107,11 @@ class Runner(models.Model):
     def get_authenticated_athlete(cls):
         pass
 
-    def _make_call(self, path, args={}):
+    def make_call(self, path, args={}, method='GET'):
+        return self._make_call(path, args, method, self.auth_code)
+
+    @staticmethod
+    def _make_call(path, args={}, method='GET', authentication=None):
         url = f'https://www.strava.com/api/v3/{path}'
 
         headers = {
@@ -143,10 +119,12 @@ class Runner(models.Model):
             'Cache-Control': "no-cache",
             'Accept-Encoding': "gzip, deflate",
             'Connection': "keep-alive",
-            'Authorization': f"Bearer {self.auth_code}"
         }
 
-        data = requests.get(url, headers=headers)
+        if authentication is not None:
+            headers['Authorization'] = f"Bearer {authentication}"
+
+        data = requests.request(method, url, headers=headers, data=args)
 
         if data.status_code == 200:
             return data.json()
@@ -154,11 +132,10 @@ class Runner(models.Model):
         if data.status_code == 401:
             raise StravaNotAuthenticated()
 
-        raise Exception(f'Got {data.status_code} from strava')
+        if data.status_code == 404:
+            raise StravaGenericError(f'404 - {url}')
 
-    @lru_cache(512)
-    def make_call(self, path, args={}):
-        return self._make_call(path, args)
+        raise StravaGenericError(f'Got {data.status_code} from strava')
 
     def get_details(self):
         return self.make_call('athlete')
