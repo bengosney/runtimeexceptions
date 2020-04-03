@@ -1,5 +1,6 @@
 # Standard Library
 import time
+from functools import lru_cache
 from math import atan2, cos, radians, sin, sqrt
 from pprint import pprint
 
@@ -33,10 +34,12 @@ class Runner(models.Model):
         url = "https://www.strava.com/api/v3/oauth/authorize"
 
         redirect_uri = request.build_absolute_uri(reverse('auth_callback'))
-        params = {'client_id': setting.getValue('client_id'),
-                  'redirect_uri': redirect_uri, 'response_type': 'code',
-                  'approval_prompt': 'auto', 'scope':
-                      'activity:write,activity:read_all,read,profile:write,read_all', }
+        params = {
+            'client_id': setting.getValue('client_id'),
+            'redirect_uri': redirect_uri, 'response_type': 'code',
+            'approval_prompt': 'auto',
+            'scope': 'activity:write,activity:read_all,read,profile:write,read_all',
+        }
 
         p = requests.Request('GET', url, params=params).prepare()
 
@@ -64,7 +67,6 @@ class Runner(models.Model):
         data = response.json()
 
         if response.status_code != 200:
-            pprint(response)
             return None
 
         expires = data['expires_at']  # make_aware(datetime.fromtimestamp(data['expires_at']))
@@ -133,8 +135,7 @@ class Runner(models.Model):
     def get_authenticated_athlete(cls):
         pass
 
-    # @lru_cache(512)
-    def make_call(self, path, args={}):
+    def _make_call(self, path, args={}):
         url = f'https://www.strava.com/api/v3/{path}'
 
         headers = {
@@ -155,6 +156,10 @@ class Runner(models.Model):
 
         raise Exception(f'Got {data.status_code} from strava')
 
+    @lru_cache(512)
+    def make_call(self, path, args={}):
+        return self._make_call(path, args)
+
     def get_details(self):
         return self.make_call('athlete')
 
@@ -162,7 +167,7 @@ class Runner(models.Model):
         return self.make_call('athlete/activities')
 
     def activity(self, activityID):
-        return self.make_call(f'activities/{activityID}') | []
+        return self.make_call(f'activities/{activityID}')
 
     def distance_from(self):
         pass
