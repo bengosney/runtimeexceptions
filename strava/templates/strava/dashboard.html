@@ -3,23 +3,22 @@
 {% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
 
 {% block content %}
+    <h1>Dashboard</h1>
+    <h2>{{ runner.firstname }} {{ runner.lastname }}</h2>
+    <p>
+        <a href="{{ authlink }}">Auth</a>
+    </p>
+    <p>
+        <a href="{{ refreshlink }}">refresh</a>
+    </p>
 
-<h1>Dashboard</h1>
-<h2>{{ runner.firstname }} {{ runner.lastname }}</h2>
-<p>
-  <a href="{{ authlink }}">Auth</a>
-</p>
-<p>
-  <a href="{{ refreshlink }}">refresh</a>
-</p>
-
-<ul>
-  {% for activity in activites %}
-  <li>
-    <a href="{% url 'activity' activity.id %}">{{ activity.name }} - {{ activity.distance }}</a>
-  </li>
-  {% empty %}
-  <li>No activites found</li>
-  {% endfor %}
-</ul>
+    <ul>
+        {% for activity in activities %}
+            <li>
+                <a href="{% url 'activity' activity.id %}">{{ activity.name }} - {{ activity.distance }}</a>
+            </li>
+        {% empty %}
+            <li>No activities found</li>
+        {% endfor %}
+    </ul>
 {% endblock %}

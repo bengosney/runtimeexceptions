@@ -54,7 +54,7 @@ class Runner(models.Model):
 
         data = cls._make_call('oauth/token', data, method='POST')
 
-        expires = data['expires_at']  # make_aware(datetime.fromtimestamp(data['expires_at']))
+        expires = data['expires_at']
 
         user, _ = User.objects.update_or_create(
             username=data['athlete']['username'],
@@ -92,7 +92,7 @@ class Runner(models.Model):
         data = self._make_call('oauth/token', data, method='POST')
 
         self.access_token = data['access_token']
-        self.access_expires = data['expires_at']  # str(datetime.fromtimestamp(data['expires_at']))
+        self.access_expires = data['expires_at']
         self.refresh_token = data['refresh_token']
         self.save()
 

@@ -1,4 +1,5 @@
 # Django
+
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
@@ -43,14 +44,14 @@ def login_page(request):
 
 @login_required(login_url=reverse('login'))
 def dashboard(request):
-    runner = get_object_or_404(Runner, stravaID=13735887)
-    activites = runner.get_activities()
+    runner = request.user.runner
+    activities = runner.get_activities()
 
     return render(request, 'strava/dashboard.html', {
         'authlink': reverse('auth'),
         'refreshlink': reverse('refresh_token', args=[13735887]),
         'runner': runner.get_details(),
-        'activites': activites,
+        'activities': activities,
     })
 
 
