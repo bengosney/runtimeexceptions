@@ -4,7 +4,7 @@ autopep8==1.5
 bandit==1.6.2
 certifi==2019.11.28
 chardet==3.0.4
-Django==3.0.4
+Django==3.0.12
 django-extensions==2.2.9
 entrypoints==0.3
 eradicate==1.0
