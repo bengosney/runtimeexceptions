@@ -15,7 +15,7 @@ from strava.models import Runner
 
 
 def auth(request):
-    return HttpResponseRedirect(Runner.get_auth_url(request))
+    return HttpResponseRedirect(Runner.get_auth_url(request) or "/")
 
 
 def auth_callback(request):
