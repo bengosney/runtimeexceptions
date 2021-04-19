@@ -1,0 +1,25 @@
+[project]
+name = "runtimeexceptions"
+version = "0.1.0"
+description = "Run Time Exceptions"
+authors = [
+    "Ben Gosney <bengosney@googlemail.com>"
+]
+python = "^3.8"
+repository = "https://github.com/bengosney/runtimeexceptions/"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 120
+target-version = ['py38']
+
+[tool.pycln]
+all = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    'ignore:Using or importing the ABCs:DeprecationWarning',
+]

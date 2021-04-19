@@ -7,11 +7,6 @@ from django.db import migrations
 def load_data(apps, schema_editor):
     setting = apps.get_model("websettings", "setting")
 
-    setting(title="google-analytics-ua", value="UA-113773517-1").save()
-    setting(title="contact-email", value="hello@stretchtheirlegs.co.uk").save()
-    setting(title="facebook-url", value="https://www.facebook.com/stretchtheirlegs/").save()
-    setting(title="contact-number", value="07712 613 763").save()
-    
 
 class Migration(migrations.Migration):
 
