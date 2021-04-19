@@ -11,10 +11,8 @@ from django.urls import reverse
 import requests
 
 # First Party
+from strava.exceptions import StravaGenericError, StravaNotAuthenticated
 from websettings.models import setting
-
-# Locals
-from .exceptions import StravaGenericError, StravaNotAuthenticated
 
 
 class Runner(models.Model):
@@ -31,51 +29,52 @@ class Runner(models.Model):
     def get_auth_url(request):
         url = "https://www.strava.com/api/v3/oauth/authorize"
 
-        redirect_uri = request.build_absolute_uri(reverse('auth_callback'))
+        redirect_uri = request.build_absolute_uri(reverse("auth_callback"))
         params = {
-            'client_id': setting.getValue('client_id'),
-            'redirect_uri': redirect_uri, 'response_type': 'code',
-            'approval_prompt': 'auto',
-            'scope': 'activity:write,activity:read_all,read,profile:write,read_all',
+            "client_id": setting.getValue("client_id"),
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "approval_prompt": "auto",
+            "scope": "activity:write,activity:read_all,read,profile:write,read_all",
         }
 
-        p = requests.Request('GET', url, params=params).prepare()
+        p = requests.Request("GET", url, params=params).prepare()
 
         return p.url
 
     @classmethod
     def auth_call_back(cls, code):
         data = {
-            'client_id': setting.getValue('client_id'),
-            'client_secret': setting.getValue('client_secret'),
-            'code': code,
-            'grant_type': 'authorization_code',
+            "client_id": setting.getValue("client_id"),
+            "client_secret": setting.getValue("client_secret"),
+            "code": code,
+            "grant_type": "authorization_code",
         }
 
-        data = cls._make_call('oauth/token', data, method='POST')
+        data = cls._make_call("oauth/token", data, method="POST")
 
-        expires = data['expires_at']
+        expires = data["expires_at"]
 
         user, _ = User.objects.update_or_create(
-            username=data['athlete']['username'],
+            username=data["athlete"]["username"],
             defaults={
-                'username': data['athlete']['username'],
-                'first_name': data['athlete']['firstname'],
-                'last_name': data['athlete']['lastname'],
-            }
+                "username": data["athlete"]["username"],
+                "first_name": data["athlete"]["firstname"],
+                "last_name": data["athlete"]["lastname"],
+            },
         )
         user.set_unusable_password()
         user.save()
 
         cls.objects.update_or_create(
-            stravaID=data['athlete']['id'],
+            stravaID=data["athlete"]["id"],
             defaults={
-                'stravaID': data['athlete']['id'],
-                'access_token': data['access_token'],
-                'access_expires': expires,
-                'refresh_token': data['refresh_token'],
-                'user': user,
-            }
+                "stravaID": data["athlete"]["id"],
+                "access_token": data["access_token"],
+                "access_expires": expires,
+                "refresh_token": data["refresh_token"],
+                "user": user,
+            },
         )
 
         return user
@@ -83,17 +82,17 @@ class Runner(models.Model):
     def do_refresh_token(self):
         print("Refreshing token")
         data = {
-            'client_id': setting.getValue('client_id'),
-            'client_secret': setting.getValue('client_secret'),
-            'refresh_token': self.refresh_token,
-            'grant_type': 'refresh_token',
+            "client_id": setting.getValue("client_id"),
+            "client_secret": setting.getValue("client_secret"),
+            "refresh_token": self.refresh_token,
+            "grant_type": "refresh_token",
         }
 
-        data = self._make_call('oauth/token', data, method='POST')
+        data = self._make_call("oauth/token", data, method="POST")
 
-        self.access_token = data['access_token']
-        self.access_expires = data['expires_at']
-        self.refresh_token = data['refresh_token']
+        self.access_token = data["access_token"]
+        self.access_expires = data["expires_at"]
+        self.refresh_token = data["refresh_token"]
         self.save()
 
     @property
@@ -107,22 +106,22 @@ class Runner(models.Model):
     def get_authenticated_athlete(cls):
         pass
 
-    def make_call(self, path, args={}, method='GET'):
+    def make_call(self, path, args={}, method="GET"):
         return self._make_call(path, args, method, self.auth_code)
 
     @staticmethod
-    def _make_call(path, args={}, method='GET', authentication=None):
-        url = f'https://www.strava.com/api/v3/{path}'
+    def _make_call(path, args={}, method="GET", authentication=None):
+        url = f"https://www.strava.com/api/v3/{path}"
 
         headers = {
-            'Accept': "application/json",
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
+            "Accept": "application/json",
+            "Cache-Control": "no-cache",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
         }
 
         if authentication is not None:
-            headers['Authorization'] = f"Bearer {authentication}"
+            headers["Authorization"] = f"Bearer {authentication}"
 
         data = requests.request(method, url, headers=headers, data=args)
 
@@ -133,18 +132,18 @@ class Runner(models.Model):
             raise StravaNotAuthenticated()
 
         if data.status_code == 404:
-            raise StravaGenericError(f'404 - {url}')
+            raise StravaGenericError(f"404 - {url}")
 
-        raise StravaGenericError(f'Got {data.status_code} from strava')
+        raise StravaGenericError(f"Got {data.status_code} from strava")
 
     def get_details(self):
-        return self.make_call('athlete')
+        return self.make_call("athlete")
 
     def get_activities(self):
-        return self.make_call('athlete/activities')
+        return self.make_call("athlete/activities")
 
     def activity(self, activityID):
-        return self.make_call(f'activities/{activityID}')
+        return self.make_call(f"activities/{activityID}")
 
     def distance_from(self):
         pass

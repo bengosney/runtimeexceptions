@@ -6,10 +6,8 @@ from pprint import pprint
 import requests
 
 # First Party
+from strava.models import Token
 from websettings.models import setting
-
-# Locals
-from .models import Token
 
 
 class api:
@@ -18,35 +16,35 @@ class api:
     @staticmethod
     def _getHeaders():
         return {
-            'Accept': "application/json",
-            'Cache-Control': "no-cache",
-            'Accept-Encoding': "gzip, deflate",
-            'Connection': "keep-alive",
+            "Accept": "application/json",
+            "Cache-Control": "no-cache",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
         }
 
     @classmethod
     def _getAccessToken(cls):
-        access = Token.getValue('access')
+        access = Token.getValue("access")
         print("----------- getting token -----------")
 
         if access is None:
-            refresh = Token.getValue('refresh')
+            refresh = Token.getValue("refresh")
             data = {
-                'client_id': setting.getValue('client_id'),
-                'client_secret': setting.getValue('client_secret'),
-                'grant_type': 'refresh_token',
-                'refresh_token': refresh,
+                "client_id": setting.getValue("client_id"),
+                "client_secret": setting.getValue("client_secret"),
+                "grant_type": "refresh_token",
+                "refresh_token": refresh,
             }
 
             headers = cls._getHeaders()
 
-            url = 'https://www.strava.com/api/v3/oauth/token'
+            url = "https://www.strava.com/api/v3/oauth/token"
             response = requests.request("POST", url, headers=headers, data=data)
             response_data = response.json()
             pprint(response_data)
-            access = response_data['access_token']
-            Token.setToken('access', access, response_data['expires_at'])
-            Token.setToken('refresh', response_data['refresh_token'], time.time() + (86400 * 365))
+            access = response_data["access_token"]
+            Token.setToken("access", access, response_data["expires_at"])
+            Token.setToken("refresh", response_data["refresh_token"], time.time() + (86400 * 365))
 
         return access
 
@@ -56,7 +54,7 @@ class api:
 
         token = cls._getAccessToken()
         headers = cls._getHeaders()
-        headers['Authorization'] = f"Bearer {token}"
+        headers["Authorization"] = f"Bearer {token}"
 
         response = requests.request("GET", url, headers=headers)
 

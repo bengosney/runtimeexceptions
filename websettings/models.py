@@ -8,7 +8,7 @@ class setting(models.Model):
     value = models.CharField(max_length=250, blank=True, default="")
 
     def __str__(self):
-        return "{}: {}".format(self.key, self.value)
+        return f"{self.key}: {self.value}"
 
     @staticmethod
     def getValue(key, default=""):
