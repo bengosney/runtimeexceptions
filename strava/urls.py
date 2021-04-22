@@ -7,7 +7,8 @@ from strava import views
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("activity/<int:activityid>", views.activity, name="activity"),
-    path("img/<int:activityid>.png", views.activity_image, name="activity_image"),
+    path("img/<int:activityid>.png", views.activity_png, name="activity_png"),
+    path("img/<int:activityid>.svg", views.activity_svg, name="activity_svg"),
     path("auth", views.auth, name="auth"),
     path("login", views.login_page, name="login"),
     path("callback", views.auth_callback, name="auth_callback"),

@@ -1,6 +1,4 @@
 # Django
-
-# Django
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
@@ -8,9 +6,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
 
 # Third Party
-from PIL import Image
+import polyline
+import svgwrite
+from PIL import Image, ImageDraw
 
 # First Party
+from strava.line import Line
 from strava.models import Runner
 
 
@@ -73,10 +74,49 @@ def activity(request, activityid):
 
 
 @login_required(login_url=reverse("login"))
-def activity_image(request, activityid):
-    img = Image.new("RGB", (640, 480), color="red")
+def activity_svg(request, activityid):
+    runner = request.user.runner  # type: Runner
+    activity = runner.activity(activityid)
+    line = activity["map"]["polyline"]
+    line = Line(polyline.decode(line))
+
+    base_colour = "#4287f5"
+    route_colour = "#b9cded"
+    size = (640, 480)
+
+    line.fit(size)
+
+    dwg = svgwrite.Drawing(profile="tiny", size=size)
+    dwg.add(dwg.rect(size=size, fill=base_colour))
+    dwg.add(dwg.path(d=line, stroke=route_colour, fill="none"))
+
+    response = HttpResponse(content_type="image/svg+xml")
+    response.write(dwg.tostring())
+
+    return response
+
+
+@login_required(login_url=reverse("login"))
+def activity_png(request, activityid):
+    runner = request.user.runner  # type: Runner
+    activity = runner.activity(activityid)
+    line = activity["map"]["polyline"]
+    line = Line(polyline.decode(line))
+
+    base_colour = "#4287f5"
+
+    im = Image.new("RGB", (640, 480), color=base_colour)
+    draw = ImageDraw.Draw(im)
+
+    line.fit(im.size)
+
+    prev = None
+    for p in line.coordinates:
+        if prev is not None:
+            draw.line(prev + p, fill=128)
+        prev = p
 
     response = HttpResponse(content_type="image/png")
-    img.save(response, "PNG")
+    im.save(response, "PNG")  # type: ignore
 
     return response

@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Run</h1>
 <h2>{{ activity.name }}</h2>
-<img src="{% url 'activity_image' activity.id %}" />
+<img src="{% url 'activity_svg' activity.id %}" />
 <div>
   {{ activity.start_latlng.0 }} - {{ activity.start_latlng.1 }}
 </div>
