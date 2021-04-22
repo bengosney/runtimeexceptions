@@ -20,7 +20,11 @@ idna==2.10
     # via requests
 itsdangerous==1.1.0
     # via requests-cache
+numpy==1.20.2
+    # via -r requirements.in
 pillow==8.2.0
+    # via -r requirements.in
+polyline==1.4.0
     # via -r requirements.in
 pytz==2021.1
     # via django
@@ -31,9 +35,11 @@ requests==2.25.1
     #   -r requirements.in
     #   requests-cache
 six==1.15.0
-    # via url-normalize
+    # via polyline
 sqlparse==0.4.1
     # via django
+svgwrite==1.4.1
+    # via -r requirements.in
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.4

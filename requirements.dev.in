@@ -3,3 +3,5 @@ pre-commit
 pip-tools
 black
 mypy
+django-stubs
+wheel
