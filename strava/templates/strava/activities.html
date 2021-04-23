@@ -20,7 +20,7 @@
     <tbody>
         {% for activity in activities %}
         <tr>
-            <td>{{ activity.name }}</td>
+            <td><a href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
             <td>{{ activity.distance }}</td>
             <td>{{ activity.moving_time }}</td>
             <td>{{ activity.elapsed_time }}</td>
