@@ -29,7 +29,7 @@ class Runner(models.Model):
     def get_auth_url(request):
         url = "https://www.strava.com/api/v3/oauth/authorize"
 
-        redirect_uri = request.build_absolute_uri(reverse("auth_callback"))
+        redirect_uri = request.build_absolute_uri(reverse("strava:auth_callback"))
         params = {
             "client_id": setting.getValue("client_id"),
             "redirect_uri": redirect_uri,
