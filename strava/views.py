@@ -26,7 +26,7 @@ def auth_callback(request):
 
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect(reverse("strava:dashboard"))
+        return HttpResponseRedirect(reverse("strava:activities"))
 
     return HttpResponse(status=500)
 
@@ -35,7 +35,7 @@ def refresh_token(request, stravaID):
     runner = get_object_or_404(Runner, stravaID=stravaID)
     runner.do_refresh_token()
 
-    return HttpResponseRedirect(reverse("strava:dashboard"))
+    return HttpResponseRedirect(reverse("strava:activities"))
 
 
 def login_page(request):
