@@ -87,17 +87,19 @@ def activity_svg(request, activityid):
 
     line.fit(size)
 
+    animationTime = activity["distance"] / 1000
+
     style = f"""
 #route {{
-  stroke-dasharray: {line.length};
-  stroke-dashoffset: {line.length};
-  animation: dash 5s linear forwards;
+    stroke-dasharray: {line.length};
+    stroke-dashoffset: {line.length};
+    animation: dash {animationTime * .5}s linear forwards;
 }}
 
 @keyframes dash {{
-  to {{
-    stroke-dashoffset: 0;
-  }}
+    to {{
+        stroke-dashoffset: 0;
+    }}
 }}
 """
 

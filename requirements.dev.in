@@ -1,7 +1,7 @@
-icecream
-pre-commit
-pip-tools
 black
-mypy
 django-stubs
+icecream
+mypy
+pip-tools
+pre-commit
 wheel
