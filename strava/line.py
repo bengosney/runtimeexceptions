@@ -13,6 +13,17 @@ Coordinates = List[Point]
 class Line:
     coordinates: Coordinates
 
+    @property
+    def length(self):
+        lengths = []
+        pc = None
+        for c in self.coordinates:
+            if pc is not None:
+                lengths.append(math.hypot(pc[0] - c[0], pc[1] - c[1]))
+            pc = c
+
+        return sum(lengths)
+
     def fit(self, size: Size, padding: Number = 5):
         self.rotate()
         self.normalize()

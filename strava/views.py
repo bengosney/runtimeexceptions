@@ -26,7 +26,7 @@ def auth_callback(request):
 
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect(reverse("dashboard"))
+        return HttpResponseRedirect(reverse("strava:dashboard"))
 
     return HttpResponse(status=500)
 
@@ -35,7 +35,7 @@ def refresh_token(request, stravaID):
     runner = get_object_or_404(Runner, stravaID=stravaID)
     runner.do_refresh_token()
 
-    return HttpResponseRedirect(reverse("dashboard"))
+    return HttpResponseRedirect(reverse("strava:dashboard"))
 
 
 def login_page(request):
@@ -43,29 +43,29 @@ def login_page(request):
         request,
         "strava/login.html",
         {
-            "authlink": reverse("auth"),
+            "authlink": reverse("strava:auth"),
         },
     )
 
 
-@login_required(login_url=reverse("login"))
-def dashboard(request):
+@login_required(login_url=reverse("strava:login"))
+def activities(request):
     runner = request.user.runner
     activities = runner.get_activities()
 
     return render(
         request,
-        "strava/dashboard.html",
+        "strava/activities.html",
         {
-            "authlink": reverse("auth"),
-            "refreshlink": reverse("refresh_token", args=[13735887]),
+            "authlink": reverse("strava:auth"),
+            "refreshlink": reverse("strava:refresh_token", args=[13735887]),
             "runner": runner.get_details(),
             "activities": activities,
         },
     )
 
 
-@login_required(login_url=reverse("login"))
+@login_required(login_url=reverse("strava:login"))
 def activity(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
@@ -73,22 +73,38 @@ def activity(request, activityid):
     return render(request, "strava/run.html", {"activity": activity})
 
 
-@login_required(login_url=reverse("login"))
+@login_required(login_url=reverse("strava:login"))
 def activity_svg(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
     line = activity["map"]["polyline"]
     line = Line(polyline.decode(line))
 
-    base_colour = "#4287f5"
+    # base_colour = "#4287f5"
+    base_colour = "#1a2035"
     route_colour = "#b9cded"
     size = (640, 480)
 
     line.fit(size)
 
-    dwg = svgwrite.Drawing(profile="tiny", size=size)
+    style = f"""
+#route {{
+  stroke-dasharray: {line.length};
+  stroke-dashoffset: {line.length};
+  animation: dash 5s linear forwards;
+}}
+
+@keyframes dash {{
+  to {{
+    stroke-dashoffset: 0;
+  }}
+}}
+"""
+
+    dwg = svgwrite.Drawing(profile="full", size=size)
+    dwg.add(dwg.style(style))
     dwg.add(dwg.rect(size=size, fill=base_colour))
-    dwg.add(dwg.path(d=line, stroke=route_colour, fill="none"))
+    dwg.add(dwg.path(d=line, stroke=route_colour, fill="none", id="route"))
 
     response = HttpResponse(content_type="image/svg+xml")
     response.write(dwg.tostring())
@@ -96,7 +112,7 @@ def activity_svg(request, activityid):
     return response
 
 
-@login_required(login_url=reverse("login"))
+@login_required(login_url=reverse("strava:login"))
 def activity_png(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)

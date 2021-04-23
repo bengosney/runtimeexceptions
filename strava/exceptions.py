@@ -8,3 +8,7 @@ class StravaNotAuthenticated(StravaError):
 
 class StravaGenericError(StravaError):
     pass
+
+
+class StravaPaidFeature(StravaError):
+    pass

@@ -3,9 +3,9 @@
 {% block title %}{{ run.name }}{% endblock %}
 
 {% block content %}
-<h1>Run</h1>
-<h2>{{ activity.name }}</h2>
-<img src="{% url 'activity_svg' activity.id %}" />
+<h2>Run</h2>
+<h1>{{ activity.name }}</h1>
+<img src="{% url 'strava:activity_svg' activity.id %}" />
 <div>
   {{ activity.start_latlng.0 }} - {{ activity.start_latlng.1 }}
 </div>

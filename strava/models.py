@@ -11,7 +11,7 @@ from django.urls import reverse
 import requests
 
 # First Party
-from strava.exceptions import StravaGenericError, StravaNotAuthenticated
+from strava.exceptions import StravaGenericError, StravaNotAuthenticated, StravaPaidFeature
 from websettings.models import setting
 
 
@@ -130,6 +130,9 @@ class Runner(models.Model):
 
         if data.status_code == 401:
             raise StravaNotAuthenticated()
+
+        if data.status_code == 402:
+            raise StravaPaidFeature()
 
         if data.status_code == 404:
             raise StravaGenericError(f"404 - {url}")

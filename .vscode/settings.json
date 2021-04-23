@@ -1,5 +1,20 @@
 {
     "ponicode.testSettings.testLocation.locationType": "Same folder as source file",
     "ponicode.testSettings.testLocation.path": "{rootDir}/{filePath}/{fileName}.test.{ext}",
-    "python.pythonPath": "/home/ben/projects/runtimeexceptions/bin/python"
+    "python.pythonPath": "/home/ben/projects/runtimeexceptions/bin/python",
+    "files.associations": {
+        "**/*.html": "django-html",
+        "**/templates/**/*.html": "django-html",
+        "**/templates/**/*": "django-txt",
+        "**/requirements{/**,*}.{txt,in}": "pip-requirements",
+        "**/templates/*.html": "django-html",
+        "**/templates/*": "django-txt"
+    },
+    "beautify.language": {
+        "html": [
+            "htm",
+            "html",
+            "django-html"
+        ]
+     }
 }
