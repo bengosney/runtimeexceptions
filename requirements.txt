@@ -6,21 +6,21 @@
 #
 asgiref==3.3.4
     # via django
-certifi==2020.12.5
+certifi==2022.12.7
     # via requests
 chardet==4.0.0
     # via requests
 dj-database-url==0.5.0
     # via django-heroku
-django-extensions==3.1.3
-    # via -r requirements.in
-django-heroku==0.3.1
-    # via -r requirements.in
 django==3.2
     # via
     #   -r requirements.in
     #   django-extensions
     #   django-heroku
+django-extensions==3.1.3
+    # via -r requirements.in
+django-heroku==0.3.1
+    # via -r requirements.in
 gunicorn==20.1.0
     # via -r requirements.in
 idna==2.10
@@ -35,12 +35,12 @@ psycopg2==2.8.6
     # via django-heroku
 pytz==2021.1
     # via django
-requests-cache==0.6.2
-    # via -r requirements.in
 requests==2.25.1
     # via
     #   -r requirements.in
     #   requests-cache
+requests-cache==0.6.2
+    # via -r requirements.in
 six==1.15.0
     # via polyline
 sqlparse==0.4.1
