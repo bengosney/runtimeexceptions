@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier
+_commit: eaedd1a
+_src_path: git@github.com:bengosney/django-template.git
+author_email: bengosney@googlemail.com
+author_name: Ben Gosney
+line_length: 120
+project_description: Better cross sport tracking
+project_name: runtimeexceptions
+python_version: '3.13'

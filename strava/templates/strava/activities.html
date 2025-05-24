@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
+
+{% block content %}
+    <h2>Activities</h2>
+    <h1>{{ runner.firstname }} {{ runner.lastname }}</h1>
+
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Distance</th>
+                <th>Moving Time</th>
+                <th>Total Time</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+                <tr>
+                    <td><a href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
+                    <td>{{ activity.distance }}</td>
+                    <td>{{ activity.moving_time }}</td>
+                    <td>{{ activity.elapsed_time }}</td>
+                    <td><a class="btn btn-primary" href="{% url 'strava:activity' activity.id %}">Details</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No activities found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}

@@ -1,0 +1,98 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [ "setuptools", "wheel" ]
+
+[project]
+name = "runtimeexceptions"
+version = "0.0.1"
+description = "Better cross sport tracking"
+authors = [ { name = "Ben Gosney", email = "bengosney@googlemail.com" } ]
+requires-python = ">=3.13"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "django",
+  "django-extensions",
+  "pillow",
+  "polyline",
+  "requests",
+  "requests-cache",
+  "svgwrite",
+  "whitenoise",
+]
+
+optional-dependencies.dev = [
+  "cogapp",
+  "commitizen",
+  "django-browser-reload",
+  "django-debug-toolbar",
+  "django-debugtools",
+  "django-stubs",
+  "django-zeal",
+  "icecream",
+  "mypy",
+  "pip-tools",
+  "pre-commit",
+  "ruff",
+  "tach",
+]
+
+optional-dependencies.test = [
+  "pytest",
+  "pytest-cov",
+  "pytest-django",
+  "pytest-mock",
+]
+
+[tool.setuptools]
+license-files = [ "LICENSE" ]
+
+[tool.black]
+line-length = 120
+target-version = [ "py313" ]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+exclude = [ "migrations" ]
+
+format.indent-style = "space"
+format.quote-style = "double"
+format.docstring-code-format = true
+
+lint.select = [ "C90", "DJ", "E", "ERA", "F", "FURB", "I", "N", "PERF", "PL", "RUF", "TRY", "UP" ]
+lint.ignore = [ "TRY003" ]
+
+lint.isort.section-order = [
+  "future",
+  "standard-library",
+  "django",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
+
+lint.isort.sections.django = [ "django" ]
+lint.isort.sections.wagtail = [ "wagtail" ]
+
+[tool.pycln]
+all = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "isitbinday.settings.test"
+python_files = [ "tests.py", "test_*.py", "*_tests.py" ]
+
+[tool.mypy]
+plugins = [ "mypy_django_plugin.main" ]
+
+[tool.django-stubs]
+django_settings_module = "stl.settings"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
