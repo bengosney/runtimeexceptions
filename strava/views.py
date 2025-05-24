@@ -29,7 +29,7 @@ def auth_callback(request):
 
 
 def refresh_token(request, strava_id):
-    runner = get_object_or_404(Runner, stravaID=strava_id)
+    runner = get_object_or_404(Runner, strava_id=strava_id)
     runner.do_refresh_token()
 
     return HttpResponseRedirect(reverse("strava:activities"))

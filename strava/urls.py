@@ -12,5 +12,5 @@ urlpatterns = [
     path("auth", views.auth, name="auth"),
     path("login", views.login_page, name="login"),
     path("callback", views.auth_callback, name="auth_callback"),
-    path("refresh/<int:stravaid>", views.refresh_token, name="refresh_token"),
+    path("refresh/<int:strava_id>", views.refresh_token, name="refresh_token"),
 ]

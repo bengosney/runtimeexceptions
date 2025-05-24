@@ -66,9 +66,9 @@ class Runner(models.Model):
         user.save()
 
         cls.objects.update_or_create(
-            stravaID=data["athlete"]["id"],
+            strava_id=data["athlete"]["id"],
             defaults={
-                "stravaID": data["athlete"]["id"],
+                "strava_id": data["athlete"]["id"],
                 "access_token": data["access_token"],
                 "access_expires": expires,
                 "refresh_token": data["refresh_token"],
