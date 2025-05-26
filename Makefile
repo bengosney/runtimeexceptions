@@ -16,6 +16,14 @@ UV_PATH:=$(BINPATH)/uv
 
 PYTHON_FILES:=$(wildcard ./**/*.py ./**/tests/*.py)
 
+STATIC_DIR:= static
+
+STATIC_CSS_DIR:= $(STATIC_DIR)/css
+CSS_FILES:= $(wildcard ./css/*.css ./css/**/*.css)
+
+STATIC_JS_DIR:= $(STATIC_DIR)/js
+JS_FILES:= $(wildcard ./js/*.js ./js/**/*.js)
+
 check_command = @command -v $(1) >/dev/null 2>&1 || { echo >&2 "$(1) is not installed."; $(2); }
 
 help: ## Display this help
@@ -113,3 +121,8 @@ dev: _server watch-js watch-css bs ## Start the dev server, watch the css and js
 infrastructure:
 	git clone https://github.com/bengosney/tofu-wagtail.git $@
 	cd $@ && $(MAKE) init
+
+$(STATIC_CSS_DIR)/%.css: css/%.css  $(CSS_FILES) node_modules
+	node_modules/.bin/postcss $< -o $@
+
+css: $(STATIC_CSS_DIR)/main.css ## Compile the css files into a single file
