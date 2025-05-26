@@ -16,7 +16,7 @@ UV_PATH:=$(BINPATH)/uv
 
 PYTHON_FILES:=$(wildcard ./**/*.py ./**/tests/*.py)
 
-STATIC_DIR:= static
+STATIC_DIR:= staticfiles
 
 STATIC_CSS_DIR:= $(STATIC_DIR)/css
 CSS_FILES:= $(wildcard ./css/*.css ./css/**/*.css)
