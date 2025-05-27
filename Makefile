@@ -25,7 +25,7 @@ MAIN_CSS_FILES:=$(subst ./css/,./$(STATIC_CSS_DIR)/,$(subst .css,.min.css,$(wild
 STATIC_JS_DIR:= $(STATIC_DIR)/js
 JS_FILES:= $(wildcard ./js/*.js ./js/**/*.js)
 
-HTML_FILES:= $(wildcard ./templates/*.html ./**/templates/*.html)
+HTML_FILES:= $(shell find . -type f -name '*.html' -not -path './.direnv/*' -not -path './node_modules/*')
 TEMPLATE_DIRECTORIES:= $(shell find . -type d -name 'templates' -not -path './.direnv/*' -not -path './node_modules/*')
 
 check_command = @command -v $(1) >/dev/null 2>&1 || { echo >&2 "$(1) is not installed."; $(2); }
