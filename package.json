@@ -11,10 +11,10 @@
   "description": "Better cross sport tracking",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.7",
-    "daisyui": "^5.0.37",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
+    "daisyui": "^5.0.38",
     "lightningcss-cli": "^1.30.1"
   }
 }
