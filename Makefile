@@ -24,6 +24,9 @@ CSS_FILES:= $(wildcard ./css/*.css ./css/**/*.css)
 STATIC_JS_DIR:= $(STATIC_DIR)/js
 JS_FILES:= $(wildcard ./js/*.js ./js/**/*.js)
 
+HTML_FILES:= $(wildcard ./templates/*.html ./**/templates/*.html)
+TEMPLATE_DIRECTORIES:= $(shell find . -type d -name 'templates' -not -path './.direnv/*' -not -path './node_modules/*')
+
 check_command = @command -v $(1) >/dev/null 2>&1 || { echo >&2 "$(1) is not installed."; $(2); }
 
 help: ## Display this help
@@ -129,3 +132,10 @@ $(STATIC_CSS_DIR)/%.min.css: $(STATIC_CSS_DIR)/%.css $(CSS_FILES) node_modules
 	NODE_NO_WARNINGS=1 npx lightningcss-cli --bundle --targets ">= 0.25%" --minify -o $@ $<
 
 css: $(STATIC_CSS_DIR)/main.min.css ## Compile the css files into a single file
+
+css-watch: ## Watch the css files and compile them into a single file
+	$(MAKE) css
+	inotifywait -m -r -e modify,create,delete $(TEMPLATE_DIRECTORIES) | while read path action file; do \
+		echo "CSS file changed: $$file"; \
+		$(MAKE) css; \
+	done
