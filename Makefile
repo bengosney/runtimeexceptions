@@ -20,6 +20,7 @@ STATIC_DIR:= staticfiles
 
 STATIC_CSS_DIR:= $(STATIC_DIR)/css
 CSS_FILES:= $(wildcard ./css/*.css ./css/**/*.css)
+MAIN_CSS_FILES:=$(subst ./css/,./$(STATIC_CSS_DIR)/,$(subst .css,.min.css,$(wildcard ./css/*.css)))
 
 STATIC_JS_DIR:= $(STATIC_DIR)/js
 JS_FILES:= $(wildcard ./js/*.js ./js/**/*.js)
@@ -131,7 +132,7 @@ $(STATIC_CSS_DIR)/%.css: css/%.css $(HTML_FILES) $(CSS_FILES) node_modules
 $(STATIC_CSS_DIR)/%.min.css: $(STATIC_CSS_DIR)/%.css $(CSS_FILES) node_modules
 	NODE_NO_WARNINGS=1 npx lightningcss-cli --bundle --targets ">= 0.25%" --minify -o $@ $<
 
-css: $(STATIC_CSS_DIR)/main.min.css ## Compile the css files into a single file
+css: $(MAIN_CSS_FILES) ## Compile the css files into a single file
 
 css-watch: ## Watch the css files and compile them into a single file
 	$(MAKE) css
