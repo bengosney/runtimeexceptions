@@ -122,10 +122,10 @@ infrastructure:
 	git clone https://github.com/bengosney/tofu-wagtail.git $@
 	cd $@ && $(MAKE) init
 
-$(STATIC_CSS_DIR)/%.css: css/%.css  $(CSS_FILES) node_modules
+$(STATIC_CSS_DIR)/%.css: css/%.css $(HTML_FILES) $(CSS_FILES) node_modules
 	NODE_NO_WARNINGS=1 npx @tailwindcss/cli -i $< -o $@
 
-$(STATIC_CSS_DIR)/%.min.css: $(STATIC_CSS_DIR)/%.css
+$(STATIC_CSS_DIR)/%.min.css: $(STATIC_CSS_DIR)/%.css $(CSS_FILES) node_modules
 	NODE_NO_WARNINGS=1 npx lightningcss-cli --bundle --targets ">= 0.25%" --minify -o $@ $<
 
 css: $(STATIC_CSS_DIR)/main.min.css ## Compile the css files into a single file
