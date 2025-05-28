@@ -77,8 +77,6 @@ def activity_svg(request, activityid):
     line = activity["map"]["polyline"]
     line = Line(polyline.decode(line))
 
-    # base_colour = "#4287f5"
-    base_colour = "#1a2035"
     route_colour = "#b9cded"
     size = (640, 480)
 
@@ -102,7 +100,7 @@ def activity_svg(request, activityid):
 
     dwg = svgwrite.Drawing(profile="full", size=size)
     dwg.add(dwg.style(style))
-    dwg.add(dwg.rect(size=size, fill=base_colour))
+    dwg.add(dwg.rect(size=size, fill="none"))
     dwg.add(dwg.path(d=line, stroke=route_colour, fill="none", id="route"))
 
     response = HttpResponse(content_type="image/svg+xml")
