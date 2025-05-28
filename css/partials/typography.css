@@ -1,0 +1,100 @@
+html {
+  font-size: 1em;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    blinkmacsystemfont,
+    "Segoe UI",
+    helvetica,
+    arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+p,
+li {
+  line-height: 1.5em;
+  font-size: 1.2rem;
+  font-size: clamp(1.2rem, -0.25vw + 1.25rem, 1.1rem);
+  letter-spacing: 0.005em;
+}
+
+p {
+  margin-bottom: 1.3em;
+}
+
+li + li {
+  margin-top: 0.75em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family:
+    system-ui,
+    -apple-system,
+    blinkmacsystemfont,
+    "Segoe UI",
+    helvetica,
+    arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  font-weight: inherit;
+  line-height: 1.25;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  hyphenate-limit-chars: 10 3 4;
+}
+h1.alt,
+h2.alt,
+h3.alt,
+h4.alt {
+  font-family:
+    system-ui,
+    -apple-system,
+    blinkmacsystemfont,
+    "Segoe UI",
+    helvetica,
+    arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 2.331112rem;
+  font-size: clamp(2.331112rem, 4.16722vw + 1.497668rem, 3.998rem);
+}
+
+h2 {
+  font-size: 1.722388rem;
+  font-size: clamp(1.722388rem, 2.26153vw + 1.270082rem, 2.627rem);
+}
+
+h3 {
+  font-size: 1.443556rem;
+  font-size: clamp(1.443556rem, 1.38861vw + 1.165834rem, 1.999rem);
+}
+
+h4 {
+  font-size: 1.183816rem;
+  font-size: clamp(1.183816rem, 0.57546vw + 1.068724rem, 1.414rem);
+}
+
+small,
+.font_small {
+  font-size: 0.707em;
+}
