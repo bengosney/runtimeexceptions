@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load abbreviations humanize %}
+
 {% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
 
 {% block content %}
@@ -21,9 +23,9 @@
                 {% for activity in activities %}
                     <tr>
                         <td><a href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
-                        <td>{{ activity.distance }}</td>
-                        <td>{{ activity.moving_time }}</td>
-                        <td>{{ activity.elapsed_time }}</td>
+                        <td>{{ activity.distance|metric:"m" }}</td>
+                        <td>{{ activity.moving_time|precisedelta|shorten_time }}</td>
+                        <td>{{ activity.elapsed_time|precisedelta|shorten_time }}</td>
                         <td><a class="btn btn-primary" href="{% url 'strava:activity' activity.id %}">Details</a></td>
                     </tr>
                 {% empty %}
