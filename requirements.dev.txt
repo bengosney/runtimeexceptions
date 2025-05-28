@@ -223,6 +223,12 @@ gitpython==3.1.44 \
     --hash=sha256:9e0e10cda9bed1ee64bc9a6de50e7e38a9c9943241cd7f585f6df3ed28011110 \
     --hash=sha256:c87e30b26253bf5418b01b0660f818967f3c503193838337fe5e573331249269
     # via tach
+humanize==4.12.3 \
+    --hash=sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6 \
+    --hash=sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
 icecream==2.1.4 \
     --hash=sha256:58755e58397d5350a76f25976dee7b607f5febb3c6e1cddfe6b1951896e91573 \
     --hash=sha256:7bb715f69102cae871b3a361c3b656536db02cfcadac9664c673581cac4df4fd
