@@ -203,6 +203,12 @@ django-extensions==4.1 \
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+geojson==2.5.0 \
+    --hash=sha256:6e4bb7ace4226a45d9c8c8b1348b3fc43540658359f93c3f7e03efa9f15f658a \
+    --hash=sha256:ccbd13368dd728f4e4f13ffe6aaf725b6e802c692ba0dde628be475040c534ba
+    # via
+    #   -r requirements.txt
+    #   pyowm
 humanize==4.12.3 \
     --hash=sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6 \
     --hash=sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0
@@ -325,6 +331,20 @@ polyline==2.0.2 \
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+pyowm==3.3.0 \
+    --hash=sha256:8196f77c91eac680676ed5ee484aae8a165408055e3e2b28025cbf60b8681e03 \
+    --hash=sha256:86463108e7613171531ba306040b43c972b3fc0b0acf73b12c50910cdd2107ab
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
+pysocks==1.7.1 \
+    --hash=sha256:08e69f092cc6dbe92a0fdd16eeb9b9ffbc13cadfe5ca4c7bd92ffb078b293299 \
+    --hash=sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5 \
+    --hash=sha256:3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
+    # via
+    #   -r requirements.txt
+    #   pyowm
+    #   requests
 pytest==8.3.5 \
     --hash=sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820 \
     --hash=sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845
@@ -351,6 +371,7 @@ requests==2.32.3 \
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+    #   pyowm
     #   requests-cache
 requests-cache==1.2.1 \
     --hash=sha256:1285151cddf5331067baa82598afe2d47c7495a1334bfe7a7d329b43e9fd3603 \

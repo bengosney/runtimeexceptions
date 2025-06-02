@@ -215,6 +215,12 @@ filelock==3.18.0 \
     --hash=sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2 \
     --hash=sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de
     # via virtualenv
+geojson==2.5.0 \
+    --hash=sha256:6e4bb7ace4226a45d9c8c8b1348b3fc43540658359f93c3f7e03efa9f15f658a \
+    --hash=sha256:ccbd13368dd728f4e4f13ffe6aaf725b6e802c692ba0dde628be475040c534ba
+    # via
+    #   -r requirements.txt
+    #   pyowm
 gitdb==4.0.12 \
     --hash=sha256:5ef71f855d191a3326fcfbc0d5da835f26b13fbcba60c32c21091c349ffdb571 \
     --hash=sha256:67073e15955400952c6565cc3e707c554a4eea2e428946f7a4c162fab9bd9bcf
@@ -497,6 +503,12 @@ pygments==2.19.1 \
     # via
     #   icecream
     #   rich
+pyowm==3.3.0 \
+    --hash=sha256:8196f77c91eac680676ed5ee484aae8a165408055e3e2b28025cbf60b8681e03 \
+    --hash=sha256:86463108e7613171531ba306040b43c972b3fc0b0acf73b12c50910cdd2107ab
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
 pyparsing==3.2.3 \
     --hash=sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf \
     --hash=sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be
@@ -507,6 +519,14 @@ pyproject-hooks==1.2.0 \
     # via
     #   build
     #   pip-tools
+pysocks==1.7.1 \
+    --hash=sha256:08e69f092cc6dbe92a0fdd16eeb9b9ffbc13cadfe5ca4c7bd92ffb078b293299 \
+    --hash=sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5 \
+    --hash=sha256:3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
+    # via
+    #   -r requirements.txt
+    #   pyowm
+    #   requests
 pyyaml==6.0.2 \
     --hash=sha256:01179a4a8559ab5de078078f37e5c1a30d76bb88519906844fd7bdea1b7729ff \
     --hash=sha256:0833f8694549e586547b576dcfaba4a6b55b9e96098b36cdc7ebefe667dfed48 \
@@ -575,6 +595,7 @@ requests==2.32.3 \
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+    #   pyowm
     #   requests-cache
 requests-cache==1.2.1 \
     --hash=sha256:1285151cddf5331067baa82598afe2d47c7495a1334bfe7a7d329b43e9fd3603 \
