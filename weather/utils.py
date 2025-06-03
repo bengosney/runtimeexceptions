@@ -3,9 +3,9 @@ from django.conf import settings
 import pyowm
 
 
-def get_weather(location: str) -> str:
+def get_weather(lat: float, long: float) -> str:
     owm = pyowm.OWM(settings.OWM_API_KEY).weather_manager()
-    observation = owm.weather_at_place(location)
+    observation = owm.weather_at_coords(lat, long)
     weather = observation.weather  # type: ignore
     temperature = weather.temperature("celsius")
 
