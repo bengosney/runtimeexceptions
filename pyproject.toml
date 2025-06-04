@@ -35,6 +35,7 @@ optional-dependencies.dev = [
   "django-zeal",
   "icecream",
   "mypy",
+  "ngrok",
   "pip-tools",
   "pre-commit",
   "ruff",
