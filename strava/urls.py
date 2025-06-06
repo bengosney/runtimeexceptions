@@ -13,4 +13,5 @@ urlpatterns = [
     path("login", views.login_page, name="login"),
     path("callback", views.auth_callback, name="auth_callback"),
     path("refresh/<int:strava_id>", views.refresh_token, name="refresh_token"),
+    path("webhook", views.webhook, name="webhook"),
 ]

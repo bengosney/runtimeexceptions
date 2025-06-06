@@ -83,8 +83,10 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-STRAVA_CLIENT_ID = (os.environ.get("STRAVA_CLIENT_ID"),)
-STRAVA_SECRET = (os.environ.get("STRAVA_SECRET"),)
-STRAVA_KEY = (os.environ.get("STRAVA_KEY"),)
+STRAVA_CLIENT_ID = os.environ.get("STRAVA_CLIENT_ID")
+STRAVA_SECRET = os.environ.get("STRAVA_SECRET")
+STRAVA_KEY = os.environ.get("STRAVA_KEY")
 
 OWM_API_KEY = os.environ.get("OWM_API_KEY")
+
+DOMAIN = os.environ.get("DOMAIN", "localhost:8000")

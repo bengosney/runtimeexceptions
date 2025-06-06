@@ -1,6 +1,6 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
 
@@ -133,3 +133,21 @@ def activity_png(request, activityid):
     im.save(response, "PNG")  # type: ignore
 
     return response
+
+
+def webhook(request):
+    """
+    This is the endpoint that Strava will call when there is a webhook event.
+    """
+    if request.method == "POST":
+        return HttpResponse(status=200)
+    elif request.method == "GET":
+        verify_token = request.GET.get("hub.verify_token")
+        challenge = request.GET.get("hub.challenge")
+
+        if verify_token == "STRAVA":
+            return JsonResponse({"hub.challenge": challenge})
+        else:
+            return HttpResponse(status=403)
+    else:
+        return HttpResponse(status=405)
