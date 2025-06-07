@@ -1,15 +1,21 @@
+import json
+from datetime import datetime
+
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
+from django.utils.timezone import make_aware
+from django.views.decorators.csrf import csrf_exempt
 
 import polyline
 import svgwrite
 from PIL import Image, ImageDraw
 
 from strava.line import Line
-from strava.models import Runner
+from strava.models import Event, Runner
+from strava.tasks.weather import set_weather
 
 
 def auth(request):
@@ -135,11 +141,18 @@ def activity_png(request, activityid):
     return response
 
 
+@csrf_exempt
 def webhook(request):
     """
     This is the endpoint that Strava will call when there is a webhook event.
     """
     if request.method == "POST":
+        payload = json.loads(request.body)
+        payload["event_time"] = make_aware(datetime.fromtimestamp(payload["event_time"]))
+        payload["owner_id"] = Runner.objects.get(strava_id=payload["owner_id"])
+        event = Event.objects.create(**payload)
+        set_weather.enqueue(event.pk)
+
         return HttpResponse(status=200)
     elif request.method == "GET":
         verify_token = request.GET.get("hub.verify_token")

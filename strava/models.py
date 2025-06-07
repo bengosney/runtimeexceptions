@@ -1,6 +1,7 @@
 import time
 from http import HTTPStatus
 from math import atan2, cos, radians, sin, sqrt
+from typing import ClassVar
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,6 +11,7 @@ from django.urls import reverse
 import requests
 
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
+from weather.models import Weather
 
 Point = tuple[float, float]
 
@@ -164,3 +166,62 @@ class Runner(models.Model):
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
         return r * c
+
+
+class Activity(models.Model):
+    runner = models.ForeignKey(Runner, on_delete=models.CASCADE, related_name="activities", to_field="strava_id")
+    strava_id = models.IntegerField(unique=True)
+    type = models.CharField(max_length=50)
+    weather = models.ForeignKey(Weather, on_delete=models.CASCADE, related_name="activities", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.strava_id} {self.type}"
+
+    @classmethod
+    def find_or_create(cls, runner: Runner, activity_id: int):
+        """
+        Finds an activity by ID or fetches it from Strava if not found.
+        """
+        try:
+            return cls.objects.get(strava_id=activity_id, runner=runner)
+        except cls.DoesNotExist:
+            activity_data = runner.activity(activity_id)
+
+            weather: Weather | None = None
+            lat, long = activity_data.get("end_latlng", [None, None])
+            if lat and long:
+                weather = Weather.from_lat_long(lat, long)
+
+            activity = cls.objects.create(
+                strava_id=activity_data["id"],
+                type=activity_data["type"],
+                runner=runner,
+                weather=weather,
+            )
+
+            return activity
+
+
+class Event(models.Model):
+    ASPECT_TYPES: ClassVar[dict[str, str]] = {
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete",
+    }
+
+    OBJECT_TYPES: ClassVar[dict[str, str]] = {
+        "activity": "Activity",
+        "athlete": "Athlete",
+    }
+
+    aspect_type = models.CharField(max_length=128, choices=ASPECT_TYPES)
+    event_time = models.DateTimeField()
+    object_id = models.IntegerField()
+    object_type = models.CharField(max_length=128, choices=OBJECT_TYPES)
+    owner_id = models.ForeignKey(Runner, on_delete=models.CASCADE, related_name="updates", to_field="strava_id")
+    subscription_id = models.IntegerField()
+    updates = models.JSONField(default=dict)
+    processed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.aspect_type} {self.object_type} {self.object_id}"

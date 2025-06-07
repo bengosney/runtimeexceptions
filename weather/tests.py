@@ -2,11 +2,14 @@ from unittest import mock
 
 from django.test import override_settings
 
-from weather.utils import get_weather
+import pytest
+
+from weather.models import Weather
 
 
+@pytest.mark.django_db
 @override_settings(OWM_API_KEY="fake-key")
-@mock.patch("weather.utils.pyowm.OWM")
+@mock.patch("weather.models.pyowm.OWM")
 def test_get_weather_returns_expected_string(mock_owm_class):
     mock_owm_instance = mock.Mock(name="OWMInstance")
     mock_weather_manager = mock.Mock(name="WeatherManager")
@@ -19,11 +22,11 @@ def test_get_weather_returns_expected_string(mock_owm_class):
     mock_observation.weather = mock_weather
 
     mock_weather.detailed_status = "clear sky"
-    mock_weather.temperature.return_value = {"feels_like": 21.5}
+    mock_weather.temperature.return_value = {"temp": 20.0, "feels_like": 21.5}
 
-    result = get_weather(0, 0)
+    weather = Weather.from_lat_long(0, 0)
 
-    assert result == "Clear sky - 21.5°C"
+    assert weather.short == "Clear sky - 21.5°C"
 
     mock_owm_class.assert_called_once_with("fake-key")
 

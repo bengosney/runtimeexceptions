@@ -197,9 +197,23 @@ django==5.2.1 \
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
     #   django-extensions
+    #   django-stubs-ext
+    #   django-tasks
 django-extensions==4.1 \
     --hash=sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336 \
     --hash=sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
+django-stubs-ext==5.2.0 \
+    --hash=sha256:00c4ae307b538f5643af761a914c3f8e4e3f25f4e7c6d7098f1906c0d8f2aac9 \
+    --hash=sha256:b27ae0aab970af4894ba4e9b3fcd3e03421dc8731516669659ee56122d148b23
+    # via
+    #   -r requirements.txt
+    #   django-tasks
+django-tasks==0.7.0 \
+    --hash=sha256:499f80d1a051566443cfa88a300d8b03435af7fc5708cad4d8da6d285614f739 \
+    --hash=sha256:8a8d64f2dc6e29ac2f45092d90e2dd82dc1dca100dfe3a4f2ce1209db99f3527
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
@@ -391,6 +405,13 @@ svgwrite==1.4.3 \
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+typing-extensions==4.14.0 \
+    --hash=sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4 \
+    --hash=sha256:a1514509136dd0b477638fc68d6a91497af5076466ad0fa6c338e44e359944af
+    # via
+    #   -r requirements.txt
+    #   django-stubs-ext
+    #   django-tasks
 url-normalize==2.2.1 \
     --hash=sha256:3deb687587dc91f7b25c9ae5162ffc0f057ae85d22b1e15cf5698311247f567b \
     --hash=sha256:74a540a3b6eba1d95bdc610c24f2c0141639f3ba903501e61a52a8730247ff37

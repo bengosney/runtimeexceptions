@@ -15,6 +15,7 @@ classifiers = [
 dependencies = [
   "django",
   "django-extensions",
+  "django-tasks",
   "humanize",
   "pillow",
   "polyline",
