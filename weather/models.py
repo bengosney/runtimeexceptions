@@ -33,7 +33,7 @@ class Weather(models.Model):
         """
         Returns a long string representation of the weather.
         """
-        return f"{self.detailed_status} at {self.temperature}°C (feels like {self.temperature_feels_like}°C)"
+        return f"{self.detailed_status}, {self.temperature}°C (feels like {self.temperature_feels_like}°C)"
 
     @classmethod
     def from_lat_long(cls, latitude: float, longitude: float) -> Self:

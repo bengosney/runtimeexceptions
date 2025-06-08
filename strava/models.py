@@ -149,6 +149,12 @@ class Runner(models.Model):
     def activity(self, activity_id):
         return self.make_call(f"activities/{activity_id}")
 
+    def update_activity(self, activity_id, data):
+        """
+        Updates an activity with the given data.
+        """
+        return self.make_call(f"activities/{activity_id}", data, method="PUT")
+
     def distance_from(self):
         pass
 
@@ -200,6 +206,27 @@ class Activity(models.Model):
             )
 
             return activity
+
+    def update_weather(self):
+        """
+        Updates the activity description on Strava.
+        """
+        if not self.weather:
+            return False
+
+        data_in = self.runner.activity(self.strava_id)
+        description = data_in.get("description", "")
+
+        weather = self.weather.long()
+
+        description = description.replace(weather, "").strip()
+
+        data = {
+            "description": "\n\n".join(s for s in [description, weather] if s != ""),
+        }
+
+        response = self.runner.update_activity(self.strava_id, data)
+        return response
 
 
 class Event(models.Model):
