@@ -17,6 +17,10 @@ class Weather(models.Model):
 
     temperature = models.FloatField()
     temperature_feels_like = models.FloatField()
+    humidity = models.FloatField()
+    wind_speed = models.FloatField()
+    wind_direction = models.FloatField()
+    wind_gust = models.FloatField()
 
     other_data = models.JSONField(default=dict)
 
@@ -54,6 +58,10 @@ class Weather(models.Model):
             detailed_status=weather.detailed_status.capitalize(),
             temperature=weather.temperature("celsius")["temp"],
             temperature_feels_like=weather.temperature("celsius")["feels_like"],
+            humidity=weather.humidity,
+            wind_speed=weather.wnd.get("speed", 0.0),
+            wind_direction=weather.wnd.get("deg", 0.0),
+            wind_gust=weather.wnd.get("gust", 0.0),
             other_data=weather.to_dict(),
         )
 
