@@ -6,8 +6,11 @@ from strava.models import Activity, Event
 @task
 def set_weather(update_id: int):
     event = Event.objects.get(id=update_id)
+    if getattr(event, "aspect_type", None) != Event.ASPECT_TYPES["create"]:
+        return
+
     activity = Activity.find_or_create(event.owner_id, event.object_id)
 
-    if activity.weather and activity.type == "Run":
+    if activity.weather and activity.type in ["Run", "Ride"]:
         print("setting weather for activity", activity.strava_id)
         activity.add_weather()
