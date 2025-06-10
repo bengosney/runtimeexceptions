@@ -207,7 +207,7 @@ class Activity(models.Model):
 
             return activity
 
-    def update_weather(self):
+    def add_weather(self):
         """
         Updates the activity description on Strava.
         """
@@ -215,14 +215,18 @@ class Activity(models.Model):
             return False
 
         data_in = self.runner.activity(self.strava_id)
+
         description = data_in.get("description", "")
-
         weather = self.weather.long()
-
         description = description.replace(weather, "").strip()
+
+        name = data_in.get("name", "")
+        emoji = self.weather.emoji()
+        name = name.replace(emoji, "").strip()
 
         data = {
             "description": "\n\n".join(s for s in [description, weather] if s != ""),
+            "name": f"{name} {emoji}",
         }
 
         response = self.runner.update_activity(self.strava_id, data)

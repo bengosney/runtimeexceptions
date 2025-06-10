@@ -10,4 +10,4 @@ def set_weather(update_id: int):
 
     if activity.weather and activity.type == "Run":
         print("setting weather for activity", activity.strava_id)
-        activity.update_weather()
+        activity.add_weather()

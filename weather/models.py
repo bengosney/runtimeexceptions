@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Self
 
 from django.conf import settings
@@ -75,6 +76,45 @@ class Weather(models.Model):
         direction = self.degrees_to_cardinal(self.wind_direction)
         gusts = self.mps_to_kph(self.wind_gust)
         return f"Wind {speed:.1f}km/h from {direction}, gusting up to {gusts:.1f}km/h"
+
+    class Emojis(StrEnum):
+        CLEAR_SKY = "\U0001f323"
+        FEW_CLOUDS = "\U0001f324"
+        SCATTERED_CLOUDS = "\U0001f325"
+        BROKEN_CLOUDS = "\U00002601"
+        SHOWER_RAIN = "\U0001f326"
+        RAIN = "\U0001f327"
+        THUNDERSTORM = "\U0001f329"
+        SNOW = "\U0001f328"
+        MIST = "\U0001f32b"
+
+    def emoji(self) -> str:  # noqa: PLR0911
+        """
+        Returns an emoji representation of the weather status.
+        """
+        weather_id = int(self.other_data.get("weather_icon_name", "0")[:2])
+
+        match weather_id:
+            case 1:
+                return self.Emojis.CLEAR_SKY
+            case 2:
+                return self.Emojis.FEW_CLOUDS
+            case 3:
+                return self.Emojis.SCATTERED_CLOUDS
+            case 4:
+                return self.Emojis.BROKEN_CLOUDS
+            case 9:
+                return self.Emojis.SHOWER_RAIN
+            case 10:
+                return self.Emojis.RAIN
+            case 11:
+                return self.Emojis.THUNDERSTORM
+            case 13:
+                return self.Emojis.SNOW
+            case 50:
+                return self.Emojis.MIST
+            case _:
+                return ""
 
     @classmethod
     def from_lat_long(cls, latitude: float, longitude: float) -> Self:
