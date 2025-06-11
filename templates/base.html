@@ -16,6 +16,14 @@
   </head>
 
   <body>
+    {% if user.is_authenticated %}
+      <div>
+        <form method="post" action="{% url 'strava:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </form>
+      </div>
+    {% endif %}
     {% block content %}{% endblock %}
   </body>
 </html>

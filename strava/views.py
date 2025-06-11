@@ -48,10 +48,6 @@ def refresh_token(request, strava_id):
     return HttpResponseRedirect(reverse("strava:activities"))
 
 
-def login_page(request):
-    return render(request, "strava/login.html")
-
-
 @login_required(login_url=reverse("strava:login"))
 def activities(request):
     try:
