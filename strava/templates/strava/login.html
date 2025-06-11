@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
-
 {% block content %}
-
   <h1>Login</h1>
   <p>
-    <a href="{{ authlink }}">Auth</a>
+    <a href="{% url 'strava:auth' %}">Auth</a>
   </p>
 {% endblock content %}

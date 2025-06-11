@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
@@ -16,6 +17,12 @@ from PIL import Image, ImageDraw
 from strava.line import Line
 from strava.models import Event, Runner
 from strava.tasks.weather import set_weather
+
+
+def index(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("strava:activities"))
+    return render(request, "strava/index.html")
 
 
 def auth(request):
@@ -42,18 +49,17 @@ def refresh_token(request, strava_id):
 
 
 def login_page(request):
-    return render(
-        request,
-        "strava/login.html",
-        {
-            "authlink": reverse("strava:auth"),
-        },
-    )
+    return render(request, "strava/login.html")
 
 
 @login_required(login_url=reverse("strava:login"))
 def activities(request):
-    runner = request.user.runner
+    try:
+        runner = request.user.runner
+    except ObjectDoesNotExist:
+        logout(request)
+        return HttpResponseRedirect(reverse("strava:auth"))
+
     activities = runner.get_activities()
 
     return render(

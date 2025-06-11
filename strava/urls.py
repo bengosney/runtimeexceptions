@@ -5,7 +5,8 @@ from strava import views
 app_name = "strava"
 
 urlpatterns = [
-    path("", views.activities, name="activities"),
+    path("", views.index, name="index"),
+    path("activities", views.activities, name="activities"),
     path("activity/<int:activityid>", views.activity, name="activity"),
     path("img/<int:activityid>.png", views.activity_png, name="activity_png"),
     path("img/<int:activityid>.svg", views.activity_svg, name="activity_svg"),
