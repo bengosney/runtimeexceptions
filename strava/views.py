@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -19,16 +19,19 @@ from strava.models import Event, Runner
 from strava.tasks.weather import set_weather
 
 
+@login_not_required
 def index(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("strava:activities"))
     return render(request, "strava/index.html")
 
 
+@login_not_required
 def auth(request):
     return HttpResponseRedirect(Runner.get_auth_url(request) or "/")
 
 
+@login_not_required
 def auth_callback(request):
     code = request.GET.get("code", "")
 
@@ -48,7 +51,6 @@ def refresh_token(request, strava_id):
     return HttpResponseRedirect(reverse("strava:activities"))
 
 
-@login_required(login_url=reverse("strava:login"))
 def activities(request):
     try:
         runner = request.user.runner
@@ -70,7 +72,6 @@ def activities(request):
     )
 
 
-@login_required(login_url=reverse("strava:login"))
 def activity(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
@@ -78,7 +79,6 @@ def activity(request, activityid):
     return render(request, "strava/run.html", {"activity": activity})
 
 
-@login_required(login_url=reverse("strava:login"))
 def activity_svg(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
@@ -117,7 +117,6 @@ def activity_svg(request, activityid):
     return response
 
 
-@login_required(login_url=reverse("strava:login"))
 def activity_png(request, activityid):
     runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
@@ -143,6 +142,7 @@ def activity_png(request, activityid):
     return response
 
 
+@login_not_required
 @csrf_exempt
 def webhook(request):
     """
