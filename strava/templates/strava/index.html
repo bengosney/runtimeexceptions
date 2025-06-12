@@ -3,9 +3,11 @@
 {% block title %}Runtime Exceptions{% endblock %}
 
 {% block content %}
-
-  <h1>Runtime Exceptions</h1>
-  <p>
-    <a href="{% url 'strava:auth' %}">Login</a>
-  </p>
+  <div class="p-3 flex gap-5 flex-col items-center justify-center h-full">
+    <h1>Runtime Exceptions</h1>
+    <p>Add stuff to your Strava</p>
+    <div>
+      <a class="btn btn-primary" href="{% url 'strava:auth' %}">Login</a>
+    </div>
+  </div>
 {% endblock content %}

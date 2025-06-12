@@ -26,10 +26,6 @@ li {
   letter-spacing: 0.005em;
 }
 
-p {
-  margin-bottom: 1.3em;
-}
-
 li + li {
   margin-top: 0.75em;
 }
