@@ -17,13 +17,47 @@
 
   <body>
     {% if user.is_authenticated %}
-      <div>
-        <form method="post" action="{% url 'strava:logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-primary">Logout</button>
-        </form>
+      <div class="navbar">
+        <div class="navbar-start">
+          <div class="text-xs uppercase">
+            <span class="text-sm">R</span>un<span class="text-sm">T</span>ime<span class="text-sm">E</span>xceptions
+          </div>
+        </div>
+        <div class="navbar-end">
+          <div class="dropdown">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h7"
+                />
+              </svg>
+            </div>
+            <ul
+              tabindex="0"
+              class="right-0 menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-42 p-2 shadow"
+            >
+              <li>
+                <a href="{% url 'strava:activities' %}">Activities</a>
+              </li>
+              <li>
+                <form method="post" action="{% url 'strava:logout' %}" class="block">
+                  {% csrf_token %}
+                  <button type="submit" class="text-left block w-full cursor-pointer">Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-    {% endif %}
-    {% block content %}{% endblock %}
+    {% endif %} {% block content %}{% endblock %}
   </body>
 </html>
