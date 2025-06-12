@@ -23,7 +23,9 @@ repos:
   rev: v5.0.0
   hooks:
   - id: trailing-whitespace
+    exclude: \.min\.css$
   - id: end-of-file-fixer
+    exclude: \.min\.css$
   - id: check-yaml
   - id: check-json
   - id: check-toml
