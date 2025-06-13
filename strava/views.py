@@ -45,7 +45,7 @@ def auth_callback(request):
 
 
 def refresh_token(request, strava_id):
-    runner = get_object_or_404(Runner, strava_id=strava_id)
+    runner: Runner = get_object_or_404(Runner, strava_id=strava_id)
     runner.do_refresh_token()
 
     return HttpResponseRedirect(reverse("strava:activities"))
@@ -53,7 +53,7 @@ def refresh_token(request, strava_id):
 
 def activities(request):
     try:
-        runner = request.user.runner
+        runner: Runner = request.user.runner
     except ObjectDoesNotExist:
         logout(request)
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -73,14 +73,14 @@ def activities(request):
 
 
 def activity(request, activityid):
-    runner = request.user.runner  # type: Runner
+    runner: Runner = request.user.runner
     activity = runner.activity(activityid)
 
     return render(request, "strava/run.html", {"activity": activity})
 
 
 def activity_svg(request, activityid):
-    runner = request.user.runner  # type: Runner
+    runner: Runner = request.user.runner
     activity = runner.activity(activityid)
     line = activity["map"]["polyline"]
     line = Line(polyline.decode(line))
@@ -118,7 +118,7 @@ def activity_svg(request, activityid):
 
 
 def activity_png(request, activityid):
-    runner = request.user.runner  # type: Runner
+    runner: Runner = request.user.runner  # type: Runner
     activity = runner.activity(activityid)
     line = activity["map"]["polyline"]
     line = Line(polyline.decode(line))
