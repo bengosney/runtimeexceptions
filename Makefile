@@ -1,4 +1,4 @@
-.PHONY: help clean test install all init dev css watch node js clean-pyc
+.PHONY: help clean test install all init dev css watch node js clean-pyc data_models
 .DEFAULT_GOAL := install
 .PRECIOUS: requirements.%.in
 
@@ -140,3 +140,8 @@ css-watch: ## Watch the css files and compile them into a single file
 		echo "CSS file changed: $$file"; \
 		$(MAKE) css; \
 	done
+
+strava/data_models.py: .direnv
+	python manage.py generate_data_models $@
+
+data_models: strava/data_models.py ## Generate the data models for strava

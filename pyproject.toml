@@ -20,6 +20,7 @@ dependencies = [
   "humanize",
   "pillow",
   "polyline",
+  "pydantic",
   "pyowm",
   "requests",
   "requests-cache",
@@ -30,6 +31,7 @@ dependencies = [
 optional-dependencies.dev = [
   "cogapp",
   "commitizen",
+  "datamodel-code-generator",
   "django-browser-reload",
   "django-debug-toolbar",
   "django-debugtools",
@@ -63,6 +65,7 @@ target-version = [ "py313" ]
 target-version = "py313"
 line-length = 120
 exclude = [ "migrations" ]
+extend-exclude = [ "strava/data_models.py" ]
 
 format.indent-style = "space"
 format.quote-style = "double"
