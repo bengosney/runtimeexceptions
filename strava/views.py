@@ -77,7 +77,7 @@ def activity(request, activityid):
     runner: Runner = request.user.runner
     activity = runner.activity(activityid)
 
-    return render(request, "strava/run.html", {"activity": activity})
+    return render(request, "strava/activity.html", {"activity": activity})
 
 
 def activity_svg(request, activityid):
