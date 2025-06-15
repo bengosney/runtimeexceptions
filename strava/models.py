@@ -1,19 +1,25 @@
 import time
+from collections.abc import Iterable
 from http import HTTPStatus
 from math import atan2, cos, radians, sin, sqrt
-from typing import ClassVar
+from typing import Any, ClassVar, TypeVar
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.http import Http404
 from django.urls import reverse
 
 import requests
+from pydantic import BaseModel, ValidationError
 
+from strava.data_models import SummaryActivity, SummaryAthlete
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
 from weather.models import Weather
 
 Point = tuple[float, float]
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class Runner(models.Model):
@@ -107,11 +113,21 @@ class Runner(models.Model):
     def get_authenticated_athlete(cls):
         pass
 
-    def make_call(self, path, args={}, method="GET"):
+    def make_call(
+        self,
+        path: str,
+        args: dict[str, Any] = {},
+        method: str = "GET",
+    ) -> dict[str, Any]:
         return self._make_call(path, args, method, self.auth_code)
 
     @staticmethod
-    def _make_call(path, args={}, method="GET", authentication=None):
+    def _make_call(
+        path: str,
+        args: dict[str, Any] = {},
+        method: str = "GET",
+        authentication: str | None = None,
+    ) -> dict[str, Any]:
         url = f"https://www.strava.com/api/v3/{path}"
 
         headers = {
@@ -140,14 +156,24 @@ class Runner(models.Model):
 
         raise StravaError(f"Got {data.status_code} from strava")
 
-    def get_details(self):
-        return self.make_call("athlete")
+    def get_details(self) -> SummaryAthlete:
+        try:
+            return SummaryAthlete.model_validate(self.make_call("athlete"))
+        except ValidationError:
+            raise Http404("Strava athlete not found or invalid data")
 
-    def get_activities(self):
-        return self.make_call("athlete/activities")
+    def get_activities(self) -> Iterable[SummaryActivity]:
+        for activity in self.make_call("athlete/activities"):
+            try:
+                yield SummaryActivity.model_validate(activity)
+            except ValidationError:
+                pass
 
     def activity(self, activity_id):
-        return self.make_call(f"activities/{activity_id}")
+        try:
+            return SummaryActivity.model_validate(self.make_call(f"activities/{activity_id}"))
+        except ValidationError:
+            raise Http404("Strava activity not found or invalid data")
 
     def update_activity(self, activity_id, data):
         """
@@ -194,13 +220,14 @@ class Activity(models.Model):
             activity_data = runner.activity(activity_id)
 
             weather: Weather | None = None
-            lat, long = activity_data.get("end_latlng", [None, None])
-            if lat and long:
-                weather = Weather.from_lat_long(lat, long)
+            if activity_data.end_latlng:
+                lat: float = activity_data.end_latlng[0]  # type: ignore
+                lng: float = activity_data.end_latlng[1]  # type: ignore
+                weather = Weather.from_lat_long(lat, lng)
 
             activity = cls.objects.create(
-                strava_id=activity_data["id"],
-                type=activity_data["type"],
+                strava_id=activity_data.id,
+                type=activity_data.type,
                 runner=runner,
                 weather=weather,
             )
