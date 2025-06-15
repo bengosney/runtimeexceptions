@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
 from django.utils.timezone import make_aware
@@ -122,6 +122,14 @@ def activity_svg(request, activityid):
 
 
 def activity_png(request, activityid):
+    match request.GET.get("theme", "dark"):
+        case "dark":
+            line_colour = (255, 255, 255, 255)
+        case "light":
+            line_colour = (0, 0, 0, 255)
+        case _:
+            return HttpResponseBadRequest("Invalid theme specified.")
+
     runner: Runner = request.user.runner
     activity = runner.activity(activityid)
     if not activity.map or not activity.map.polyline:
@@ -130,9 +138,11 @@ def activity_png(request, activityid):
     decoded_line = [(float(lat), float(lng)) for lat, lng in polyline.decode(activity.map.polyline)]
     line = Line(decoded_line)
 
-    base_colour = "#4287f5"
+    scale = 4
+    base_size = (640, 480)
+    high_res_size = (base_size[0] * scale, base_size[1] * scale)
 
-    im = Image.new("RGB", (640, 480), color=base_colour)
+    im = Image.new("RGBA", high_res_size, color=(0, 0, 0, 0))
     draw = ImageDraw.Draw(im)
 
     line.fit(im.size)
@@ -140,8 +150,10 @@ def activity_png(request, activityid):
     prev = None
     for p in line.coordinates:
         if prev is not None:
-            draw.line(prev + p, fill=128)
+            draw.line(prev + p, fill=line_colour, width=scale)
         prev = p
+
+    im = im.resize(base_size, resample=Image.LANCZOS)  # type: ignore
 
     response = HttpResponse(content_type="image/png")
     im.save(response, "PNG")  # type: ignore
