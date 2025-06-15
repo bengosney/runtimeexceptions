@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
 from django.utils.timezone import make_aware
@@ -14,6 +14,7 @@ import polyline
 import svgwrite
 from PIL import Image, ImageDraw
 
+from strava.data_models import SummaryActivity
 from strava.line import Line
 from strava.models import Event, Runner
 from strava.tasks.weather import set_weather
@@ -81,16 +82,19 @@ def activity(request, activityid):
 
 def activity_svg(request, activityid):
     runner: Runner = request.user.runner
-    activity = runner.activity(activityid)
-    line = activity["map"]["polyline"]
-    line = Line(polyline.decode(line))
+    activity: SummaryActivity = runner.activity(activityid)
+    if not activity.map or not activity.map.polyline:
+        raise Http404("Activity does not have a map or polyline data.")
+
+    decoded_line = [(float(lat), float(lng)) for lat, lng in polyline.decode(activity.map.polyline)]
+    line = Line(decoded_line)
 
     route_colour = "#b9cded"
     size = (640, 480)
 
     line.fit(size)
 
-    animation_time = activity["distance"] / 1000
+    animation_time: float = (activity.distance / 1000) if activity.distance else 0
 
     style = f"""
 #route {{
@@ -118,10 +122,13 @@ def activity_svg(request, activityid):
 
 
 def activity_png(request, activityid):
-    runner: Runner = request.user.runner  # type: Runner
+    runner: Runner = request.user.runner
     activity = runner.activity(activityid)
-    line = activity["map"]["polyline"]
-    line = Line(polyline.decode(line))
+    if not activity.map or not activity.map.polyline:
+        raise Http404("Activity does not have a map or polyline data.")
+
+    decoded_line = [(float(lat), float(lng)) for lat, lng in polyline.decode(activity.map.polyline)]
+    line = Line(decoded_line)
 
     base_colour = "#4287f5"
 
