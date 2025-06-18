@@ -1,39 +1,41 @@
 {% extends "base.html" %}
 
-{% load abbreviations humanize %}
+{% load abbreviations humanize markup %}
 
 {% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
 
 {% block content %}
-    <div class="mx-8 my-4">
-        <h2>Activities</h2>
-        <h1>{{ runner.firstname }} {{ runner.lastname }}</h1>
 
-        <table class="table">
-            <thead>
+    <h2>Activities</h2>
+    <h1>{{ runner.firstname }} {{ runner.lastname }}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Distance</th>
+                <th>Moving Time</th>
+                <th>Total Time</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
                 <tr>
-                    <th>Name</th>
-                    <th>Distance</th>
-                    <th>Moving Time</th>
-                    <th>Total Time</th>
-                    <th></th>
+                    <td>{{ activity.sport_type.root }}</td>
+                    <td><a class="underline hover:text-neutral-300 transition-colors" href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
+                    <td>{{ activity.distance|metric:"m"|nbsp }}</td>
+                    <td>{{ activity.moving_time|precisedelta|shorten_time|nbsp }}</td>
+                    <td>{{ activity.elapsed_time|precisedelta|shorten_time|nbsp }}</td>
+                    <td><a class="btn btn-primary" href="{% url 'strava:activity' activity.id %}">Details</a></td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for activity in activities %}
-                    <tr>
-                        <td><a href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
-                        <td>{{ activity.distance|metric:"m" }}</td>
-                        <td>{{ activity.moving_time|precisedelta|shorten_time }}</td>
-                        <td>{{ activity.elapsed_time|precisedelta|shorten_time }}</td>
-                        <td><a class="btn btn-primary" href="{% url 'strava:activity' activity.id %}">Details</a></td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="3">No activities found</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No activities found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock content %}
