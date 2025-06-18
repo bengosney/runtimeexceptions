@@ -169,7 +169,7 @@ class Runner(models.Model):
             except ValidationError:
                 pass
 
-    def activity(self, activity_id):
+    def activity(self, activity_id: int) -> SummaryActivity:
         try:
             return SummaryActivity.model_validate(self.make_call(f"activities/{activity_id}"))
         except ValidationError:
