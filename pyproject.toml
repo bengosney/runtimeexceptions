@@ -24,6 +24,7 @@ dependencies = [
   "pyowm",
   "requests",
   "requests-cache",
+  "setuptools",
   "svgwrite",
   "whitenoise",
 ]
