@@ -100,3 +100,5 @@ STRAVA_KEY = os.environ.get("STRAVA_KEY")
 OWM_API_KEY = os.environ.get("OWM_API_KEY")
 
 DOMAIN = os.environ.get("DOMAIN", "localhost:8000")
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
