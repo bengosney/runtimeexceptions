@@ -7,8 +7,8 @@ resource "dokku_app" "runtimeexceptions" {
     DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.prod"
     ALLOWED_HOSTS          = "www.${var.domain}"
     BASE_URL               = "https://www.${var.domain}"
-    AWS_ACCESS_KEY_ID      = "${var.aws_access_key_id}"
-    AWS_SECRET_ACCESS_KEY  = "${var.aws_secret_access_key}"
+    AWS_ACCESS_KEY_ID      = aws_iam_access_key.access_key.id
+    AWS_SECRET_ACCESS_KEY  = aws_iam_access_key.access_key.secret
 
     SMTP_PASS = aws_iam_access_key.access_key.ses_smtp_password_v4
     SMTP_USER = aws_iam_access_key.access_key.id
