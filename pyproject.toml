@@ -18,6 +18,7 @@ dependencies = [
   "django-extensions",
   "django-tasks",
   "granian",
+  "gunicorn",
   "humanize",
   "pillow",
   "polyline",

@@ -234,6 +234,10 @@ granian==2.3.3 \
     --hash=sha256:fa5d15cfea6a1c657b77867edba55b945c5e97949e0ba7e3fd2a29bdfebc9a7b \
     --hash=sha256:fc26e5762894a7b628801a7ae59272d2a063e23cf111d875a2f84eddac0f3cdc
     # via runtimeexceptions (pyproject.toml)
+gunicorn==23.0.0 \
+    --hash=sha256:ec400d38950de4dfd418cff8328b2c8faed0edb0d517d3394e457c317908ca4d \
+    --hash=sha256:f014447a0101dc57e294f6c18ca6b40227a4c90e9bdb586042628030cba004ec
+    # via runtimeexceptions (pyproject.toml)
 humanize==4.12.3 \
     --hash=sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6 \
     --hash=sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0
@@ -244,6 +248,10 @@ idna==3.10 \
     # via
     #   requests
     #   url-normalize
+packaging==25.0 \
+    --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
+    --hash=sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f
+    # via gunicorn
 pillow==11.2.1 \
     --hash=sha256:014ca0050c85003620526b0ac1ac53f56fc93af128f7546623cc8e31875ab928 \
     --hash=sha256:036e53f4170e270ddb8797d4c590e6dd14d28e15c7da375c18978045f7e6c37b \
