@@ -66,22 +66,6 @@ output "git-remote" {
   depends_on  = []
 }
 
-resource "dokku_plugin" "letsencrypt" {
-  name = "letsencrypt"
-  url  = "https://github.com/dokku/dokku-letsencrypt.git"
-}
-
-resource "dokku_letsencrypt" "runtimeexceptions" {
-  app_name = "runtimeexceptions"
-  email    = var.email
-
-  depends_on = [
-    dokku_app.runtimeexceptions,
-    dokku_plugin.letsencrypt,
-    cloudflare_record.www,
-  ]
-}
-
 variable "strava_client_id" {
   description = "Strava Client ID"
 }
