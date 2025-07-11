@@ -13,6 +13,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+  "dj-database-url",
   "django",
   "django-extensions",
   "django-tasks",

@@ -202,12 +202,19 @@ coverage==7.8.2 \
     --hash=sha256:ef2f22795a7aca99fc3c84393a55a53dd18ab8c93fb431004e4d8f0774150f54 \
     --hash=sha256:fd51355ab8a372d89fb0e6a31719e825cf8df8b6724bee942fb5b92c3f016ba3
     # via pytest-cov
+dj-database-url==3.0.1 \
+    --hash=sha256:43950018e1eeea486bf11136384aec0fe55b29fe6fd8a44553231b85661d9383 \
+    --hash=sha256:8994961efb888fc6bf8c41550870c91f6f7691ca751888ebaa71442b7f84eff8
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
 django==5.2.1 \
     --hash=sha256:57fe1f1b59462caed092c80b3dd324fd92161b620d59a9ba9181c34746c97284 \
     --hash=sha256:a9b680e84f9a0e71da83e399f1e922e1ab37b2173ced046b541c72e1589a5961
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
+    #   dj-database-url
     #   django-extensions
     #   django-stubs-ext
     #   django-tasks
