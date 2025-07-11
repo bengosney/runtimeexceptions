@@ -13,9 +13,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fix known_hosts for git.flaminghedgehog.com
+      - name: Fix known_hosts 
         run: |
-          ssh-keygen -R git.flaminghedgehog.com || true
+          ssh-keygen -R ${{ secrets.SSH_HOST_URL }} || true
 
       - name: Push to dokku
         uses: dokku/github-action@master
