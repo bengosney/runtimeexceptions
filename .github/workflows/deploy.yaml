@@ -1,0 +1,25 @@
+---
+name: "deploy"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Cloning repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Fix known_hosts for git.flaminghedgehog.com
+        run: |
+          ssh-keygen -R git.flaminghedgehog.com || true
+
+      - name: Push to dokku
+        uses: dokku/github-action@master
+        with:
+          branch: 'main'
+          git_remote_url: ${{ secrets.SSH_HOST_URL }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
