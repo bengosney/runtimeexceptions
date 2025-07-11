@@ -11,6 +11,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql="""
+                ALTER TABLE strava_update 
+                ALTER COLUMN event_time TYPE timestamp with time zone 
+                USING to_timestamp(event_time) AT TIME ZONE 'UTC';
+            """,
+            reverse_sql="""
+                ALTER TABLE strava_update 
+                ALTER COLUMN event_time TYPE integer 
+                USING EXTRACT(EPOCH FROM event_time)::integer;
+            """
+        ),
         migrations.AlterField(
             model_name='update',
             name='event_time',
