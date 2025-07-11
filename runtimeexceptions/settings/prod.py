@@ -20,7 +20,8 @@ CSRF_TRUSTED_ORIGINS = [
     BASE_URL,
 ]
 
-DATABASES["default"] = dj_database_url.config()
+if os.environ.get("DATABASE_URL"):
+    DATABASES["default"] = dj_database_url.config()  # type: ignore
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
