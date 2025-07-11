@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Any
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -102,3 +103,10 @@ OWM_API_KEY = os.environ.get("OWM_API_KEY")
 DOMAIN = os.environ.get("DOMAIN", "localhost:8000")
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+DATABASES: dict[str, dict[str, Any]] = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
