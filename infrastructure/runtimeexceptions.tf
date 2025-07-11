@@ -77,7 +77,8 @@ resource "dokku_letsencrypt" "runtimeexceptions" {
 
   depends_on = [
     dokku_app.runtimeexceptions,
-    dokku_plugin.letsencrypt
+    dokku_plugin.letsencrypt,
+    cloudflare_record.www,
   ]
 }
 

@@ -11,8 +11,8 @@ resource "cloudflare_record" "cname_dkim" {
   allow_overwrite = true
 }
 
-resource "cloudflare_record" "api" {
-  name            = "api"
+resource "cloudflare_record" "www" {
+  name            = "www"
   proxied         = true
   type            = "CNAME"
   content         = var.hosting_domain
