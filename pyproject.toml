@@ -49,6 +49,7 @@ optional-dependencies.dev = [
   "pre-commit",
   "ruff",
   "tach",
+  "ty",
 ]
 
 optional-dependencies.test = [
