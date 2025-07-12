@@ -1,54 +1,56 @@
-import enum
+from enum import Enum
 
+ACTIVITY_NAMES = [
+    "AlpineSki",
+    "BackcountrySki",
+    "Badminton",
+    "Canoeing",
+    "Crossfit",
+    "EBikeRide",
+    "Elliptical",
+    "EMountainBikeRide",
+    "Golf",
+    "GravelRide",
+    "Handcycle",
+    "HighIntensityIntervalTraining",
+    "Hike",
+    "IceSkate",
+    "InlineSkate",
+    "Kayaking",
+    "Kitesurf",
+    "MountainBikeRide",
+    "NordicSki",
+    "Pickleball",
+    "Pilates",
+    "Racquetball",
+    "Ride",
+    "RockClimbing",
+    "RollerSki",
+    "Rowing",
+    "Run",
+    "Sail",
+    "Skateboard",
+    "Snowboard",
+    "Snowshoe",
+    "Soccer",
+    "Squash",
+    "StairStepper",
+    "StandUpPaddling",
+    "Surfing",
+    "Swim",
+    "TableTennis",
+    "Tennis",
+    "TrailRun",
+    "Velomobile",
+    "VirtualRide",
+    "VirtualRow",
+    "VirtualRun",
+    "Walk",
+    "WeightTraining",
+    "Wheelchair",
+    "Windsurf",
+    "Workout",
+    "Yoga",
+]
 
-class ActivityType(enum.Enum):
-    AlpineSki = "AlpineSki"
-    BackcountrySki = "BackcountrySki"
-    Badminton = "Badminton"
-    Canoeing = "Canoeing"
-    Crossfit = "Crossfit"
-    EBikeRide = "EBikeRide"
-    Elliptical = "Elliptical"
-    EMountainBikeRide = "EMountainBikeRide"
-    Golf = "Golf"
-    GravelRide = "GravelRide"
-    Handcycle = "Handcycle"
-    HighIntensityIntervalTraining = "HighIntensityIntervalTraining"
-    Hike = "Hike"
-    IceSkate = "IceSkate"
-    InlineSkate = "InlineSkate"
-    Kayaking = "Kayaking"
-    Kitesurf = "Kitesurf"
-    MountainBikeRide = "MountainBikeRide"
-    NordicSki = "NordicSki"
-    Pickleball = "Pickleball"
-    Pilates = "Pilates"
-    Racquetball = "Racquetball"
-    Ride = "Ride"
-    RockClimbing = "RockClimbing"
-    RollerSki = "RollerSki"
-    Rowing = "Rowing"
-    Run = "Run"
-    Sail = "Sail"
-    Skateboard = "Skateboard"
-    Snowboard = "Snowboard"
-    Snowshoe = "Snowshoe"
-    Soccer = "Soccer"
-    Squash = "Squash"
-    StairStepper = "StairStepper"
-    StandUpPaddling = "StandUpPaddling"
-    Surfing = "Surfing"
-    Swim = "Swim"
-    TableTennis = "TableTennis"
-    Tennis = "Tennis"
-    TrailRun = "TrailRun"
-    Velomobile = "Velomobile"
-    VirtualRide = "VirtualRide"
-    VirtualRow = "VirtualRow"
-    VirtualRun = "VirtualRun"
-    Walk = "Walk"
-    WeightTraining = "WeightTraining"
-    Wheelchair = "Wheelchair"
-    Windsurf = "Windsurf"
-    Workout = "Workout"
-    Yoga = "Yoga"
+ActivityType = Enum("ActivityType", {name: name for name in ACTIVITY_NAMES}, module=__name__)
