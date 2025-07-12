@@ -58,7 +58,7 @@ def test_get_url_reads_ngrok_file(manager, tmp_path):
     base_dir = tmp_path
     ngrok_file = base_dir / ".ngrok"
     ngrok_file.write_text(ngrok_url)
-    with override_settings(BASE_DIR=str(base_dir), DOMAIN="example.com"):
+    with override_settings(BASE_DIR=str(base_dir), BASE_URL="example.com"):
         with mock.patch("builtins.open", mock.mock_open(read_data=ngrok_url)) as m:
             result = manager._get_url()
             m.assert_called_once_with(f"{base_dir}/.ngrok")
@@ -66,7 +66,7 @@ def test_get_url_reads_ngrok_file(manager, tmp_path):
 
 
 def test_get_url_file_not_found(manager):
-    with override_settings(BASE_DIR="/fake/dir", DOMAIN="example.com"):
+    with override_settings(BASE_DIR="/fake/dir", BASE_URL="example.com"):
         with mock.patch("builtins.open", side_effect=FileNotFoundError):
             result = manager._get_url()
             assert result == "https://example.com"

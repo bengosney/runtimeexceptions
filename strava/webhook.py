@@ -17,7 +17,7 @@ class WebhookManager:
             with open(f"{settings.BASE_DIR}/.ngrok") as f:
                 return f.read().strip()
         except FileNotFoundError:
-            return f"https://{settings.DOMAIN}"
+            return f"https://{settings.BASE_URL}"
 
     def _get_full_url(self) -> str:
         path = reverse("strava:webhook")

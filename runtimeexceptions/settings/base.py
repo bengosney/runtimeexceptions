@@ -4,6 +4,8 @@ from typing import Any
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
