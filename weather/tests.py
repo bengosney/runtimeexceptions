@@ -38,15 +38,15 @@ def test_get_weather_returns_expected_string(mock_owm_class):
 @pytest.mark.parametrize(
     "weather_icon,expected_emoji,name",
     [
-        ("01d", "\U0001f4a8", "clear sky"),
-        ("02d", "\U0001f4a8", "few clouds"),
-        ("03d", "\U0001f4a7", "scattered clouds"),
-        ("04d", "\u2614", "broken clouds"),
-        ("09d", "\u2744 \u26c4", "shower rain"),
-        ("10d", "\u2744 \u26c4", "rain"),
-        ("11d", "\u2744 \u26c4", "thunderstorm"),
-        ("13d", "\U0001f301", "snow"),
-        ("50d", "\u2600", "mist"),
+        ("01d", "\U0001f323", "clear sky"),
+        ("02d", "\U0001f324", "few clouds"),
+        ("03d", "\U0001f325", "scattered clouds"),
+        ("04d", "\U00002601", "broken clouds"),
+        ("09d", "\U0001f326", "shower rain"),
+        ("10d", "\U0001f327", "rain"),
+        ("11d", "\U0001f329", "thunderstorm"),
+        ("13d", "\U0001f328", "snow"),
+        ("50d", "\U0001f32b", "mist"),
     ],
 )
 def test_emoji(weather_icon, expected_emoji, name):
@@ -62,6 +62,8 @@ def test_emoji(weather_icon, expected_emoji, name):
         wind_speed=0.0,
         wind_direction=0.0,
         wind_gust=0.0,
-        other_data={"weather": [{"id": weather_icon}] if weather_icon else [{}]},
+        other_data={"weather_icon_name": f"{weather_icon}d"} if weather_icon else {},
     )
-    assert weather.emoji() == f"{expected_emoji}-nope", f"{weather.emoji()} - {name}"
+    assert weather.emoji() == f"{expected_emoji}", (
+        f"Expected emoji for {name} to be {expected_emoji}, got {weather.emoji()}"
+    )
