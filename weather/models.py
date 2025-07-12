@@ -96,23 +96,23 @@ class Weather(models.Model):
 
         match weather_id:
             case 1:
-                return self.Emojis.CLEAR_SKY
+                return self.Emojis.CLEAR_SKY.value
             case 2:
-                return self.Emojis.FEW_CLOUDS
+                return self.Emojis.FEW_CLOUDS.value
             case 3:
-                return self.Emojis.SCATTERED_CLOUDS
+                return self.Emojis.SCATTERED_CLOUDS.value
             case 4:
-                return self.Emojis.BROKEN_CLOUDS
+                return self.Emojis.BROKEN_CLOUDS.value
             case 9:
-                return self.Emojis.SHOWER_RAIN
+                return self.Emojis.SHOWER_RAIN.value
             case 10:
-                return self.Emojis.RAIN
+                return self.Emojis.RAIN.value
             case 11:
-                return self.Emojis.THUNDERSTORM
+                return self.Emojis.THUNDERSTORM.value
             case 13:
-                return self.Emojis.SNOW
+                return self.Emojis.SNOW.value
             case 50:
-                return self.Emojis.MIST
+                return self.Emojis.MIST.value
             case _:
                 return ""
 
@@ -127,14 +127,16 @@ class Weather(models.Model):
             raise ValueError(f"No weather data found for coordinates: {latitude}, {longitude}")
         weather: PyOWMWeather = observation.weather
 
+        temperature = weather.temperature("celsius")
+
         weather_instance = cls.objects.create(
             latitude=latitude,
             longitude=longitude,
             timestamp=weather.reference_time("iso"),
             status=weather.status,
             detailed_status=weather.detailed_status.capitalize(),
-            temperature=weather.temperature("celsius")["temp"],
-            temperature_feels_like=weather.temperature("celsius")["feels_like"],
+            temperature=temperature["temp"],
+            temperature_feels_like=temperature["feels_like"],
             humidity=weather.humidity,
             wind_speed=weather.wnd.get("speed", 0.0),
             wind_direction=weather.wnd.get("deg", 0.0),

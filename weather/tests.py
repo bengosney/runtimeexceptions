@@ -9,8 +9,9 @@ from weather.models import Weather
 
 @pytest.mark.django_db
 @override_settings(OWM_API_KEY="fake-key")
+@mock.patch("weather.models.Weather.objects.create")
 @mock.patch("weather.models.pyowm.OWM")
-def test_get_weather_returns_expected_string(mock_owm_class):
+def test_get_weather_returns_expected_string(mock_owm_class, mock_create):
     mock_owm_instance = mock.Mock(name="OWMInstance")
     mock_weather_manager = mock.Mock(name="WeatherManager")
     mock_observation = mock.Mock(name="Observation")
@@ -23,30 +24,32 @@ def test_get_weather_returns_expected_string(mock_owm_class):
 
     mock_weather.detailed_status = "clear sky"
     mock_weather.temperature.return_value = {"temp": 20.0, "feels_like": 21.5}
+    mock_weather.reference_time.return_value = "2024-07-12 00:00:00+00:00"
 
-    weather = Weather.from_lat_long(0, 0)
+    mock_create.return_value = mock.Mock(spec=Weather)
 
-    assert weather.short == "Clear sky - 21.5°C"
+    Weather.from_lat_long(0, 0)
 
     mock_owm_class.assert_called_once_with("fake-key")
 
     mock_owm_instance.weather_manager.assert_called_once_with()
     mock_weather_manager.weather_at_coords.assert_called_once_with(0, 0)
     mock_weather.temperature.assert_called_once_with("celsius")
+    mock_create.assert_called()
 
 
 @pytest.mark.parametrize(
     "weather_icon,expected_emoji,name",
     [
-        ("01d", "\U0001f4a8", "clear sky"),
-        ("02d", "\U0001f4a8", "few clouds"),
-        ("03d", "\U0001f4a7", "scattered clouds"),
-        ("04d", "\u2614", "broken clouds"),
-        ("09d", "\u2744 \u26c4", "shower rain"),
-        ("10d", "\u2744 \u26c4", "rain"),
-        ("11d", "\u2744 \u26c4", "thunderstorm"),
-        ("13d", "\U0001f301", "snow"),
-        ("50d", "\u2600", "mist"),
+        ("01d", "\U0001f323", "clear sky"),
+        ("02d", "\U0001f324", "few clouds"),
+        ("03d", "\U0001f325", "scattered clouds"),
+        ("04d", "\U00002601", "broken clouds"),
+        ("09d", "\U0001f326", "shower rain"),
+        ("10d", "\U0001f327", "rain"),
+        ("11d", "\U0001f329", "thunderstorm"),
+        ("13d", "\U0001f328", "snow"),
+        ("50d", "\U0001f32b", "mist"),
     ],
 )
 def test_emoji(weather_icon, expected_emoji, name):
@@ -62,6 +65,8 @@ def test_emoji(weather_icon, expected_emoji, name):
         wind_speed=0.0,
         wind_direction=0.0,
         wind_gust=0.0,
-        other_data={"weather": [{"id": weather_icon}] if weather_icon else [{}]},
+        other_data={"weather_icon_name": f"{weather_icon}d"} if weather_icon else {},
     )
-    assert weather.emoji() == f"{expected_emoji}-nope", f"{weather.emoji()} - {name}"
+    assert weather.emoji() == f"{expected_emoji}", (
+        f"Expected emoji for {name} to be {expected_emoji}, got {weather.emoji()}"
+    )
