@@ -127,14 +127,16 @@ class Weather(models.Model):
             raise ValueError(f"No weather data found for coordinates: {latitude}, {longitude}")
         weather: PyOWMWeather = observation.weather
 
+        temperature = weather.temperature("celsius")
+
         weather_instance = cls.objects.create(
             latitude=latitude,
             longitude=longitude,
             timestamp=weather.reference_time("iso"),
             status=weather.status,
             detailed_status=weather.detailed_status.capitalize(),
-            temperature=weather.temperature("celsius")["temp"],
-            temperature_feels_like=weather.temperature("celsius")["feels_like"],
+            temperature=temperature["temp"],
+            temperature_feels_like=temperature["feels_like"],
             humidity=weather.humidity,
             wind_speed=weather.wnd.get("speed", 0.0),
             wind_direction=weather.wnd.get("deg", 0.0),

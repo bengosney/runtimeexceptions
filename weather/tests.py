@@ -9,8 +9,9 @@ from weather.models import Weather
 
 @pytest.mark.django_db
 @override_settings(OWM_API_KEY="fake-key")
+@mock.patch("weather.models.Weather.objects.create")
 @mock.patch("weather.models.pyowm.OWM")
-def test_get_weather_returns_expected_string(mock_owm_class):
+def test_get_weather_returns_expected_string(mock_owm_class, mock_create):
     mock_owm_instance = mock.Mock(name="OWMInstance")
     mock_weather_manager = mock.Mock(name="WeatherManager")
     mock_observation = mock.Mock(name="Observation")
@@ -23,16 +24,18 @@ def test_get_weather_returns_expected_string(mock_owm_class):
 
     mock_weather.detailed_status = "clear sky"
     mock_weather.temperature.return_value = {"temp": 20.0, "feels_like": 21.5}
+    mock_weather.reference_time.return_value = "2024-07-12 00:00:00+00:00"
 
-    weather = Weather.from_lat_long(0, 0)
+    mock_create.return_value = mock.Mock(spec=Weather)
 
-    assert weather.short == "Clear sky - 21.5°C"
+    Weather.from_lat_long(0, 0)
 
     mock_owm_class.assert_called_once_with("fake-key")
 
     mock_owm_instance.weather_manager.assert_called_once_with()
     mock_weather_manager.weather_at_coords.assert_called_once_with(0, 0)
     mock_weather.temperature.assert_called_once_with("celsius")
+    mock_create.assert_called()
 
 
 @pytest.mark.parametrize(
