@@ -17,6 +17,7 @@ def main():
     if (
         os.getenv("NGROK_LISTENER_RUNNING") is None
         and os.getenv("NGROK_AUTHTOKEN") is not None
+        and len(sys.argv) > 1
         and sys.argv[1] == "runserver"
     ):
         os.environ["NGROK_LISTENER_RUNNING"] = "true"
