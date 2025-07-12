@@ -14,7 +14,11 @@ def exit_handler():
 
 
 def main():
-    if os.getenv("NGROK_LISTENER_RUNNING") is None and os.getenv("NGROK_AUTHTOKEN") is not None:
+    if (
+        os.getenv("NGROK_LISTENER_RUNNING") is None
+        and os.getenv("NGROK_AUTHTOKEN") is not None
+        and sys.argv[1] == "runserver"
+    ):
         os.environ["NGROK_LISTENER_RUNNING"] = "true"
         import asyncio, ngrok  # noqa: E401, I001
 
