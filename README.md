@@ -2,6 +2,20 @@
 
 A Django-based web application for adding extra data to Strava.
 
+## Table of Contents
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [Automated](#automated)
+  - [Manual](#manual)
+- [Running Tests](#running-tests)
+- [Infrastructure](#infrastructure)
+- [CSS Pipeline](#css-pipeline)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 - Adds a weather report to your Strava run
 
@@ -13,12 +27,19 @@ A Django-based web application for adding extra data to Strava.
 - PostgreSQL or SQLite (default: SQLite)
 - Terraform (for infrastructure)
 
-### Installation
+## Installation
 
-#### Automated
+### Environment Variables
+Set the following environment variables before running the application:
+- `STRAVA_CLIENT_ID` (required): Strava API client ID.
+- `STRAVA_SECRET` (required): Strava API client secret.
+- `STRAVA_KEY` (required): Strava API key.
+- `OWM_API_KEY` (required): API key for weather data.
+
+### Automated
 If you have make and direnv installed you can `make init` and then `make help`
 
-####
+### Manual
 1. **Install Python dependencies:**
    ```bash
    python -m pip install --upgrade pip
