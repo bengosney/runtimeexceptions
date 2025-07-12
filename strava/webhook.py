@@ -32,6 +32,8 @@ class WebhookManager:
             "verify_token": "STRAVA",
         }
 
+        print(f"Creating Strava subscription with callback URL: {data['callback_url']}")
+
         response = requests.post(url, data=data)
         if response.status_code != HTTPStatus.CREATED:
             raise StravaWebhookError(response.text)
