@@ -12,6 +12,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_tasks",
+    "django_tasks.backends.database",
     "template_tags",
     "strava",
     "weather",
@@ -90,7 +91,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TASKS = {
     "default": {
-        "BACKEND": "django_tasks.backends.immediate.ImmediateBackend",
+        "BACKEND": "django_tasks.backends.database.DatabaseBackend",
     },
 }
 
