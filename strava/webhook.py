@@ -1,3 +1,4 @@
+import logging
 from http import HTTPStatus
 
 from django.conf import settings
@@ -6,6 +7,8 @@ from django.urls import reverse
 import requests
 
 from strava.exceptions import StravaWebhookError
+
+logger = logging.getLogger(__name__)
 
 
 class WebhookManager:
@@ -31,6 +34,8 @@ class WebhookManager:
             "callback_url": self._get_full_url(),
             "verify_token": "STRAVA",
         }
+
+        logger.info(f"Creating Strava subscription with callback URL: {data['callback_url']}")
 
         response = requests.post(url, data=data)
         if response.status_code != HTTPStatus.CREATED:

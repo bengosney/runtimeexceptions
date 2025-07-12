@@ -49,6 +49,7 @@ optional-dependencies.dev = [
   "pre-commit",
   "ruff",
   "tach",
+  "ty",
 ]
 
 optional-dependencies.test = [
@@ -101,7 +102,7 @@ python_files = [ "tests.py", "test_*.py", "*_tests.py" ]
 plugins = [ "mypy_django_plugin.main" ]
 
 [tool.django-stubs]
-django_settings_module = "stl.settings"
+django_settings_module = "runtimeexceptions.settings.dev"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
