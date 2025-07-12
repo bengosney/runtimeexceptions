@@ -2,6 +2,25 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db import connection
+
+
+def convert_event_time_to_datetime(apps, schema_editor):
+    if connection.vendor == 'postgresql':
+        schema_editor.execute('''
+            ALTER TABLE strava_update 
+            ALTER COLUMN event_time TYPE timestamp with time zone 
+            USING to_timestamp(event_time) AT TIME ZONE 'UTC';
+        ''')
+
+
+def revert_event_time_to_integer(apps, schema_editor):
+    if connection.vendor == 'postgresql':
+        schema_editor.execute('''
+            ALTER TABLE strava_update 
+            ALTER COLUMN event_time TYPE integer 
+            USING EXTRACT(EPOCH FROM event_time)::integer;
+        ''')
 
 
 class Migration(migrations.Migration):
@@ -11,18 +30,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="""
-                ALTER TABLE strava_update 
-                ALTER COLUMN event_time TYPE timestamp with time zone 
-                USING to_timestamp(event_time) AT TIME ZONE 'UTC';
-            """,
-            reverse_sql="""
-                ALTER TABLE strava_update 
-                ALTER COLUMN event_time TYPE integer 
-                USING EXTRACT(EPOCH FROM event_time)::integer;
-            """
-        ),
+        migrations.RunPython(convert_event_time_to_datetime, revert_event_time_to_integer),
         migrations.AlterField(
             model_name='update',
             name='event_time',
