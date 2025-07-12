@@ -1,6 +1,14 @@
 from django_tasks import task
 
 from strava.models import Activity, Event
+from strava.types import ActivityType
+
+valid_activity_types = [
+    ActivityType.Run.value,
+    ActivityType.Ride.value,
+    ActivityType.TrailRun.value,
+    ActivityType.Walk.value,
+]
 
 
 @task
@@ -11,6 +19,6 @@ def set_weather(update_id: int):
 
     activity = Activity.find_or_create(event.owner_id, event.object_id)
 
-    if activity.weather and activity.type in ["Run", "Ride"]:
+    if activity.weather and activity.type in valid_activity_types:
         print("setting weather for activity", activity.strava_id)
         activity.add_weather()
