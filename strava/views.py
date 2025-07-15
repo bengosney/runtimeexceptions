@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
@@ -7,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
-from django.utils.timezone import make_aware
 from django.views.decorators.csrf import csrf_exempt
 
 import polyline
@@ -16,8 +14,8 @@ from PIL import Image, ImageDraw
 
 from strava.data_models import SummaryActivity
 from strava.line import Line
-from strava.models import Event, Runner
-from strava.tasks.weather import set_weather
+from strava.models import Runner
+from strava.tasks import create_event
 
 
 @login_not_required
@@ -167,21 +165,19 @@ def webhook(request):
     """
     This is the endpoint that Strava will call when there is a webhook event.
     """
-    if request.method == "POST":
-        payload = json.loads(request.body)
-        payload["event_time"] = make_aware(datetime.fromtimestamp(payload["event_time"]))
-        payload["owner_id"] = Runner.objects.get(strava_id=payload["owner_id"])
-        event = Event.objects.create(**payload)
-        set_weather.enqueue(event.pk)
+    match request.method:
+        case "POST":
+            payload = json.loads(request.body)
+            create_event.enqueue(**payload)
 
-        return HttpResponse(status=200)
-    elif request.method == "GET":
-        verify_token = request.GET.get("hub.verify_token")
-        challenge = request.GET.get("hub.challenge")
+            return HttpResponse(status=200)
+        case "GET":
+            verify_token = request.GET.get("hub.verify_token")
+            challenge = request.GET.get("hub.challenge")
 
-        if verify_token == "STRAVA":
-            return JsonResponse({"hub.challenge": challenge})
-        else:
-            return HttpResponse(status=403)
-    else:
-        return HttpResponse(status=405)
+            if verify_token == "STRAVA":
+                return JsonResponse({"hub.challenge": challenge})
+            else:
+                return HttpResponse(status=403)
+        case _:
+            return HttpResponse(status=405)
