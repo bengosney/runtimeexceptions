@@ -19,6 +19,7 @@ dependencies = [
   "django-tasks",
   "granian",
   "gunicorn",
+  "honeybadger",
   "humanize",
   "pillow",
   "polyline",

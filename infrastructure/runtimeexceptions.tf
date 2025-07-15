@@ -20,6 +20,8 @@ resource "dokku_app" "runtimeexceptions" {
     STRAVA_KEY = var.strava_key
     OWM_API_KEY = var.owm_api_key
 
+    HONEYBADGER_KEY = var.honeybadger_key
+
     SECRET_KEY = var.secret_key
   }
 
@@ -80,4 +82,8 @@ variable "strava_key" {
 
 variable "owm_api_key" {
   description = "OWM API Key"
+}
+
+variable "honeybadger_key" {
+  description = "Honeybadger Key"
 }
