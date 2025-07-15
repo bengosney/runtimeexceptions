@@ -52,7 +52,12 @@ STORAGES = {
 
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "honeybadger.contrib.DjangoHoneybadgerMiddleware",
 ]
+
+HONEYBADGER = {
+    "API_KEY": os.environ.get("HONEYBADGER_KEY", ""),
+}
 
 THUMBNAIL_DEFAULT_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
