@@ -4,10 +4,10 @@ from strava.models import Activity, Event
 from strava.types import ActivityType
 
 valid_activity_types = [
-    ActivityType.Run.value,
-    ActivityType.Ride.value,
-    ActivityType.TrailRun.value,
-    ActivityType.Walk.value,
+    ActivityType.RUN.value,
+    ActivityType.RIDE.value,
+    ActivityType.TRAILRUN.value,
+    ActivityType.WALK.value,
 ]
 
 
