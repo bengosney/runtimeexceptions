@@ -13,5 +13,6 @@ from strava.tasks.weather import set_weather
 def create_event(**kwargs: Any):
     kwargs["event_time"] = make_aware(datetime.fromtimestamp(kwargs["event_time"]))
     kwargs["owner_id"] = Runner.objects.get(strava_id=kwargs["owner_id"])
+    print(f"Creating event with kwargs: {kwargs}")
     event = Event.objects.create(**kwargs)
     set_weather.enqueue(event.pk)
