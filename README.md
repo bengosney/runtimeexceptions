@@ -80,7 +80,7 @@ terraform apply
 
 CSS is built using PostCSS. Source files are in `css/`, output is in `static/css/`.
 ```bash
-npm run build:css
+make css
 ```
 
 ## Contributing
