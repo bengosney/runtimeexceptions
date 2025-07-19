@@ -1,3 +1,4 @@
+import logging
 import time
 from collections.abc import Iterable
 from http import HTTPStatus
@@ -16,6 +17,8 @@ from pydantic import BaseModel, ValidationError
 from strava.data_models import SummaryActivity, SummaryAthlete
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
 from weather.models import Weather
+
+logger = logging.getLogger(__name__)
 
 Point = tuple[float, float]
 
@@ -214,15 +217,19 @@ class Activity(models.Model):
         """
         Finds an activity by ID or fetches it from Strava if not found.
         """
+        logger.info(f"Looking for Activity with strava_id={activity_id} and runner={runner}")
         try:
-            return cls.objects.get(strava_id=activity_id, runner=runner)
+            activity = cls.objects.get(strava_id=activity_id, runner=runner)
+            logger.info(f"Found existing Activity: {activity}")
         except cls.DoesNotExist:
+            logger.info(f"Activity not found, fetching from Strava API: strava_id={activity_id}")
             activity_data = runner.activity(activity_id)
 
             weather: Weather | None = None
             if activity_data.end_latlng:
                 lat: float = activity_data.end_latlng[0]  # type: ignore
                 lng: float = activity_data.end_latlng[1]  # type: ignore
+                logger.info(f"Fetching weather for lat={lat}, lng={lng}")
                 weather = Weather.from_lat_long(lat, lng)
 
             activity = cls.objects.create(
@@ -231,8 +238,8 @@ class Activity(models.Model):
                 runner=runner,
                 weather=weather,
             )
-
-            return activity
+            logger.info(f"Created new Activity: {activity}")
+        return activity
 
     def add_weather(self):
         """
