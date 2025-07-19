@@ -175,8 +175,8 @@ class Runner(models.Model):
     def activity(self, activity_id: int) -> DetailedActivity:
         try:
             return DetailedActivity.model_validate(self.make_call(f"activities/{activity_id}"))
-        except ValidationError:
-            raise Http404("Strava activity not found or invalid data")
+        except ValidationError as e:
+            raise Http404("Strava activity not found or invalid data") from e
 
     def update_activity(self, activity_id, data):
         """
