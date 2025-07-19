@@ -228,6 +228,7 @@ class Activity(models.Model):
             weather: Weather | None = None
             if activity_data.end_latlng:
                 logger.debug(f"activity_data: {activity_data=}")
+                print(f"Activity end_latlng: {activity_data.end_latlng}")
                 lat: float = activity_data.end_latlng[0]  # type: ignore
                 lng: float = activity_data.end_latlng[1]  # type: ignore
                 logger.info(f"Fetching weather for lat={lat}, lng={lng}")
