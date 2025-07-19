@@ -14,7 +14,7 @@ from django.urls import reverse
 import requests
 from pydantic import BaseModel, ValidationError
 
-from strava.data_models import SummaryActivity, SummaryAthlete
+from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
 from weather.models import Weather
 
@@ -172,11 +172,11 @@ class Runner(models.Model):
             except ValidationError:
                 pass
 
-    def activity(self, activity_id: int) -> SummaryActivity:
+    def activity(self, activity_id: int) -> DetailedActivity:
         try:
-            return SummaryActivity.model_validate(self.make_call(f"activities/{activity_id}"))
-        except ValidationError:
-            raise Http404("Strava activity not found or invalid data")
+            return DetailedActivity.model_validate(self.make_call(f"activities/{activity_id}"))
+        except ValidationError as e:
+            raise Http404("Strava activity not found or invalid data") from e
 
     def update_activity(self, activity_id, data):
         """
@@ -249,13 +249,13 @@ class Activity(models.Model):
         if not self.weather:
             return False
 
-        data_in = self.runner.activity(self.strava_id)
+        data_in: DetailedActivity = self.runner.activity(self.strava_id)
 
-        description = data_in.get("description", "")
+        description = data_in.description or ""
         weather = self.weather.long()
         description = description.replace(weather, "").strip()
 
-        name = data_in.get("name", "")
+        name = data_in.name or ""
         emoji = self.weather.emoji()
         name = name.replace(emoji, "").strip()
 
