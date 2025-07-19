@@ -205,7 +205,7 @@ class Runner(models.Model):
 
 class Activity(models.Model):
     runner = models.ForeignKey(Runner, on_delete=models.CASCADE, related_name="activities", to_field="strava_id")
-    strava_id = models.IntegerField(unique=True)
+    strava_id = models.BigIntegerField(unique=True)
     type = models.CharField(max_length=50)
     weather = models.ForeignKey(Weather, on_delete=models.CASCADE, related_name="activities", null=True, blank=True)
 
