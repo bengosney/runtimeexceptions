@@ -217,6 +217,7 @@ django==5.2.2 \
     #   dj-database-url
     #   django-extensions
     #   django-stubs-ext
+    #   django-tailwind
     #   django-tasks
 django-extensions==4.1 \
     --hash=sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336 \
@@ -230,6 +231,12 @@ django-stubs-ext==5.2.0 \
     # via
     #   -r requirements.txt
     #   django-tasks
+django-tailwind==4.2.0 \
+    --hash=sha256:60bae45a9981bdf3ebaaa4a8e588533327c90e5857a64f57c26a39b7f234ac0e \
+    --hash=sha256:ff40ccb263faefac555fbaa340d6014f2b07fee6be2c8d5659f2cd63dbce02e9
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
 django-tasks==0.7.0 \
     --hash=sha256:499f80d1a051566443cfa88a300d8b03435af7fc5708cad4d8da6d285614f739 \
     --hash=sha256:8a8d64f2dc6e29ac2f45092d90e2dd82dc1dca100dfe3a4f2ce1209db99f3527

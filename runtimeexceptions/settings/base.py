@@ -18,6 +18,8 @@ INSTALLED_APPS = [
     "template_tags",
     "strava",
     "weather",
+    "tailwind",
+    "theme",
 ]
 
 MIDDLEWARE = [
@@ -113,3 +115,5 @@ DATABASES: dict[str, dict[str, Any]] = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+TAILWIND_APP_NAME = "theme"
