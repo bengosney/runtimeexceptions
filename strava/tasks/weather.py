@@ -1,13 +1,12 @@
 from django_tasks import task
 
+from strava.data_models import ActivityType
 from strava.models import Activity, Event
-from strava.types import ActivityType
 
 valid_activity_types = [
-    ActivityType.RUN.value,
-    ActivityType.RIDE.value,
-    ActivityType.TRAILRUN.value,
-    ActivityType.WALK.value,
+    ActivityType.Run.value,
+    ActivityType.Ride.value,
+    ActivityType.Walk.value,
 ]
 
 
