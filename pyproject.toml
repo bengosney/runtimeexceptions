@@ -54,6 +54,7 @@ optional-dependencies.dev = [
 ]
 
 optional-dependencies.test = [
+  "model-bakery",
   "pytest",
   "pytest-cov",
   "pytest-django",

@@ -235,7 +235,7 @@ class Activity(models.Model):
 
             activity = cls.objects.create(
                 strava_id=activity_data.id,
-                type=activity_data.type.root,  # type: ignore
+                type=activity_data.type.value if activity_data.type is not None else "",
                 runner=runner,
                 weather=weather,
             )
