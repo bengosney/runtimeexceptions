@@ -1,4 +1,5 @@
 import collections.abc
+import copy
 
 
 def deep_merge(target_dict, source_dict):
@@ -7,9 +8,10 @@ def deep_merge(target_dict, source_dict):
     Nested dictionaries are merged; other types are overwritten.
     Modifies target_dict in place.
     """
+    merged_dict = copy.deepcopy(target_dict)
     for key, value in source_dict.items():
         if isinstance(value, collections.abc.Mapping):
-            target_dict[key] = deep_merge(target_dict.get(key, {}), value)
+            merged_dict[key] = deep_merge(merged_dict.get(key, {}), value)
         else:
-            target_dict[key] = value
-    return target_dict
+            merged_dict[key] = value
+    return merged_dict
