@@ -4,7 +4,8 @@ import os
 import dj_database_url
 
 from runtimeexceptions.settings.base import *  # noqa
-from runtimeexceptions.settings.base import DATABASES, MIDDLEWARE
+from runtimeexceptions.settings.base import DATABASES, LOGGING, MIDDLEWARE
+from runtimeexceptions.utils import deep_merge
 
 logger = logging.getLogger(__name__)
 
@@ -92,3 +93,14 @@ CACHES = {
         "LOCATION": "renditions",
     },
 }
+
+LOGGING = deep_merge(
+    LOGGING,
+    {
+        "formatters": {
+            "verbose": {
+                "format": "{levelname}: ({module}) {message}",
+            },
+        },
+    },
+)

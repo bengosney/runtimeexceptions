@@ -34,7 +34,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-deep_merge(
+LOGGING = deep_merge(
     LOGGING,
     {
         "root": {
