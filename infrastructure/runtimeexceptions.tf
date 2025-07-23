@@ -5,6 +5,8 @@ resource "dokku_app" "runtimeexceptions" {
 
   config = {
     DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.prod"
+    DJANGO_LOG_LEVEL       = "DEBUG"
+    LOG_LEVEL              = "DEBUG"
     ALLOWED_HOSTS          = "www.${var.domain}"
     BASE_URL               = "https://www.${var.domain}"
     AWS_ACCESS_KEY_ID      = aws_iam_access_key.access_key.id
