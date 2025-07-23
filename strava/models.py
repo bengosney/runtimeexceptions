@@ -217,20 +217,20 @@ class Activity(models.Model):
         """
         Finds an activity by ID or fetches it from Strava if not found.
         """
-        logger.info(f"Looking for Activity with strava_id={activity_id} and runner={runner}")
+        logger.info("Looking for Activity", extra={"strava_id": activity_id, "runner": runner})
         try:
             activity = cls.objects.get(strava_id=activity_id, runner=runner)
-            logger.info(f"Found existing Activity: {activity}")
+            logger.info("Found existing Activity", extra={"activity": activity})
         except cls.DoesNotExist:
-            logger.info(f"Activity not found, fetching from Strava API: strava_id={activity_id}")
+            logger.info("Activity not found, fetching from Strava API", extra={"strava_id": activity_id})
             activity_data = runner.activity(activity_id)
 
             weather: Weather | None = None
             if activity_data.end_latlng:
-                logger.debug(f"activity_data: {activity_data=}")
+                logger.debug("activity_data", extra={"activity_data": activity_data})
                 lat: float = activity_data.end_latlng.root[0]
                 lng: float = activity_data.end_latlng.root[1]
-                logger.info(f"Fetching weather for lat={lat}, lng={lng}")
+                logger.info("Fetching weather for lat={lat}, lng={lng}", extra={"lat": lat, "lng": lng})
                 weather = Weather.from_lat_long(lat, lng)
 
             activity = cls.objects.create(
@@ -239,7 +239,7 @@ class Activity(models.Model):
                 runner=runner,
                 weather=weather,
             )
-            logger.info(f"Created new Activity: {activity}")
+            logger.info("Created new Activity", extra={"activity": activity})
         return activity
 
     def add_weather(self):
