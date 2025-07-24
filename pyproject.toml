@@ -54,6 +54,7 @@ optional-dependencies.dev = [
 ]
 
 optional-dependencies.test = [
+  "model-bakery",
   "pytest",
   "pytest-cov",
   "pytest-django",
@@ -111,3 +112,9 @@ tag_format = "$version"
 version_scheme = "pep440"
 version_provider = "pep621"
 update_changelog_on_bump = true
+
+[tool.datamodel-codegen]
+field-constraints = true
+strip-default-none = false
+output-model-type = "pydantic_v2.BaseModel"
+target-python-version = "3.13"

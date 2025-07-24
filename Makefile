@@ -141,7 +141,20 @@ css-watch: ## Watch the css files and compile them into a single file
 		$(MAKE) css; \
 	done
 
-strava/data_models.py: .direnv
-	python manage.py generate_data_models $@
+swagger.json:
+	@echo "Downloading Strava Swagger JSON"
+	@curl -o $@ https://developers.strava.com/swagger/swagger.json
 
-data_models: strava/data_models.py ## Generate the data models for strava
+openapi.json: swagger.json
+	@echo "Converting swagger.json to openapi.json"
+	curl -X 'POST' \
+	  'https://converter.swagger.io/api/convert' \
+	  -H 'accept: application/json' \
+	  -H 'Content-Type: application/json' \
+	  -d @$< > $@
+
+strava/data_models.py: openapi.json $(UV_PATH)
+	@echo "Generating Strava data models"
+	uvx --from datamodel-code-generator datamodel-codegen --input $< --input-file-type openapi --output $@
+
+data_models: strava/data_models.py ## Generate the data models for Strava
