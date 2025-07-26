@@ -19,7 +19,7 @@ def set_weather(update_id: int):
     event = Event.objects.get(id=update_id)
     logger.info("Setting weather for event: %d with aspect_type: %s", event.pk, getattr(event, "aspect_type", None))
     if getattr(event, "aspect_type", None) != Event.ASPECT_TYPES["create"]:
-        logger.info("Event is not a create event, skipping weather update")
+        logger.info(f"Event is not a {Event.ASPECT_TYPES['create']} event, skipping weather update")
         return
 
     activity = Activity.find_or_create(event.owner_id, event.object_id)

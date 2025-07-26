@@ -270,14 +270,14 @@ class Activity(models.Model):
 
 class Event(models.Model):
     ASPECT_TYPES: ClassVar[dict[str, str]] = {
-        "create": "Create",
-        "update": "Update",
-        "delete": "Delete",
+        "create": "create",
+        "update": "update",
+        "delete": "delete",
     }
 
     OBJECT_TYPES: ClassVar[dict[str, str]] = {
-        "activity": "Activity",
-        "athlete": "Athlete",
+        "activity": "activity",
+        "athlete": "athlete",
     }
 
     aspect_type = models.CharField(max_length=128, choices=ASPECT_TYPES)
