@@ -52,6 +52,7 @@ optional-dependencies.dev = [
   "ruff",
   "tach",
   "ty",
+  "types-requests",
 ]
 
 optional-dependencies.test = [
