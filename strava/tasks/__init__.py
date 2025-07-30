@@ -1,7 +1,7 @@
 from strava.tasks.create_event import create_event
-from strava.tasks.weather import set_weather
+from strava.tasks.update_activity_weather import update_activity_weather
 
 __all__ = [
     "create_event",
-    "set_weather",
+    "update_activity_weather",
 ]

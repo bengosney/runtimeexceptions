@@ -7,7 +7,7 @@ from django.utils.timezone import make_aware
 from django_tasks import task
 
 from strava.models import Event, Runner
-from strava.tasks.weather import set_weather
+from strava.tasks.update_activity_weather import update_activity_weather
 
 logger = logging.getLogger(__name__)
 
@@ -19,5 +19,5 @@ def create_event(**kwargs: Any):
     logger.info("Creating event with kwargs: %s", kwargs)
     event = Event.objects.create(**kwargs)
     logger.info("Event created: %d", event.pk)
-    set_weather.enqueue(event.pk)
-    logger.info("Weather set for event: %d", event.pk)
+    update_activity_weather.enqueue(event.pk)
+    logger.info("Weather update enqueued for event: %d", event.pk)

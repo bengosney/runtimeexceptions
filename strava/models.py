@@ -212,36 +212,6 @@ class Activity(models.Model):
     def __str__(self):
         return f"{self.strava_id} {self.type}"
 
-    @classmethod
-    def find_or_create(cls, runner: Runner, activity_id: int):
-        """
-        Finds an activity by ID or fetches it from Strava if not found.
-        """
-        logger.info("Looking for Activity, strava_id=%d, runner=%s", activity_id, runner)
-        try:
-            activity = cls.objects.get(strava_id=activity_id, runner=runner)
-            logger.info("Found existing Activity: %d", activity.pk)
-        except cls.DoesNotExist:
-            logger.info("Activity not found, fetching from Strava API, strava_id=%d", activity_id)
-            activity_data = runner.activity(activity_id)
-
-            weather: Weather | None = None
-            if activity_data.end_latlng:
-                logger.debug("activity_data: %s", activity_data)
-                lat: float = activity_data.end_latlng.root[0]
-                lng: float = activity_data.end_latlng.root[1]
-                logger.info("Fetching weather for lat=%f, lng=%f", lat, lng)
-                weather = Weather.from_lat_long(lat, lng)
-
-            activity = cls.objects.create(
-                strava_id=activity_data.id,
-                type=activity_data.type.value if activity_data.type is not None else "",
-                runner=runner,
-                weather=weather,
-            )
-            logger.info("Created new Activity: %d", activity.pk)
-        return activity
-
     def add_weather(self):
         """
         Updates the activity description on Strava.

@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Import the undecorated function for testing
 from strava.tasks.create_event import create_event as create_event_func
 
 
@@ -21,10 +20,10 @@ def event():
     return mock_event
 
 
-@patch("strava.tasks.create_event.set_weather")
+@patch("strava.tasks.create_event.update_activity_weather")
 @patch("strava.tasks.create_event.Event")
 @patch("strava.tasks.create_event.Runner")
-def test_create_event_success(mock_runner_cls, mock_event_cls, mock_set_weather, runner, event):
+def test_create_event_success(mock_runner_cls, mock_event_cls, mock_update_weather, runner, event):
     mock_runner_cls.objects.get.return_value = runner
     mock_event_cls.objects.create.return_value = event
 
@@ -38,4 +37,4 @@ def test_create_event_success(mock_runner_cls, mock_event_cls, mock_set_weather,
 
     mock_runner_cls.objects.get.assert_called_once_with(strava_id=kwargs["owner_id"])
     mock_event_cls.objects.create.assert_called_once()
-    mock_set_weather.enqueue.assert_called_once_with(event.pk)
+    mock_update_weather.enqueue.assert_called_once_with(event.pk)
