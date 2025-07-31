@@ -1,8 +1,9 @@
 import pytest
 from model_bakery import baker
 
+from strava.data_models import EventWebhook
 from strava.models import Event, Runner
-from strava.tasks.create_event import WebHook, transform_webhook_data_to_event
+from strava.tasks.create_event import transform_webhook_data_to_event
 
 OBJECT_TYPE = "activity"
 OBJECT_ID = 123
@@ -27,7 +28,7 @@ def webhook_data():
 
 
 def test_webhook_valid(webhook_data):
-    webhook = WebHook.model_validate(webhook_data)
+    webhook = EventWebhook.model_validate(webhook_data)
     assert webhook.object_type == OBJECT_TYPE
     assert webhook.object_id == OBJECT_ID
     assert webhook.aspect_type == ASPECT_TYPE
@@ -41,8 +42,7 @@ def test_webhook_valid(webhook_data):
 def test_transform_webhook_data_to_event(webhook_data):
     runner = baker.make(Runner, strava_id=OWNER_ID)
 
-    # Transform the webhook data to an Event
-    event = transform_webhook_data_to_event(WebHook.model_validate(webhook_data))
+    event = transform_webhook_data_to_event(EventWebhook.model_validate(webhook_data))
 
     assert isinstance(event, Event)
     assert event.object_type == OBJECT_TYPE

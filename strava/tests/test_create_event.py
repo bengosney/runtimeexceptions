@@ -28,9 +28,13 @@ def test_create_event_success(mock_runner_cls, mock_event_cls, mock_update_weath
     mock_event_cls.objects.create.return_value = event
 
     kwargs = {
-        "event_time": datetime.now().timestamp(),
+        "event_time": int(datetime.now().timestamp()),
         "owner_id": "strava123",
-        "other_field": "value",
+        "object_type": "activity",
+        "object_id": 123,
+        "aspect_type": "create",
+        "updates": {"key": "value"},
+        "subscription_id": 123,
     }
     # Call the original function via the .func attribute of the Task object
     create_event_func.func(**kwargs)

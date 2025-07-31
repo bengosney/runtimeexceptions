@@ -75,7 +75,7 @@ target-version = [ "py313" ]
 target-version = "py313"
 line-length = 120
 exclude = [ "migrations" ]
-extend-exclude = [ "strava/data_models.py" ]
+extend-exclude = [ "strava/data_models/openapi.py" ]
 
 format.indent-style = "space"
 format.quote-style = "double"

@@ -153,8 +153,8 @@ openapi.json: swagger.json
 	  -H 'Content-Type: application/json' \
 	  -d @$< > $@
 
-strava/data_models.py: openapi.json $(UV_PATH)
+strava/data_models/openapi.py: openapi.json $(UV_PATH)
 	@echo "Generating Strava data models"
 	uvx --from datamodel-code-generator datamodel-codegen --input $< --input-file-type openapi --output $@
 
-data_models: strava/data_models.py ## Generate the data models for Strava
+data_models: strava/data_models/openapi.py ## Generate the data models for Strava
