@@ -254,9 +254,7 @@ class Event(models.Model):
     event_time = models.DateTimeField()
     object_id = models.BigIntegerField()
     object_type = models.CharField(max_length=128, choices=OBJECT_TYPES)
-    owner_id = models.ForeignKey["Runner"](
-        Runner, on_delete=models.CASCADE, related_name="updates", to_field="strava_id"
-    )
+    owner = models.ForeignKey["Runner"](Runner, on_delete=models.CASCADE, related_name="updates", to_field="strava_id")
     subscription_id = models.BigIntegerField()
     updates = models.JSONField(default=dict)
     processed = models.BooleanField(default=False)

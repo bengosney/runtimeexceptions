@@ -49,6 +49,6 @@ def test_transform_webhook_data_to_event(webhook_data):
     assert event.object_id == OBJECT_ID
     assert event.aspect_type == ASPECT_TYPE
     assert event.updates == UPDATES
-    assert event.owner_id == runner
+    assert event.owner == runner
     assert event.subscription_id == SUBSCRIPTION_ID
     assert event.event_time.timestamp() == EVENT_TIME

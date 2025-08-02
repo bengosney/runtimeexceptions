@@ -33,6 +33,6 @@ def test_create_event_success(mock_update_weather, db):
     }
     create_event_func.func(**kwargs)
 
-    event = Event.objects.get(owner_id=runner, object_id=kwargs["object_id"])
+    event = Event.objects.get(owner=runner, object_id=kwargs["object_id"])
     assert event is not None
     mock_update_weather.enqueue.assert_called_once_with(event.pk)

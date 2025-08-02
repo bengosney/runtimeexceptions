@@ -25,7 +25,7 @@ def update_activity_weather(update_id: int):
         logger.info(f"Event is not a {Event.ASPECT_TYPES['create']} event, skipping weather update")
         return
 
-    find_or_create_activity = FindOrCreateActivity(event.owner_id, event.object_id)
+    find_or_create_activity = FindOrCreateActivity(event.owner, event.object_id)
     activity = find_or_create_activity()
     logger.info("Found or created activity: %d for event: %d", activity.pk, event.pk)
 

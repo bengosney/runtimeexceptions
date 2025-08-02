@@ -14,7 +14,7 @@ def runner():
 
 @pytest.fixture
 def event(runner):
-    return baker.make(Event, owner_id=runner, aspect_type=Event.ASPECT_TYPES["create"])
+    return baker.make(Event, owner=runner, aspect_type=Event.ASPECT_TYPES["create"])
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def weather():
 def test_update_activity_weather_sets_weather(mock_find_or_create, runner, weather, mocker, activity_type):
     event = baker.make(
         Event,
-        owner_id=runner,
+        owner=runner,
         aspect_type=Event.ASPECT_TYPES["create"],
     )
     activity = baker.make(Activity, runner=runner, weather=weather, type=activity_type)

@@ -18,7 +18,7 @@ def webhook_data_to_event(event_data: EventWebhook) -> Event:
         object_id=event_data.object_id,
         aspect_type=event_data.aspect_type,
         updates=event_data.updates,
-        owner_id=owner,
+        owner=owner,
         subscription_id=event_data.subscription_id,
         event_time=event_time,
     )
