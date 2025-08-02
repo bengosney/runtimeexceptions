@@ -18,11 +18,6 @@ def event(runner):
 
 
 @pytest.fixture
-def activity(runner):
-    return baker.make(Activity, runner=runner)
-
-
-@pytest.fixture
 def weather():
     return baker.make(Weather)
 
