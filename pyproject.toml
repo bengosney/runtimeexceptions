@@ -103,6 +103,15 @@ all = true
 DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.test"
 python_files = [ "tests.py", "test_*.py", "*_tests.py" ]
 
+[tool.coverage.run]
+omit = [
+  "*/migrations/*",
+  "asgi.py",
+  "wsgi.py",
+  "runtimeexceptions/settings/*.py",
+  "manage.py",
+]
+
 [tool.mypy]
 plugins = [ "mypy_django_plugin.main" ]
 

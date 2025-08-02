@@ -110,11 +110,15 @@ upgrade: python
 	wagtail updatemodulepaths --ignore-dir .direnv
 	python -m pre_commit autoupdate
 
-cov.xml: $(PYTHON_FILES)
+cov.xml: $(PYTHON_FILES) pyproject.toml
 	python3 -m pytest --cov=. --cov-report xml:$@
 
-coverage: $(PYTHON_FILES)
+coverage: $(PYTHON_FILES) pyproject.toml
 	python3 -m pytest --cov=. --cov-report html:$@
+	@touch $@
+
+view-coverage: coverage
+	xdg-open coverage/index.html
 
 _server:
 	python3 ./manage.py migrate
