@@ -8,16 +8,6 @@ from strava.models import Event, Runner
 from strava.tasks.create_event import create_event as create_event_func
 
 
-@pytest.fixture
-def runner(db):
-    return baker.make(Runner)
-
-
-@pytest.fixture
-def event(db):
-    return baker.make(Event)
-
-
 @pytest.mark.django_db
 @patch("strava.tasks.create_event.update_activity_weather")
 def test_create_event_success(mock_update_weather, db):
