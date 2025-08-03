@@ -1,6 +1,6 @@
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy as reverse
+from django.urls import reverse_lazy
 
 from strava.exceptions import StravaNotAuthenticatedError
 
@@ -15,4 +15,4 @@ class NotAuthenticated:
     def process_exception(self, request, exception):
         if isinstance(exception, StravaNotAuthenticatedError):
             logout(request)
-            return HttpResponseRedirect(reverse("strava:login"))
+            return HttpResponseRedirect(reverse_lazy("strava:login"))
