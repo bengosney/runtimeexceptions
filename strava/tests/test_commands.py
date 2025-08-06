@@ -1,8 +1,13 @@
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.management import call_command as _call_command
 
 import pytest
+from model_bakery import baker
+
+from strava.commands.find_or_create_activity import FindOrCreateActivity
+from strava.models import Activity, Runner
 
 
 @pytest.fixture
@@ -35,3 +40,10 @@ def test_create_subscription_existing(call_command, mock_create, mock_list, mock
     assert mock_delete.called
     args, _ = mock_delete.call_args
     assert args[0].endswith("123")
+
+
+def test_type_error_if_not_activity_instance():
+    runner = baker.prepare(Runner)
+    with patch.object(Activity.objects, "get", return_value=None):
+        with pytest.raises(TypeError, match=r"Expected Activity instance, got NoneType"):
+            FindOrCreateActivity(runner, 123)()
