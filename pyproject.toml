@@ -110,6 +110,7 @@ omit = [
   "wsgi.py",
   "runtimeexceptions/settings/*.py",
   "manage.py",
+  "*/urls.py",
 ]
 
 [tool.mypy]
