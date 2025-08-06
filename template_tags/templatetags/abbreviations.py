@@ -9,7 +9,7 @@ _ABBREVIATIONS = {
     "second": "s",
     "hour": "h",
     "day": "d",
-    "and": " ",
+    "and": "",
 }
 
 
