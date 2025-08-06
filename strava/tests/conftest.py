@@ -1,9 +1,27 @@
 from collections.abc import Generator
+from io import StringIO
 from unittest import mock
 
+from django.core.management import call_command as _call_command
 from django.test import override_settings
 
 import pytest
+
+
+@pytest.fixture
+def call_command():
+    def _func(command_name, *args, **kwargs):
+        out = StringIO()
+        _call_command(
+            command_name,
+            *args,
+            stdout=out,
+            stderr=StringIO(),
+            **kwargs,
+        )
+        return out.getvalue()
+
+    return _func
 
 
 @pytest.fixture(autouse=True, scope="module")

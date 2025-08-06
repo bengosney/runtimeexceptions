@@ -1,7 +1,5 @@
-from io import StringIO
 from unittest.mock import patch
 
-from django.core.management import call_command as _call_command
 from django.core.management.base import CommandError
 
 import pytest
@@ -9,22 +7,6 @@ from model_bakery import baker
 
 from strava.commands.find_or_create_activity import FindOrCreateActivity
 from strava.models import Activity, Runner
-
-
-@pytest.fixture
-def call_command():
-    def _func(command_name, *args, **kwargs):
-        out = StringIO()
-        _call_command(
-            command_name,
-            *args,
-            stdout=out,
-            stderr=StringIO(),
-            **kwargs,
-        )
-        return out.getvalue()
-
-    return _func
 
 
 def test_create_subscription(call_command, mock_create, mock_list_empty, mock_delete):
