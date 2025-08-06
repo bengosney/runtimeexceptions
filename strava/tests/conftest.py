@@ -22,10 +22,15 @@ def mock_create(scope="module") -> Generator[mock.Mock]:
 
 
 @pytest.fixture
-def mock_list(scope="module") -> Generator[mock.Mock]:
+def mock_callback_url(scope="module") -> str:
+    return "https://example.com/webhook"
+
+
+@pytest.fixture
+def mock_list(mock_callback_url, scope="module") -> Generator[mock.Mock]:
     mock_response = mock.Mock()
     mock_response.status_code = 200
-    mock_response.json.return_value = [{"id": 123, "callback_url": "https://example.com/webhook"}]
+    mock_response.json.return_value = [{"id": 123, "callback_url": mock_callback_url}]
     with mock.patch("requests.get", return_value=mock_response) as mock_get:
         yield mock_get
 
