@@ -2,6 +2,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from django.core.management import call_command as _call_command
+from django.core.management.base import CommandError
 
 import pytest
 from model_bakery import baker
@@ -28,6 +29,15 @@ def call_command():
 
 def test_create_subscription(call_command, mock_create, mock_list_empty, mock_delete):
     assert "Successfully created subscription" in call_command("create_subscription")
+    assert mock_create.called
+    assert mock_list_empty.called
+    assert not mock_delete.called
+
+
+def test_create_subscription_error(call_command, mock_create, mock_list_empty, mock_delete):
+    mock_create.side_effect = Exception("API error")
+    with pytest.raises(CommandError, match="API error"):
+        call_command("create_subscription")
     assert mock_create.called
     assert mock_list_empty.called
     assert not mock_delete.called
