@@ -1,0 +1,140 @@
+from unittest.mock import MagicMock, patch
+
+from django.contrib.auth.models import User
+from django.test import RequestFactory
+
+import pytest
+from model_bakery import baker
+
+from strava.models import Runner
+
+
+@pytest.mark.django_db
+def test_runner_str_method():
+    strava_id = "12345"
+    runner = baker.make(Runner, strava_id=strava_id)
+    assert str(runner) == strava_id
+
+
+@patch("strava.models.requests.Request")
+def test_get_auth_url(requests_mock):
+    factory = RequestFactory()
+    request = factory.get("/")
+    mock_prepared = MagicMock()
+    mock_prepared.url = "http://auth.url"
+    requests_mock.return_value.prepare.return_value = mock_prepared
+    url = Runner.get_auth_url(request)
+    assert url == mock_prepared.url
+
+
+@pytest.mark.django_db
+@patch("strava.models.Runner._make_call")
+def test_auth_call_back_new_user(mock_make_call):
+    athlete = {"id": "stravaid", "username": "testuser", "firstname": "Test", "lastname": "User"}
+    mock_make_call.return_value = {
+        "expires_at": 1234567890,
+        "athlete": athlete,
+        "access_token": "token",
+        "refresh_token": "refresh",
+    }
+
+    user = Runner.auth_call_back("code")
+    assert user.username == athlete["username"]
+    assert user.first_name == athlete["firstname"]
+    assert user.last_name == athlete["lastname"]
+
+    runner = Runner.objects.get(strava_id="stravaid")
+    assert getattr(runner, "user", None) == user
+
+
+@pytest.mark.django_db
+@patch("strava.models.Runner._make_call")
+def test_auth_call_back_existing_user(mock_make_call):
+    athlete = {"id": "stravaid", "username": "testuser", "firstname": "Test", "lastname": "User"}
+    mock_make_call.return_value = {
+        "expires_at": 1234567890,
+        "athlete": athlete,
+        "access_token": "token",
+        "refresh_token": "refresh",
+    }
+
+    existing_user = baker.make(
+        User,
+        username=athlete["username"],
+        first_name="old",
+        last_name="name",
+    )
+    user = Runner.auth_call_back("code")
+    assert user.pk == existing_user.pk
+    assert user.username == athlete["username"]
+    assert user.first_name == athlete["firstname"]
+    assert user.last_name == athlete["lastname"]
+
+    runner = Runner.objects.get(strava_id="stravaid")
+    assert getattr(runner, "user", None) == user
+
+
+@pytest.mark.django_db
+@patch("strava.models.Runner._make_call")
+def test_do_refresh_token(mock_make_call, settings):
+    mock_make_call.return_value = {
+        "access_token": "newtoken",
+        "expires_at": 1234567890,
+        "refresh_token": "newrefresh",
+    }
+    runner: Runner = baker.make(
+        Runner,
+        strava_id="12345",
+        access_token="token",
+        access_expires="0",
+        refresh_token="refresh",
+    )
+    runner.do_refresh_token()
+    mock_make_call.assert_called_once_with(
+        "oauth/token",
+        {
+            "client_id": settings.STRAVA_CLIENT_ID,
+            "client_secret": settings.STRAVA_SECRET,
+            "refresh_token": "refresh",
+            "grant_type": "refresh_token",
+        },
+        method="POST",
+    )
+
+    assert runner.access_token == mock_make_call.return_value["access_token"]
+    assert runner.access_expires == mock_make_call.return_value["expires_at"]
+    assert runner.refresh_token == mock_make_call.return_value["refresh_token"]
+
+
+@pytest.mark.django_db
+@patch.object(Runner, "do_refresh_token")
+def test_auth_code_does_not_refresh_if_expired(mock_refresh):
+    import time
+
+    runner = baker.make(
+        Runner,
+        strava_id="12345",
+        access_token="token",
+        access_expires=str(int(time.time()) - 10000),
+        refresh_token="refresh",
+    )
+    code = runner.auth_code
+    assert code == "token"
+    mock_refresh.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch.object(Runner, "do_refresh_token")
+def test_auth_code_does_not_refresh_if_not_expired(mock_refresh):
+    import time
+
+    runner = baker.make(
+        Runner,
+        strava_id="12345",
+        access_token="token",
+        access_expires=str(int(time.time()) + 10000),
+        refresh_token="refresh",
+    )
+    code = runner.auth_code
+    assert code == "token"
+    mock_refresh.assert_not_called()

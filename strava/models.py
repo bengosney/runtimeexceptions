@@ -3,7 +3,7 @@ import time
 from collections.abc import Iterable
 from http import HTTPStatus
 from math import atan2, cos, radians, sin, sqrt
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -35,9 +35,9 @@ class Runner(models.Model):
     def __str__(self):
         return self.strava_id
 
-    @staticmethod
-    def get_auth_url(request):
-        url = "https://www.strava.com/api/v3/oauth/authorize"
+    @classmethod
+    def get_auth_url(cls, request):
+        url = cls._strava_api_url("oauth/authorize")
 
         redirect_uri = request.build_absolute_uri(reverse("strava:auth_callback"))
         params = {
@@ -53,7 +53,7 @@ class Runner(models.Model):
         return p.url
 
     @classmethod
-    def auth_call_back(cls, code):
+    def auth_call_back(cls, code) -> User:
         data = {
             "client_id": settings.STRAVA_CLIENT_ID,
             "client_secret": settings.STRAVA_SECRET,
@@ -87,10 +87,9 @@ class Runner(models.Model):
             },
         )
 
-        return user
+        return cast(User, user)
 
     def do_refresh_token(self):
-        print("Refreshing token")
         data = {
             "client_id": settings.STRAVA_CLIENT_ID,
             "client_secret": settings.STRAVA_SECRET,
@@ -125,13 +124,18 @@ class Runner(models.Model):
         return self._make_call(path, args, method, self.auth_code)
 
     @staticmethod
+    def _strava_api_url(path: str) -> str:
+        return f"https://www.strava.com/api/v3/{path}"
+
+    @classmethod
     def _make_call(
+        cls,
         path: str,
         args: dict[str, Any] = {},
         method: str = "GET",
         authentication: str | None = None,
     ) -> dict[str, Any]:
-        url = f"https://www.strava.com/api/v3/{path}"
+        url = cls._strava_api_url(path)
 
         headers = {
             "Accept": "application/json",
