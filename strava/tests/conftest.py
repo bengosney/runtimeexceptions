@@ -1,6 +1,7 @@
 from collections.abc import Generator
 from io import StringIO
 from unittest import mock
+from unittest.mock import MagicMock
 
 from django.core.management import call_command as _call_command
 from django.test import override_settings
@@ -68,3 +69,9 @@ def mock_delete(scope="module") -> Generator[mock.Mock]:
     mock_response.status_code = 204
     with mock.patch("requests.delete", return_value=mock_response) as mock_delete:
         yield mock_delete
+
+
+@pytest.fixture
+def mock_strava_request(scope="module") -> Generator[mock.Mock]:
+    with mock.patch("strava.models.requests.request", return_value=MagicMock()) as mock_request:
+        yield mock_request
