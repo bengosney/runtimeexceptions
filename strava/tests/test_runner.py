@@ -281,3 +281,17 @@ def test_activity_invalid(mock_strava_request):
         mock_validate.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
         with pytest.raises(Http404):
             runner.activity(1)
+
+
+@pytest.mark.django_db
+@patch("strava.models.Runner.make_call")
+def test_update_activity(mock_make_call):
+    id = 1
+    data = {"name": "New Activity"}
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    runner.update_activity(id, data)
+    mock_make_call.assert_called_once_with(
+        f"activities/{id}",
+        data,
+        method="PUT",
+    )
