@@ -2,10 +2,12 @@ from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.test import RequestFactory
 
 import pytest
 from model_bakery import baker
+from pydantic import ValidationError
 
 from strava.data_models import SummaryActivity, SummaryAthlete
 from strava.exceptions import (
@@ -219,6 +221,26 @@ def test_get_details(mock_strava_request):
 
 
 @pytest.mark.django_db
+def test_get_details_not_found(mock_strava_request):
+    mock_strava_request.return_value.status_code = HTTPStatus.NOT_FOUND
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    with pytest.raises(StravaNotFoundError):
+        runner.get_details()
+
+
+@pytest.mark.django_db
+def test_get_details_invalid(mock_strava_request):
+    data = {"key": "value"}
+    mock_strava_request.return_value.json.return_value = data
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    with patch("strava.models.SummaryAthlete.model_validate") as mock_validate:
+        mock_validate.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
+        with pytest.raises(Http404):
+            runner.get_details()
+
+
+@pytest.mark.django_db
 def test_get_activities(mock_strava_request):
     data = [{"key": "value"}]
     mock_strava_request.return_value.json.return_value = data
@@ -226,3 +248,14 @@ def test_get_activities(mock_strava_request):
     runner: Runner = baker.make(Runner, access_expires="9999999999")
     activities = runner.get_activities()
     assert list(activities) == [SummaryActivity.model_validate(item) for item in data]
+
+
+@pytest.mark.django_db
+def test_get_activities_invalid(mock_strava_request):
+    data = [{"key": "value"}]
+    mock_strava_request.return_value.json.return_value = data
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    with patch("strava.models.SummaryActivity.model_validate") as mock_validate:
+        mock_validate.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
+        assert list(runner.get_activities()) == []
