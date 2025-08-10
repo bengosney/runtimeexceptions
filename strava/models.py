@@ -232,8 +232,7 @@ class Activity(models.Model):
             "name": f"{name} {emoji}",
         }
 
-        response = self.runner.update_activity(self.strava_id, data)
-        return response
+        return self.runner.update_activity(self.strava_id, data)
 
 
 class Event(models.Model):
