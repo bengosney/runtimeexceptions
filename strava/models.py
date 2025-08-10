@@ -111,10 +111,6 @@ class Runner(models.Model):
 
         return self.access_token
 
-    @classmethod
-    def get_authenticated_athlete(cls):
-        pass
-
     def make_call(
         self,
         path: str,
