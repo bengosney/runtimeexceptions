@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
@@ -6,6 +7,12 @@ from django.test import RequestFactory
 import pytest
 from model_bakery import baker
 
+from strava.exceptions import (
+    StravaError,
+    StravaNotAuthenticatedError,
+    StravaNotFoundError,
+    StravaPaidFeatureError,
+)
 from strava.models import Runner
 
 
@@ -75,6 +82,17 @@ def test_auth_call_back_existing_user(mock_make_call):
 
 
 @pytest.mark.django_db
+def test_make_call_calls__make_call():
+    runner = baker.make(Runner, access_expires="9999999999")
+    from unittest.mock import patch
+
+    with patch.object(Runner, "_make_call", return_value={"result": "ok"}) as mock_make_call:
+        result = runner.make_call("some/path", {"foo": "bar"}, method="POST")
+        mock_make_call.assert_called_once_with("some/path", {"foo": "bar"}, "POST", runner.auth_code)
+        assert result == {"result": "ok"}
+
+
+@pytest.mark.django_db
 @patch("strava.models.Runner._make_call")
 def test_do_refresh_token(mock_make_call, settings):
     mock_make_call.return_value = {
@@ -138,3 +156,55 @@ def test_auth_code_does_not_refresh_if_not_expired(mock_refresh):
     code = runner.auth_code
     assert code == "token"
     mock_refresh.assert_not_called()
+
+
+def test_strava_api_url():
+    path = "athlete"
+    expected_url = f"https://www.strava.com/api/v3/{path}"
+    assert Runner._strava_api_url(path) == expected_url
+
+
+@patch("strava.models.requests.request")
+def test__make_call(mock_request):
+    mock_request.return_value = MagicMock()
+    mock_request.return_value.json.return_value = {"key": "value"}
+    mock_request.return_value.status_code = HTTPStatus.OK
+    response = Runner._make_call("test")
+    assert response == {"key": "value"}
+
+
+@patch("strava.models.requests.request")
+def test__make_call_authorized(mock_request):
+    mock_request.return_value = MagicMock()
+    mock_request.return_value.status_code = HTTPStatus.OK
+    Runner._make_call("test", authentication="token")
+    mock_request.assert_called_once_with(
+        "GET",
+        Runner._strava_api_url("test"),
+        headers={
+            "Accept": "application/json",
+            "Cache-Control": "no-cache",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
+            "Authorization": "Bearer token",
+        },
+        data={},
+    )
+
+
+@pytest.mark.parametrize(
+    "status_code, exception_type",
+    [
+        (HTTPStatus.UNAUTHORIZED, StravaNotAuthenticatedError),
+        (HTTPStatus.PAYMENT_REQUIRED, StravaPaidFeatureError),
+        (HTTPStatus.NOT_FOUND, StravaNotFoundError),
+        (HTTPStatus.INTERNAL_SERVER_ERROR, StravaError),
+    ],
+)
+@patch("strava.models.requests.request")
+def test__make_call_unauthorized(mock_request, status_code, exception_type):
+    mock_request.return_value = MagicMock()
+    mock_request.return_value.json.return_value = {"key": "value"}
+    mock_request.return_value.status_code = status_code
+    with pytest.raises(exception_type):
+        Runner._make_call("test")
