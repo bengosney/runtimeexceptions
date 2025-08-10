@@ -7,6 +7,7 @@ from django.test import RequestFactory
 import pytest
 from model_bakery import baker
 
+from strava.data_models import SummaryActivity, SummaryAthlete
 from strava.exceptions import (
     StravaError,
     StravaNotAuthenticatedError,
@@ -164,21 +165,19 @@ def test_strava_api_url():
     assert Runner._strava_api_url(path) == expected_url
 
 
-@patch("strava.models.requests.request")
-def test__make_call(mock_request):
-    mock_request.return_value = MagicMock()
-    mock_request.return_value.json.return_value = {"key": "value"}
-    mock_request.return_value.status_code = HTTPStatus.OK
+def test__make_call(mock_strava_request):
+    mock_strava_request.return_value = MagicMock()
+    mock_strava_request.return_value.json.return_value = {"key": "value"}
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
     response = Runner._make_call("test")
     assert response == {"key": "value"}
 
 
-@patch("strava.models.requests.request")
-def test__make_call_authorized(mock_request):
-    mock_request.return_value = MagicMock()
-    mock_request.return_value.status_code = HTTPStatus.OK
+def test__make_call_authorized(mock_strava_request):
+    mock_strava_request.return_value = MagicMock()
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
     Runner._make_call("test", authentication="token")
-    mock_request.assert_called_once_with(
+    mock_strava_request.assert_called_once_with(
         "GET",
         Runner._strava_api_url("test"),
         headers={
@@ -201,10 +200,29 @@ def test__make_call_authorized(mock_request):
         (HTTPStatus.INTERNAL_SERVER_ERROR, StravaError),
     ],
 )
-@patch("strava.models.requests.request")
-def test__make_call_unauthorized(mock_request, status_code, exception_type):
-    mock_request.return_value = MagicMock()
-    mock_request.return_value.json.return_value = {"key": "value"}
-    mock_request.return_value.status_code = status_code
+def test__make_call_unauthorized(mock_strava_request, status_code, exception_type):
+    mock_strava_request.return_value = MagicMock()
+    mock_strava_request.return_value.json.return_value = {"key": "value"}
+    mock_strava_request.return_value.status_code = status_code
     with pytest.raises(exception_type):
         Runner._make_call("test")
+
+
+@pytest.mark.django_db
+def test_get_details(mock_strava_request):
+    data = {"key": "value"}
+    mock_strava_request.return_value.json.return_value = data
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    details = runner.get_details()
+    assert details == SummaryAthlete.model_validate(data)
+
+
+@pytest.mark.django_db
+def test_get_activities(mock_strava_request):
+    data = [{"key": "value"}]
+    mock_strava_request.return_value.json.return_value = data
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    activities = runner.get_activities()
+    assert list(activities) == [SummaryActivity.model_validate(item) for item in data]
