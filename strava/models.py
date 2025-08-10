@@ -184,9 +184,6 @@ class Runner(models.Model):
         """
         return self.make_call(f"activities/{activity_id}", data, method="PUT")
 
-    def distance_from(self):
-        pass
-
     @staticmethod
     def get_distance(point1: Point, point2: Point) -> float:
         r = 6373.0
