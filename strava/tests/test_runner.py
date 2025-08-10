@@ -9,7 +9,7 @@ import pytest
 from model_bakery import baker
 from pydantic import ValidationError
 
-from strava.data_models import SummaryActivity, SummaryAthlete
+from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
 from strava.exceptions import (
     StravaError,
     StravaNotAuthenticatedError,
@@ -259,3 +259,25 @@ def test_get_activities_invalid(mock_strava_request):
     with patch("strava.models.SummaryActivity.model_validate") as mock_validate:
         mock_validate.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
         assert list(runner.get_activities()) == []
+
+
+@pytest.mark.django_db
+def test_activity(mock_strava_request):
+    data = {"key": "value"}
+    mock_strava_request.return_value.json.return_value = data
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    activity = runner.activity(1)
+    assert activity == DetailedActivity.model_validate(data)
+
+
+@pytest.mark.django_db
+def test_activity_invalid(mock_strava_request):
+    mock_strava_request.return_value.json.return_value = {"key": "value"}
+    mock_strava_request.return_value.status_code = HTTPStatus.OK
+
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    with patch("strava.models.DetailedActivity.model_validate") as mock_validate:
+        mock_validate.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
+        with pytest.raises(Http404):
+            runner.activity(1)
