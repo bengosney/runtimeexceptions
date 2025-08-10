@@ -295,3 +295,22 @@ def test_update_activity(mock_make_call):
         data,
         method="PUT",
     )
+
+
+def test_get_distance_zero():
+    point = (0.0, 0.0)
+    assert Runner.get_distance(point, point) == pytest.approx(0.0)
+
+
+def test_get_distance_known():
+    point1 = (0.0, 0.0)
+    point2 = (0.0, 1.0)
+    expected_km = 6373.0 * 2 * 3.141592653589793 / 360
+    assert Runner.get_distance(point1, point2) == pytest.approx(expected_km, rel=1e-3)
+
+
+def test_get_distance_antipodal():
+    point1 = (0.0, 0.0)
+    point2 = (0.0, 180.0)
+    expected_km = 6373.0 * 3.141592653589793
+    assert Runner.get_distance(point1, point2) == pytest.approx(expected_km, rel=1e-3)
