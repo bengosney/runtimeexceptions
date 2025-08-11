@@ -64,6 +64,16 @@ def mock_list_empty(scope="module") -> Generator[mock.Mock]:
 
 
 @pytest.fixture
+def mock_list_exception(scope="module") -> Generator[mock.Mock]:
+    mock_response = mock.Mock()
+    mock_response.status_code = 500
+    mock_response.json.return_value = {"error": "Internal Server Error"}
+    with mock.patch("requests.get", return_value=mock_response) as mock_get:
+        mock_get.side_effect = Exception("Mocked exception for testing")
+        yield mock_get
+
+
+@pytest.fixture
 def mock_delete(scope="module") -> Generator[mock.Mock]:
     mock_response = mock.Mock()
     mock_response.status_code = 204
