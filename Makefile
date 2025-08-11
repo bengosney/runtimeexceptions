@@ -14,7 +14,7 @@ WHEEL_PATH:=$(BINPATH)/wheel
 PRE_COMMIT_PATH:=$(BINPATH)/pre-commit
 UV_PATH:=$(BINPATH)/uv
 
-PYTHON_FILES:=$(wildcard ./**/*.py ./**/tests/*.py)
+PYTHON_FILES := $(shell find . -type d -name '.direnv' -prune -o -type f -name '*.py' -print)
 
 STATIC_DIR:= staticfiles
 
