@@ -82,6 +82,16 @@ def mock_delete(scope="module") -> Generator[mock.Mock]:
 
 
 @pytest.fixture
+def mock_delete_exception(scope="module") -> Generator[mock.Mock]:
+    mock_response = mock.Mock()
+    mock_response.status_code = 404
+    mock_response.json.return_value = {"error": "Not Found"}
+    with mock.patch("requests.delete", return_value=mock_response) as mock_delete:
+        mock_delete.side_effect = Exception("Mocked exception for testing")
+        yield mock_delete
+
+
+@pytest.fixture
 def mock_strava_request(scope="module") -> Generator[mock.Mock]:
     with mock.patch("strava.models.requests.request", return_value=MagicMock()) as mock_request:
         yield mock_request
