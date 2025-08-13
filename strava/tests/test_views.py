@@ -1,6 +1,7 @@
+import json
 import urllib.parse
 from http import HTTPStatus
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.http import Http404
 from django.urls import reverse
@@ -213,3 +214,39 @@ def test_activity_png_no_polyline(mock_activity, auth_client, runner):
     url = reverse("strava:activity_png", kwargs={"activityid": 101})
     response = auth_client.get(url)
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@patch("strava.views.create_event")
+def test_webhook_post(mock_create_event, client):
+    mock_enqueue = MagicMock()
+    mock_create_event.enqueue = mock_enqueue
+    payload = {"foo": "bar"}
+    response = client.post(
+        reverse("strava:webhook"),
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == HTTPStatus.OK
+    mock_enqueue.assert_called_once_with(**payload)
+
+
+def test_webhook_get_valid_token(client):
+    response = client.get(
+        reverse("strava:webhook"),
+        data={"hub.verify_token": "STRAVA", "hub.challenge": "abc123"},
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {"hub.challenge": "abc123"}
+
+
+def test_webhook_get_invalid_token(client):
+    response = client.get(
+        reverse("strava:webhook"),
+        data={"hub.verify_token": "WRONG", "hub.challenge": "abc123"},
+    )
+    assert response.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_webhook_method_not_allowed(client):
+    response = client.put(reverse("strava:webhook"))
+    assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
