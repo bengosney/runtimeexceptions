@@ -14,6 +14,18 @@ from strava.models import Runner
 
 
 @pytest.fixture
+def detailed_activity():
+    return DetailedActivity.model_validate(
+        {
+            "id": 101,
+            "name": "Test Activity",
+            "distance": 1000,
+            "map": {"id": "1", "polyline": "_piFps|U_ulLnnqC_mqNvxq`@"},
+        }
+    )
+
+
+@pytest.fixture
 def user(django_user_model):
     return django_user_model.objects.create_user(username="testuser", password="testpass")
 
@@ -133,4 +145,71 @@ def test_activity(mock_activity, auth_client, runner):
 def test_activity_not_found(mock_activity, auth_client, runner):
     mock_activity.side_effect = Http404("Activity not found")
     response = auth_client.get(reverse("strava:activity", kwargs={"activityid": 101}))
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@patch("strava.views.Runner.activity")
+def test_activity_svg_no_path(mock_activity, auth_client, runner):
+    activity = DetailedActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
+    mock_activity.return_value = activity
+    response = auth_client.get(reverse("strava:activity_svg", kwargs={"activityid": 101}))
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@patch("strava.views.Runner.activity")
+def test_activity_svg(mock_activity, auth_client, runner):
+    activity = DetailedActivity.model_validate(
+        {
+            "id": 101,
+            "name": "Test Activity",
+            "distance": 1000,
+            "map": {"id": "1", "polyline": "_piFps|U_ulLnnqC_mqNvxq`@"},
+        }
+    )
+    mock_activity.return_value = activity
+    response = auth_client.get(reverse("strava:activity_svg", kwargs={"activityid": 101}))
+    assert response.status_code == HTTPStatus.OK
+
+    assertInHTML(
+        '<path d="M 624 471 L 551 257 L 16 9" fill="none" id="route" stroke="#b9cded" />',
+        response.content.decode("utf-8"),
+    )
+
+
+# Tests for activity_png view
+@patch("strava.views.Runner.activity")
+def test_activity_png_dark(mock_activity, auth_client, runner, detailed_activity):
+    mock_activity.return_value = detailed_activity
+    url = reverse("strava:activity_png", kwargs={"activityid": 101})
+    response = auth_client.get(url, {"theme": "dark"})
+    assert response.status_code == HTTPStatus.OK
+    assert response["Content-Type"] == "image/png"
+    assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@patch("strava.views.Runner.activity")
+def test_activity_png_light(mock_activity, auth_client, runner, detailed_activity):
+    mock_activity.return_value = detailed_activity
+    url = reverse("strava:activity_png", kwargs={"activityid": 101})
+    response = auth_client.get(url, {"theme": "light"})
+    assert response.status_code == HTTPStatus.OK
+    assert response["Content-Type"] == "image/png"
+    assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@patch("strava.views.Runner.activity")
+def test_activity_png_invalid_theme(mock_activity, auth_client, runner, detailed_activity):
+    mock_activity.return_value = detailed_activity
+    url = reverse("strava:activity_png", kwargs={"activityid": 101})
+    response = auth_client.get(url, {"theme": "invalid"})
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert b"Invalid theme specified." in response.content
+
+
+@patch("strava.views.Runner.activity")
+def test_activity_png_no_polyline(mock_activity, auth_client, runner):
+    activity = DetailedActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000, "map": None})
+    mock_activity.return_value = activity
+    url = reverse("strava:activity_png", kwargs={"activityid": 101})
+    response = auth_client.get(url)
     assert response.status_code == HTTPStatus.NOT_FOUND
