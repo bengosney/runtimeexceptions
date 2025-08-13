@@ -26,9 +26,9 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class Runner(models.Model):
-    strava_id = models.CharField(max_length=200, unique=True)
+    strava_id = models.CharField(max_length=200, unique=True)  # TODO: should be an int
     access_token = models.CharField(max_length=512)
-    access_expires = models.CharField(max_length=512)
+    access_expires = models.CharField(max_length=512)  # TODO: should be an int
     refresh_token = models.CharField(max_length=512)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
 
