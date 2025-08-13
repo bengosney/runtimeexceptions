@@ -58,13 +58,14 @@ def activities(request):
         return HttpResponseRedirect(reverse("strava:auth"))
 
     activities = runner.get_activities()
+    refreshlink = reverse("strava:refresh_token", kwargs={"strava_id": int(runner.strava_id)})
 
     return render(
         request,
         "strava/activities.html",
         {
             "authlink": reverse("strava:auth"),
-            "refreshlink": reverse("strava:refresh_token", args=[13735887]),
+            "refreshlink": refreshlink,
             "runner": runner.get_details(),
             "activities": activities,
         },
