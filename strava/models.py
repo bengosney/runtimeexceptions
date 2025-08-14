@@ -16,6 +16,7 @@ from pydantic import BaseModel, ValidationError
 
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
+from strava.mixins import TriathlonMixin
 from weather.models import Weather
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,14 @@ logger = logging.getLogger(__name__)
 Point = tuple[float, float]
 
 T = TypeVar("T", bound=BaseModel)
+
+
+class SummaryActivityTriathlon(TriathlonMixin, SummaryActivity):
+    pass
+
+
+class DetailedActivityTriathlon(TriathlonMixin, DetailedActivity):
+    pass
 
 
 class Runner(models.Model):
@@ -165,16 +174,16 @@ class Runner(models.Model):
         except ValidationError:
             raise Http404("Strava athlete not found or invalid data")
 
-    def get_activities(self) -> Iterable[SummaryActivity]:
+    def get_activities(self) -> Iterable[SummaryActivityTriathlon]:
         for activity in self.make_call("athlete/activities"):
             try:
-                yield SummaryActivity.model_validate(activity)
+                yield SummaryActivityTriathlon.model_validate(activity)
             except ValidationError:
                 pass
 
-    def activity(self, activity_id: int) -> DetailedActivity:
+    def activity(self, activity_id: int) -> DetailedActivityTriathlon:
         try:
-            return DetailedActivity.model_validate(self.make_call(f"activities/{activity_id}"))
+            return DetailedActivityTriathlon.model_validate(self.make_call(f"activities/{activity_id}"))
         except ValidationError as e:
             raise Http404("Strava activity not found or invalid data") from e
 

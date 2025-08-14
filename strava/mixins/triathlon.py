@@ -1,5 +1,3 @@
-from typing import Protocol
-
 from strava.data_models import ActivityType
 
 SWIM_DISTANCE: int = 1500
@@ -13,12 +11,7 @@ TRIATHLON_DISTANCES = {
 }
 
 
-class Activity(Protocol):
-    distance: float | None
-    type: ActivityType | None
-
-
-class TriathlonMixin(Activity):
+class TriathlonMixin:
     def triathlon_percentage(self, precision: int = 2) -> float:
         try:
             return round(((self.distance or 0) / TRIATHLON_DISTANCES[self.type]) * 100, precision)
