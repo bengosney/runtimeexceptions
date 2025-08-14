@@ -33,6 +33,16 @@ def test_list_subscriptions_success(manager, mock_list):
     assert kwargs["params"]["client_secret"] == "test_secret"
 
 
+def test_list_subscriptions_failure(manager):
+    mock_response = mock.Mock()
+    mock_response.status_code = 400
+    mock_response.text = "Bad Request"
+    with mock.patch("requests.get", return_value=mock_response):
+        with pytest.raises(Exception) as excinfo:
+            manager.list_subscriptions()
+        assert "Bad Request" in str(excinfo.value)
+
+
 def test_delete_subscription_success(manager, mock_delete):
     subscription_id = 123
     manager.delete_subscription(subscription_id)
@@ -41,6 +51,16 @@ def test_delete_subscription_success(manager, mock_delete):
     assert kwargs["params"]["client_id"] == "test_id"
     assert kwargs["params"]["client_secret"] == "test_secret"
     assert args[0].endswith(str(subscription_id))
+
+
+def test_delete_subscription_failure(manager):
+    mock_response = mock.Mock()
+    mock_response.status_code = 400
+    mock_response.text = "Bad Request"
+    with mock.patch("requests.delete", return_value=mock_response):
+        with pytest.raises(Exception) as excinfo:
+            manager.delete_subscription(123)
+        assert "Bad Request" in str(excinfo.value)
 
 
 def test_create_subscription_failure(manager):

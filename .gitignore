@@ -339,3 +339,5 @@ pyrightconfig.json
 .ngrok
 openapi.json
 swagger.json
+
+cov.xml

@@ -40,7 +40,8 @@ optional-dependencies.dev = [
   "django-browser-reload",
   "django-debug-toolbar",
   "django-debugtools",
-  "django-stubs",
+  "django-stubs[compatible-mypy]",
+  "django-stubs-ext",
   "django-zeal",
   "granian[reload]",
   "icecream",
@@ -51,6 +52,7 @@ optional-dependencies.dev = [
   "ruff",
   "tach",
   "ty",
+  "types-requests",
 ]
 
 optional-dependencies.test = [
@@ -72,7 +74,7 @@ target-version = [ "py313" ]
 target-version = "py313"
 line-length = 120
 exclude = [ "migrations" ]
-extend-exclude = [ "strava/data_models.py" ]
+extend-exclude = [ "strava/data_models/openapi.py" ]
 
 format.indent-style = "space"
 format.quote-style = "double"
@@ -99,6 +101,16 @@ all = true
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.test"
 python_files = [ "tests.py", "test_*.py", "*_tests.py" ]
+
+[tool.coverage.run]
+omit = [
+  "*/migrations/*",
+  "asgi.py",
+  "wsgi.py",
+  "runtimeexceptions/settings/*.py",
+  "manage.py",
+  "*/urls.py",
+]
 
 [tool.mypy]
 plugins = [ "mypy_django_plugin.main" ]

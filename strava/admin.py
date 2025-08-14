@@ -13,7 +13,7 @@ class RunnerAdmin(admin.ModelAdmin):
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
     model = models.Event
-    list_display = ("aspect_type", "event_time", "owner_id")
+    list_display = ("aspect_type", "event_time", "owner")
     list_per_page = 25
 
 

@@ -3,6 +3,10 @@ from runtimeexceptions.settings.base import BASE_DIR, INSTALLED_APPS, LOGGING, M
 
 from runtimeexceptions.utils import deep_merge
 
+import django_stubs_ext
+
+django_stubs_ext.monkeypatch()
+
 SECRET_KEY = "django-insecure-^3nal3e4vwg$jdfob5_6mmqy2sxs1@=6q0trtz1tj7h7i#8m21"
 
 DEBUG = True

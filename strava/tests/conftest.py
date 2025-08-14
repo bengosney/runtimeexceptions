@@ -1,9 +1,28 @@
 from collections.abc import Generator
+from io import StringIO
 from unittest import mock
+from unittest.mock import MagicMock
 
+from django.core.management import call_command as _call_command
 from django.test import override_settings
 
 import pytest
+
+
+@pytest.fixture
+def call_command():
+    def _func(command_name, *args, **kwargs):
+        out = StringIO()
+        _call_command(
+            command_name,
+            *args,
+            stdout=out,
+            stderr=StringIO(),
+            **kwargs,
+        )
+        return out.getvalue()
+
+    return _func
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -22,10 +41,15 @@ def mock_create(scope="module") -> Generator[mock.Mock]:
 
 
 @pytest.fixture
-def mock_list(scope="module") -> Generator[mock.Mock]:
+def mock_callback_url(scope="module") -> str:
+    return "https://example.com/webhook"
+
+
+@pytest.fixture
+def mock_list(mock_callback_url, scope="module") -> Generator[mock.Mock]:
     mock_response = mock.Mock()
     mock_response.status_code = 200
-    mock_response.json.return_value = [{"id": 123, "callback_url": "https://example.com/webhook"}]
+    mock_response.json.return_value = [{"id": 123, "callback_url": mock_callback_url}]
     with mock.patch("requests.get", return_value=mock_response) as mock_get:
         yield mock_get
 
@@ -40,8 +64,34 @@ def mock_list_empty(scope="module") -> Generator[mock.Mock]:
 
 
 @pytest.fixture
+def mock_list_exception(scope="module") -> Generator[mock.Mock]:
+    mock_response = mock.Mock()
+    mock_response.status_code = 500
+    mock_response.json.return_value = {"error": "Internal Server Error"}
+    with mock.patch("requests.get", return_value=mock_response) as mock_get:
+        mock_get.side_effect = Exception("Mocked exception for testing")
+        yield mock_get
+
+
+@pytest.fixture
 def mock_delete(scope="module") -> Generator[mock.Mock]:
     mock_response = mock.Mock()
     mock_response.status_code = 204
     with mock.patch("requests.delete", return_value=mock_response) as mock_delete:
         yield mock_delete
+
+
+@pytest.fixture
+def mock_delete_exception(scope="module") -> Generator[mock.Mock]:
+    mock_response = mock.Mock()
+    mock_response.status_code = 404
+    mock_response.json.return_value = {"error": "Not Found"}
+    with mock.patch("requests.delete", return_value=mock_response) as mock_delete:
+        mock_delete.side_effect = Exception("Mocked exception for testing")
+        yield mock_delete
+
+
+@pytest.fixture
+def mock_strava_request(scope="module") -> Generator[mock.Mock]:
+    with mock.patch("strava.models.requests.request", return_value=MagicMock()) as mock_request:
+        yield mock_request

@@ -14,7 +14,7 @@ WHEEL_PATH:=$(BINPATH)/wheel
 PRE_COMMIT_PATH:=$(BINPATH)/pre-commit
 UV_PATH:=$(BINPATH)/uv
 
-PYTHON_FILES:=$(wildcard ./**/*.py ./**/tests/*.py)
+PYTHON_FILES := $(shell find . -type d -name '.direnv' -prune -o -type f -name '*.py' -print)
 
 STATIC_DIR:= staticfiles
 
@@ -110,11 +110,15 @@ upgrade: python
 	wagtail updatemodulepaths --ignore-dir .direnv
 	python -m pre_commit autoupdate
 
-cov.xml: $(PYTHON_FILES)
+cov.xml: $(PYTHON_FILES) pyproject.toml
 	python3 -m pytest --cov=. --cov-report xml:$@
 
-coverage: $(PYTHON_FILES)
+coverage: $(PYTHON_FILES) pyproject.toml
 	python3 -m pytest --cov=. --cov-report html:$@
+	@touch $@
+
+view-coverage: coverage
+	xdg-open coverage/index.html
 
 _server:
 	python3 ./manage.py migrate
@@ -153,8 +157,8 @@ openapi.json: swagger.json
 	  -H 'Content-Type: application/json' \
 	  -d @$< > $@
 
-strava/data_models.py: openapi.json $(UV_PATH)
+strava/data_models/openapi.py: openapi.json $(UV_PATH)
 	@echo "Generating Strava data models"
 	uvx --from datamodel-code-generator datamodel-codegen --input $< --input-file-type openapi --output $@
 
-data_models: strava/data_models.py ## Generate the data models for Strava
+data_models: strava/data_models/openapi.py ## Generate the data models for Strava
