@@ -16,7 +16,7 @@ from pydantic import BaseModel, ValidationError
 
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
-from strava.mixins import TriathlonMixin
+from strava.mixins import CleanEmptyLatLngMixin, TriathlonMixin
 from weather.models import Weather
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,11 @@ Point = tuple[float, float]
 T = TypeVar("T", bound=BaseModel)
 
 
-class SummaryActivityTriathlon(TriathlonMixin, SummaryActivity):
+class SummaryActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, SummaryActivity):
     pass
 
 
-class DetailedActivityTriathlon(TriathlonMixin, DetailedActivity):
+class DetailedActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, DetailedActivity):
     pass
 
 
@@ -179,6 +179,7 @@ class Runner(models.Model):
             try:
                 yield SummaryActivityTriathlon.model_validate(activity)
             except ValidationError:
+                logger.exception("Model %s failed to validate with data %s", SummaryActivityTriathlon, activity)
                 pass
 
     def activity(self, activity_id: int) -> DetailedActivityTriathlon:
