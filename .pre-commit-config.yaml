@@ -74,3 +74,9 @@ repos:
   rev: v0.28.0
   hooks:
   - id: tach
+- repo: local
+  hooks:
+  - id: ty
+    name: ty check
+    entry: uvx ty check . --ignore unresolved-import
+    language: python
