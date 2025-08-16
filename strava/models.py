@@ -3,7 +3,7 @@ import time
 from collections.abc import Iterable
 from http import HTTPStatus
 from math import atan2, cos, radians, sin, sqrt
-from typing import Any, ClassVar, Literal, TypeVar, cast
+from typing import Any, ClassVar, Literal, Self, TypeVar, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -178,11 +178,12 @@ class Runner(models.Model):
         except ValidationError as e:
             raise Http404("Strava activity not found or invalid data") from e
 
-    def update_activity(self, activity_id, data) -> DetailedActivity:
+    def update_activity(self: Self, activity_id: int, data: DetailedActivity) -> DetailedActivity:
         """
         Updates an activity with the given data.
         """
-        result = self.make_call(f"activities/{activity_id}", data, method="PUT")
+
+        result = self.make_call(f"activities/{activity_id}", data.model_dump(), method="PUT")
         return DetailedActivity.model_validate(result)
 
     @staticmethod
