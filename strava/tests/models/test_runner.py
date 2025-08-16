@@ -287,13 +287,13 @@ def test_activity_invalid(mock_strava_request):
 @patch("strava.models.Runner.make_call")
 def test_update_activity(mock_make_call):
     id = 1
-    data = {"name": "New Activity"}
+    data = DetailedActivity(name="New Activity")
     mock_make_call.return_value = data
     runner: Runner = baker.make(Runner, access_expires="9999999999")
     runner.update_activity(id, data)
     mock_make_call.assert_called_once_with(
         f"activities/{id}",
-        data,
+        data.model_dump(),
         method="PUT",
     )
 
