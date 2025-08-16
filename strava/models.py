@@ -14,8 +14,9 @@ from django.urls import reverse
 import requests
 from pydantic import BaseModel, ValidationError
 
-from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
+from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete, UpdatableActivity
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
+from strava.mixins import CleanEmptyLatLngMixin, TriathlonMixin
 from weather.models import Weather
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,14 @@ logger = logging.getLogger(__name__)
 Point = tuple[float, float]
 
 T = TypeVar("T", bound=BaseModel)
+
+
+class SummaryActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, SummaryActivity):
+    pass
+
+
+class DetailedActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, DetailedActivity):
+    pass
 
 
 class Runner(models.Model):
@@ -165,20 +174,21 @@ class Runner(models.Model):
         except ValidationError:
             raise Http404("Strava athlete not found or invalid data")
 
-    def get_activities(self) -> Iterable[SummaryActivity]:
+    def get_activities(self) -> Iterable[SummaryActivityTriathlon]:
         for activity in self.make_call("athlete/activities"):
             try:
-                yield SummaryActivity.model_validate(activity)
+                yield SummaryActivityTriathlon.model_validate(activity)
             except ValidationError:
+                logger.exception("Model %s failed to validate with data %s", SummaryActivityTriathlon, activity)
                 pass
 
-    def activity(self, activity_id: int) -> DetailedActivity:
+    def activity(self, activity_id: int) -> DetailedActivityTriathlon:
         try:
-            return DetailedActivity.model_validate(self.make_call(f"activities/{activity_id}"))
+            return DetailedActivityTriathlon.model_validate(self.make_call(f"activities/{activity_id}"))
         except ValidationError as e:
             raise Http404("Strava activity not found or invalid data") from e
 
-    def update_activity(self: Self, activity_id: int, data: DetailedActivity) -> DetailedActivity:
+    def update_activity(self: Self, activity_id: int, data: UpdatableActivity) -> DetailedActivity:
         """
         Updates an activity with the given data.
         """
@@ -228,12 +238,16 @@ class Activity(models.Model):
         emoji = self.weather.emoji()
         name = name.replace(emoji, "").strip()
 
-        data = {
-            "description": "\n\n".join(s for s in [description, weather] if s != ""),
-            "name": f"{name} {emoji}",
-        }
+        data = UpdatableActivity.model_validate(
+            {
+                "description": "\n\n".join(s for s in [description, weather] if s != ""),
+                "name": f"{name} {emoji}",
+            }
+        )
 
-        return self.runner.update_activity(self.strava_id, data)
+        runner = cast(Runner, self.runner)
+
+        return runner.update_activity(self.strava_id, data)
 
 
 class Event(models.Model):

@@ -13,3 +13,11 @@ source_roots = [
 [[modules ]]
 path = "runtimeexceptions"
 depends_on = []
+
+[[modules ]]
+path = "weather"
+depends_on = []
+
+[[modules ]]
+path = "strava"
+depends_on = ["weather"]

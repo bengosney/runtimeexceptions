@@ -9,14 +9,14 @@ import pytest
 from model_bakery import baker
 from pydantic import ValidationError
 
-from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
+from strava.data_models import DetailedActivity, SummaryAthlete
 from strava.exceptions import (
     StravaError,
     StravaNotAuthenticatedError,
     StravaNotFoundError,
     StravaPaidFeatureError,
 )
-from strava.models import Runner
+from strava.models import DetailedActivityTriathlon, Runner, SummaryActivityTriathlon
 
 
 @pytest.mark.django_db
@@ -247,7 +247,7 @@ def test_get_activities(mock_strava_request):
     mock_strava_request.return_value.status_code = HTTPStatus.OK
     runner: Runner = baker.make(Runner, access_expires="9999999999")
     activities = runner.get_activities()
-    assert list(activities) == [SummaryActivity.model_validate(item) for item in data]
+    assert list(activities) == [SummaryActivityTriathlon.model_validate(item) for item in data]
 
 
 @pytest.mark.django_db
@@ -268,7 +268,7 @@ def test_activity(mock_strava_request):
     mock_strava_request.return_value.status_code = HTTPStatus.OK
     runner: Runner = baker.make(Runner, access_expires="9999999999")
     activity = runner.activity(1)
-    assert activity == DetailedActivity.model_validate(data)
+    assert activity == DetailedActivityTriathlon.model_validate(data)
 
 
 @pytest.mark.django_db
