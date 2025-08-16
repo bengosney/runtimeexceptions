@@ -8,8 +8,9 @@ class CleanEmptyLatLngMixin:
     @classmethod
     def clean_empty_latlng(cls, data: Any) -> Any:
         fixable_fields: list[str] = ["start_latlng", "end_latlng"]
+        _data = dict(data)
         for field in fixable_fields:
-            if isinstance(data.get(field), list) and not data[field]:
-                data[field] = None
+            if isinstance(_data.get(field), list) and not _data[field]:
+                _data[field] = None
 
-        return data
+        return _data
