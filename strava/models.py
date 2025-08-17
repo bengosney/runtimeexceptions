@@ -82,6 +82,7 @@ class Runner(models.Model):
                 "last_name": data["athlete"]["lastname"],
             },
         )
+        user = cast(User, user)
         user.set_unusable_password()
         user.save()
 
@@ -96,7 +97,7 @@ class Runner(models.Model):
             },
         )
 
-        return cast(User, user)
+        return user
 
     def do_refresh_token(self):
         data = {
