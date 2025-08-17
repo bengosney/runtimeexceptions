@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
@@ -263,12 +264,13 @@ def test_get_activities_invalid(mock_strava_request):
 
 @pytest.mark.django_db
 def test_activity(mock_strava_request):
-    data = {"key": "value"}
+    data = {"name": "Test Activity"}
     mock_strava_request.return_value.json.return_value = data
     mock_strava_request.return_value.status_code = HTTPStatus.OK
-    runner: Runner = baker.make(Runner, access_expires="9999999999")
+    runner: Runner = cast(Runner, baker.make(Runner, access_expires="9999999999"))
     activity = runner.activity(1)
     assert activity == DetailedActivityTriathlon.model_validate(data)
+    assert activity.name == data["name"]
 
 
 @pytest.mark.django_db
