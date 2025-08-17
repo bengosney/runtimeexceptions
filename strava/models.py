@@ -137,7 +137,7 @@ class Runner(models.Model):
     def _make_call(
         cls,
         path: str,
-        data: dict[str, Any] = {},
+        data: dict[str, Any] | None = None,
         method: str = "GET",
         authentication: str | None = None,
     ) -> dict[str, Any]:
@@ -153,7 +153,7 @@ class Runner(models.Model):
         if authentication is not None:
             headers["Authorization"] = f"Bearer {authentication}"
 
-        response = requests.request(method, url, headers=headers, data=data)
+        response = requests.request(method, url, headers=headers, data=data or {}, timeout=30)
 
         if response.status_code == HTTPStatus.OK:
             return response.json()
