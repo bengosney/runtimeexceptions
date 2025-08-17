@@ -5,7 +5,7 @@
 {% block title %}{{ run.name }}{% endblock %}
 
 {% block content %}
-  <h2>Run</h2>
+  <h2>{{ activity.type.value|title }}</h2>
   <h1>{{ activity.name }}</h1>
   <div>
     <p>Distance: {{ activity.distance|metric:"m"|nbsp }}</p>
