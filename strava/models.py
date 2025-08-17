@@ -17,6 +17,7 @@ from pydantic import BaseModel, ValidationError
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete, UpdatableActivity
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
 from strava.mixins import CleanEmptyLatLngMixin, TriathlonMixin
+from strava.utils import MarkedString
 from weather.models import Weather
 
 logger = logging.getLogger(__name__)
@@ -214,6 +215,8 @@ class Runner(models.Model):
 
 
 class Activity(models.Model):
+    MARKER_STRING = "\ufe00\ufe01"
+
     runner = models.ForeignKey(Runner, on_delete=models.CASCADE, related_name="activities", to_field="strava_id")
     strava_id = models.BigIntegerField(unique=True)
     type = models.CharField(max_length=50)
@@ -232,12 +235,12 @@ class Activity(models.Model):
         data_in: DetailedActivity = self.runner.activity(self.strava_id)
 
         description = data_in.description or ""
-        weather = self.weather.long()
-        description = description.replace(weather, "").strip()
+        weather = MarkedString(self.weather.long(), self.MARKER_STRING)
+        description = weather.replace_or_append(description)
 
         name = data_in.name or ""
-        emoji = self.weather.emoji()
-        name = name.replace(emoji, "").strip()
+        emoji = MarkedString(self.weather.emoji(), self.MARKER_STRING)
+        name = emoji.replace_or_append(name)
 
         data = UpdatableActivity.model_validate(
             {
