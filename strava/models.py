@@ -137,7 +137,7 @@ class Runner(models.Model):
     def _make_call(
         cls,
         path: str,
-        args: dict[str, Any] = {},
+        data: dict[str, Any] = {},
         method: str = "GET",
         authentication: str | None = None,
     ) -> dict[str, Any]:
@@ -153,21 +153,21 @@ class Runner(models.Model):
         if authentication is not None:
             headers["Authorization"] = f"Bearer {authentication}"
 
-        data = requests.request(method, url, headers=headers, data=args)
+        response = requests.request(method, url, headers=headers, data=data)
 
-        if data.status_code == HTTPStatus.OK:
-            return data.json()
+        if response.status_code == HTTPStatus.OK:
+            return response.json()
 
-        if data.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise StravaNotAuthenticatedError()
 
-        if data.status_code == HTTPStatus.PAYMENT_REQUIRED:
+        if response.status_code == HTTPStatus.PAYMENT_REQUIRED:
             raise StravaPaidFeatureError()
 
-        if data.status_code == HTTPStatus.NOT_FOUND:
+        if response.status_code == HTTPStatus.NOT_FOUND:
             raise StravaNotFoundError(url)
 
-        raise StravaError(f"Got {data.status_code} from strava")
+        raise StravaError(f"Got {response.status_code} from strava, {response.text}")
 
     def get_details(self) -> SummaryAthlete:
         try:
