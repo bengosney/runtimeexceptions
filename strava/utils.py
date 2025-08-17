@@ -13,11 +13,11 @@ class MarkedString(str):
         return f"{self.marker}{super().__str__()}{self.marker}"
 
     def remove_from_text(self, text: str) -> str:
-        pattern = re.escape(self.marker) + r".*?" + re.escape(self.marker)
+        pattern = rf"{re.escape(self.marker)}.*?{re.escape(self.marker)}"
         return re.sub(pattern, "", text, 1)
 
     def replace_in_text(self, text: str) -> str:
-        pattern = re.escape(self.marker) + r".*?" + re.escape(self.marker)
+        pattern = rf"{re.escape(self.marker)}.*?{re.escape(self.marker)}"
         return re.sub(pattern, str(self), text, 1)
 
     def replace_or_append(self, text: str, joiner: str = " ") -> str:
