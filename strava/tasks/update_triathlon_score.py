@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 @task
 def update_triathlon_score(runner_id: int, activity_id: int):
+    logger.info("Updating triathlon score for runner: %d, activity: %d", runner_id, activity_id)
     runner = Runner.objects.get(id=runner_id)
     assert isinstance(runner, Runner)
 
