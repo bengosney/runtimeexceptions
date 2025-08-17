@@ -12,6 +12,7 @@ import polyline
 import svgwrite
 from PIL import Image, ImageDraw
 
+from strava.commands import UpdateTriathlonScore
 from strava.data_models import SummaryActivity
 from strava.line import Line
 from strava.models import Runner
@@ -77,6 +78,15 @@ def activity(request, activityid):
     activity = runner.activity(activityid)
 
     return render(request, "strava/activity.html", {"activity": activity})
+
+
+def trigger_update_activity(request, activityid):
+    runner: Runner = request.user.runner
+
+    update_triathlon_score = UpdateTriathlonScore(runner, activityid)
+    update_triathlon_score()
+
+    return HttpResponse(status=204)
 
 
 def activity_svg(request, activityid):

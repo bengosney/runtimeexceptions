@@ -9,6 +9,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("activities", views.activities, name="activities"),
     path("activity/<int:activityid>", views.activity, name="activity"),
+    path("activity/<int:activityid>/update", views.trigger_update_activity, name="trigger_update_activity"),
     path("img/<int:activityid>.png", views.activity_png, name="activity_png"),
     path("img/<int:activityid>.svg", views.activity_svg, name="activity_svg"),
     path("auth", views.auth, name="auth"),
