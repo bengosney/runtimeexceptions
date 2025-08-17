@@ -191,6 +191,7 @@ def test__make_call_authorized(mock_strava_request):
             "Authorization": "Bearer token",
         },
         data={},
+        timeout=30,
     )
 
 
