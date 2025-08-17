@@ -195,7 +195,7 @@ class Runner(models.Model):
         """
 
         result = self.make_call(f"activities/{activity_id}", data.model_dump(), method="PUT")
-        return DetailedActivity.model_validate(result)
+        return DetailedActivityTriathlon.model_validate(result)
 
     @staticmethod
     def get_distance(point1: Point, point2: Point) -> float:
