@@ -9,7 +9,7 @@ OBJECT_TYPE = "activity"
 OBJECT_ID = 123
 ASPECT_TYPE = "create"
 UPDATES = {"foo": "bar"}
-OWNER_ID = "456"
+OWNER_ID = 456
 SUBSCRIPTION_ID = 789
 EVENT_TIME = 1620000000
 
@@ -33,7 +33,7 @@ def test_webhook_valid(webhook_data):
     assert webhook.object_id == OBJECT_ID
     assert webhook.aspect_type == ASPECT_TYPE
     assert webhook.updates == UPDATES
-    assert webhook.owner_id == int(OWNER_ID)
+    assert webhook.owner_id == OWNER_ID
     assert webhook.subscription_id == SUBSCRIPTION_ID
     assert webhook.event_time == EVENT_TIME
 
