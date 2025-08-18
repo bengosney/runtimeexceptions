@@ -33,7 +33,7 @@ def test_webhook_valid(webhook_data):
     assert webhook.object_id == OBJECT_ID
     assert webhook.aspect_type == ASPECT_TYPE
     assert webhook.updates == UPDATES
-    assert webhook.owner_id == OWNER_ID
+    assert webhook.owner_id == int(OWNER_ID)
     assert webhook.subscription_id == SUBSCRIPTION_ID
     assert webhook.event_time == EVENT_TIME
 
