@@ -8,7 +8,7 @@ class EventWebhook(BaseModel):
     object_id: int
     aspect_type: Literal["create", "update", "delete"]
     updates: dict[str, Any] | None = None
-    owner_id: str
+    owner_id: int
     subscription_id: int
     event_time: int
 
