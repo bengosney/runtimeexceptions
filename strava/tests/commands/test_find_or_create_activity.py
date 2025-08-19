@@ -32,19 +32,23 @@ def weather():
     return baker.make(Weather)
 
 
+CALLED_ONCE = "assert_called_once"
+NOT_CALLED = "assert_not_called"
+
+
 @pytest.mark.parametrize(
-    "delta,should_fetch_weather",
+    "delta,assertion_method",
     [
-        (datetime.timedelta(seconds=0), True),
-        (datetime.timedelta(seconds=899), True),
-        (datetime.timedelta(seconds=901), False),
-        (datetime.timedelta(seconds=1800), False),
+        (datetime.timedelta(seconds=0), CALLED_ONCE),
+        (datetime.timedelta(seconds=899), CALLED_ONCE),
+        (datetime.timedelta(seconds=901), NOT_CALLED),
+        (datetime.timedelta(seconds=1800), NOT_CALLED),
     ],
 )
 @pytest.mark.django_db
 @patch("strava.models.Weather.from_lat_long")
 @patch("strava.models.Runner.activity")
-def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, should_fetch_weather):
+def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, assertion_method):
     now = datetime.datetime.now(tz=datetime.UTC)
     start_date = now - delta
 
@@ -54,10 +58,7 @@ def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, should_f
     runner = baker.make(Runner)
     find_or_create = FindOrCreateActivity(runner, 123)
     find_or_create()
-    if should_fetch_weather:
-        mock_weather.assert_called_once()
-    else:
-        mock_weather.assert_not_called()
+    getattr(mock_weather, assertion_method)()
 
 
 @pytest.mark.django_db
