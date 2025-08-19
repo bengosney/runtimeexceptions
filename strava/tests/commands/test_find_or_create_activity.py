@@ -1,11 +1,12 @@
+import datetime
 from unittest.mock import patch
 
 import pytest
 from model_bakery import baker
 
 from strava.commands.find_or_create_activity import FindOrCreateActivity
-from strava.data_models import DetailedActivity
-from strava.models import Activity, Runner
+from strava.data_models import ActivityType, DetailedActivity, LatLng
+from strava.models import Activity, DetailedActivityTriathlon, Runner
 from weather.models import Weather
 
 
@@ -16,19 +17,48 @@ def runner():
 
 @pytest.fixture
 def activity_data():
-    activity_json = {
-        "id": 12345,
-        "type": "Run",
-        "end_latlng": [51.5, -0.1],
-        "name": "Morning Run",
-        "description": "",
-    }
-    return DetailedActivity.model_validate(activity_json)
+    return DetailedActivity(
+        id=12345,
+        type=ActivityType.Run,
+        end_latlng=LatLng([51.5, -0.1]),
+        name="Morning Run",
+        description="",
+        start_date=datetime.datetime.now(tz=datetime.UTC),
+    )
 
 
 @pytest.fixture
 def weather():
     return baker.make(Weather)
+
+
+CALLED_ONCE = "assert_called_once"
+NOT_CALLED = "assert_not_called"
+
+
+@pytest.mark.parametrize(
+    "delta,assertion_method",
+    [
+        (datetime.timedelta(seconds=0), CALLED_ONCE),
+        (datetime.timedelta(seconds=899), CALLED_ONCE),
+        (datetime.timedelta(seconds=901), NOT_CALLED),
+        (datetime.timedelta(seconds=1800), NOT_CALLED),
+    ],
+)
+@pytest.mark.django_db
+@patch("strava.models.Weather.from_lat_long")
+@patch("strava.models.Runner.activity")
+def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, assertion_method):
+    now = datetime.datetime.now(tz=datetime.UTC)
+    start_date = now - delta
+
+    mock_activity.return_value = DetailedActivityTriathlon(id=123, start_date=start_date, end_latlng=LatLng([1.0, 2.0]))
+    mock_weather.return_value = baker.make(Weather)
+
+    runner = baker.make(Runner)
+    find_or_create = FindOrCreateActivity(runner, 123)
+    find_or_create()
+    getattr(mock_weather, assertion_method)()
 
 
 @pytest.mark.django_db
