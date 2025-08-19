@@ -1,10 +1,11 @@
+import datetime
 from unittest.mock import patch
 
 import pytest
 from model_bakery import baker
 
 from strava.commands.find_or_create_activity import FindOrCreateActivity
-from strava.data_models import DetailedActivity
+from strava.data_models import ActivityType, DetailedActivity, LatLng
 from strava.models import Activity, Runner
 from weather.models import Weather
 
@@ -16,14 +17,14 @@ def runner():
 
 @pytest.fixture
 def activity_data():
-    activity_json = {
-        "id": 12345,
-        "type": "Run",
-        "end_latlng": [51.5, -0.1],
-        "name": "Morning Run",
-        "description": "",
-    }
-    return DetailedActivity.model_validate(activity_json)
+    return DetailedActivity(
+        id=12345,
+        type=ActivityType.Run,
+        end_latlng=LatLng([51.5, -0.1]),
+        name="Morning Run",
+        description="",
+        start_date=datetime.datetime.now(tz=datetime.UTC),
+    )
 
 
 @pytest.fixture
