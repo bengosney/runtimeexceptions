@@ -4,7 +4,8 @@ from typing import Any
 from django_tasks import task
 
 from strava.data_models import EventWebhook
-from strava.tasks import update_activity_weather, update_triathlon_score
+from strava.tasks.update_activity_weather import update_activity_weather
+from strava.tasks.update_triathlon_score import update_triathlon_score
 from strava.transformers import webhook_data_to_event
 
 logger = logging.getLogger(__name__)
