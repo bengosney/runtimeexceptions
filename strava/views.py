@@ -15,8 +15,8 @@ from PIL import Image, ImageDraw
 from strava.data_models import SummaryActivity
 from strava.line import Line
 from strava.models import Runner
-from strava.tasks import create_event
-from strava.tasks import update_triathlon_score as update_triathlon_score_task
+from strava.tasks.create_event import create_event
+from strava.tasks.update_triathlon_score import update_triathlon_score
 
 
 @login_not_required
@@ -83,7 +83,7 @@ def activity(request, activityid):
 def trigger_update_activity(request, activityid):
     runner: Runner = request.user.runner
 
-    update_triathlon_score_task.enqueue(runner.id, activityid)
+    update_triathlon_score.enqueue(runner.id, activityid)
 
     return HttpResponse(status=204)
 
