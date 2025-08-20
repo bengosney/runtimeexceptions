@@ -16,6 +16,7 @@ dependencies = [
   "dj-database-url",
   "django",
   "django-extensions",
+  "django-htmx",
   "django-tasks",
   "granian",
   "gunicorn",

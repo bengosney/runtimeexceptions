@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_tasks",
     "django_tasks.backends.database",
+    "django_htmx",
     "template_tags",
     "strava",
     "weather",
@@ -29,6 +30,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "strava.middleware.NotAuthenticated",
 ]
 
