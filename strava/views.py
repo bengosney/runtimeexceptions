@@ -85,7 +85,9 @@ def trigger_update_activity(request, activityid):
 
     update_triathlon_score.enqueue(runner.id, activityid)
 
-    return HttpResponse(status=204)
+    response = HttpResponse(status=204)
+    response["HX-Refresh"] = "true"
+    return response
 
 
 def activity_svg(request, activityid):

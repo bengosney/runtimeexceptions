@@ -7,7 +7,9 @@
 {% block content %}
   <h2>{{ activity.type.value|title }}</h2>
   <h1>{{ activity.name }}</h1>
-  <div><a class="btn" href="{% url 'strava:trigger_update_activity' activity.id %}">Update Triathlon Score</a></div>
+  <div>
+    <a class="btn" hx-get="{% url 'strava:trigger_update_activity' activity.id %}">Update Triathlon Score</a>
+  </div>
   <div>
     <p>Distance: {{ activity.distance|metric:"m"|nbsp }}</p>
     <p>Moving Time: {{ activity.moving_time|precisedelta|shorten_time|nbsp }}</p>
