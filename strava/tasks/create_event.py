@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @task
-def create_event(**kwargs: Any):
+def create_event(**kwargs: Any) -> int:
     logger.info("Creating event with kwargs: %s", kwargs)
     webhook = EventWebhook.model_validate(kwargs)
 
@@ -27,4 +27,4 @@ def create_event(**kwargs: Any):
     update_triathlon_score.enqueue(event.owner.pk, event.object_id)
     logger.info("Triathlon score update enqueued for runner: %d, activity: %d", event.owner.pk, event.object_id)
 
-    return event
+    return event.pk
