@@ -104,3 +104,9 @@ LOGGING = deep_merge(
         },
     },
 )
+
+TASKS = {
+    "default": {
+        "BACKEND": "django_tasks.backends.database.DatabaseBackend",
+    },
+}
