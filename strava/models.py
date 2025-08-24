@@ -280,7 +280,7 @@ class Event(models.Model):
 
 
 class Animal(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     avg_speed = models.FloatField()
     max_speed = models.FloatField()
 
