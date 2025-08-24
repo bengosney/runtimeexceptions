@@ -87,11 +87,11 @@ class Command(BaseCommand):
 
                         except Exception as e:
                             self.stderr.write(self.style.ERROR(f"Error processing row {row}: {e}"))
-                            raise CommandError("Import failed. See above for details.")
+                            raise CommandError("Import failed. See above for details.") from e
 
         except FileNotFoundError:
             raise CommandError(f"The file at {csv_file_path} does not exist.")
         except Exception as e:
-            raise CommandError(f"An unexpected error occurred: {e}")
+            raise CommandError(f"An unexpected error occurred: {e}") from e
 
         self.stdout.write(self.style.SUCCESS("Data import completed successfully!"))
