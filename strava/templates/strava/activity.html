@@ -16,6 +16,6 @@
     <p>Total Time: {{ activity.elapsed_time|precisedelta|shorten_time|nbsp }}</p>
     <p>Triathlon %: {{ activity.triathlon_percentage|default:0 }}%</p>
   </div>
-  <img src="{% url 'strava:activity_svg' activity.id %}" class="mx-auto max-w-full" />
   <p>{{ activity.description|default:"No description available." }}</p>
+  <img src="{% url 'strava:activity_svg' activity.id %}" class="mx-auto max-w-full" />
 {% endblock content %}
