@@ -277,3 +277,12 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.aspect_type} {self.object_type} {self.object_id}"
+
+
+class Animal(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    avg_speed = models.FloatField()
+    max_speed = models.FloatField()
+
+    def __str__(self):
+        return f"{self.name} - {self.avg_speed}"

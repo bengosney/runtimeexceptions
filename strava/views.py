@@ -16,6 +16,7 @@ from strava.data_models import SummaryActivity
 from strava.line import Line
 from strava.models import Runner
 from strava.tasks.create_event import create_event
+from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
 
 
@@ -84,8 +85,11 @@ def trigger_update_activity(request, activityid):
     runner: Runner = request.user.runner
 
     update_triathlon_score.enqueue(runner.id, activityid)
+    update_comparison.enqueue(runner.id, activityid)
 
-    return HttpResponse(status=204)
+    response = HttpResponse(status=204)
+    response["HX-Refresh"] = "true"
+    return response
 
 
 def activity_svg(request, activityid):

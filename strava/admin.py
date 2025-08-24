@@ -21,3 +21,10 @@ class EventAdmin(admin.ModelAdmin):
 class ActivityAdmin(admin.ModelAdmin):
     model = models.Activity
     list_display = ("strava_id", "runner", "weather")
+
+
+@admin.register(models.Animal)
+class AnimalAdmin(admin.ModelAdmin):
+    model = models.Animal
+    list_display = ("name", "avg_speed", "max_speed")
+    list_per_page = 25

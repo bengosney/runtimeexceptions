@@ -12,6 +12,7 @@ asgiref==3.8.1 \
     # via
     #   -r requirements.txt
     #   django
+    #   django-htmx
 attrs==25.3.0 \
     --hash=sha256:427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3 \
     --hash=sha256:75d7cefc7fb576747b2c81b4442d4d4a1ce0900973527c011d1030fd3bf4af1b
@@ -216,12 +217,19 @@ django==5.2.2 \
     #   runtimeexceptions (pyproject.toml)
     #   dj-database-url
     #   django-extensions
+    #   django-htmx
     #   django-stubs-ext
     #   django-tasks
     #   model-bakery
 django-extensions==4.1 \
     --hash=sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336 \
     --hash=sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
+django-htmx==1.23.2 \
+    --hash=sha256:65a8c8825fcae983b94aedce26af96a70717ab185d55cdb8a7a4bb68863ab079 \
+    --hash=sha256:c288fe92bdcfa7c2ed9665d6d23cc55c6693a7cc8d22cf0a01e1e38318874030
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)

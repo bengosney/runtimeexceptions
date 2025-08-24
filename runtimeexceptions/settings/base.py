@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_tasks",
     "django_tasks.backends.database",
+    "django_htmx",
     "template_tags",
     "strava",
     "weather",
@@ -29,6 +30,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "strava.middleware.NotAuthenticated",
 ]
 
@@ -91,11 +93,7 @@ LOGOUT_REDIRECT_URL = "/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-TASKS = {
-    "default": {
-        "BACKEND": "django_tasks.backends.database.DatabaseBackend",
-    },
-}
+TASKS = {"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}}
 
 STRAVA_CLIENT_ID = os.environ.get("STRAVA_CLIENT_ID")
 STRAVA_SECRET = os.environ.get("STRAVA_SECRET")
@@ -125,7 +123,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
