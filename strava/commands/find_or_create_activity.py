@@ -44,6 +44,13 @@ class FindOrCreateActivity:
                 lng: float = activity_data.end_latlng.root[1]
                 logger.info(f"Fetching weather for lat={lat}, lng={lng}")
                 weather = Weather.from_lat_long(lat, lng)
+            else:
+                logger.info(
+                    f"Not setting weather strava_id={self.activity_id}, "
+                    f"end_latlng: {activity_data.end_latlng}, "
+                    f"start_date: {activity_data.start_date}, "
+                    f"diff: {abs((now - activity_data.start_date).total_seconds())}"
+                )
 
             activity = Activity.objects.create(
                 strava_id=activity_data.id,
