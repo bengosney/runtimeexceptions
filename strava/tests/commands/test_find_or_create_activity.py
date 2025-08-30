@@ -6,8 +6,13 @@ from model_bakery import baker
 
 from strava.commands.find_or_create_activity import FindOrCreateActivity
 from strava.data_models import ActivityType, DetailedActivity, LatLng
+from strava.mixins import TimeMixin
 from strava.models import Activity, DetailedActivityTriathlon, Runner
 from weather.models import Weather
+
+
+class DetailedActivityTime(DetailedActivity, TimeMixin):
+    pass
 
 
 @pytest.fixture
@@ -17,7 +22,7 @@ def runner():
 
 @pytest.fixture
 def activity_data():
-    return DetailedActivity(
+    return DetailedActivityTime(
         id=12345,
         type=ActivityType.Run,
         end_latlng=LatLng([51.5, -0.1]),

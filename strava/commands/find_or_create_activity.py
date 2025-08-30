@@ -31,13 +31,13 @@ class FindOrCreateActivity:
 
             weather: Weather | None = None
 
-            tz = getattr(activity_data.start_date, "tzinfo", None)
+            tz = getattr(activity_data.end_date, "tzinfo", None)
             now = datetime.datetime.now(tz=tz)
 
             if (
                 activity_data.end_latlng
-                and activity_data.start_date
-                and abs((now - activity_data.start_date).total_seconds()) <= self.RECENT_ACTIVITY_THRESHOLD_SECONDS
+                and activity_data.end_date
+                and abs((now - activity_data.end_date).total_seconds()) <= self.RECENT_ACTIVITY_THRESHOLD_SECONDS
             ):
                 logger.debug(f"activity_data: {activity_data=}")
                 lat: float = activity_data.end_latlng.root[0]
