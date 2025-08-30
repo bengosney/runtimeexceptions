@@ -1,4 +1,5 @@
 from strava.mixins.cleaning import CleanEmptyLatLngMixin
+from strava.mixins.time import TimeMixin
 from strava.mixins.triathlon import TriathlonMixin
 
-__all__ = ["CleanEmptyLatLngMixin", "TriathlonMixin"]
+__all__ = ["CleanEmptyLatLngMixin", "TimeMixin", "TriathlonMixin"]
