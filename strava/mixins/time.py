@@ -8,6 +8,6 @@ class TimeMixin:
 
     @property
     def end_date(self) -> datetime | None:
-        if self.start_date and self.moving_time:
-            return self.start_date + timedelta(seconds=self.moving_time)
+        if self.start_date and self.elapsed_time:
+            return self.start_date + timedelta(seconds=self.elapsed_time)
         return None
