@@ -29,6 +29,7 @@ def activity_data():
         name="Morning Run",
         description="",
         start_date=datetime.datetime.now(tz=datetime.UTC),
+        elapsed_time=1,
     )
 
 
@@ -57,7 +58,12 @@ def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, assertio
     now = datetime.datetime.now(tz=datetime.UTC)
     start_date = now - delta
 
-    mock_activity.return_value = DetailedActivityTriathlon(id=123, start_date=start_date, end_latlng=LatLng([1.0, 2.0]))
+    mock_activity.return_value = DetailedActivityTriathlon(
+        id=123,
+        start_date=start_date,
+        end_latlng=LatLng([1.0, 2.0]),
+        elapsed_time=1,
+    )
     mock_weather.return_value = baker.make(Weather)
 
     runner = baker.make(Runner)
