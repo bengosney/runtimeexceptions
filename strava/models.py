@@ -16,7 +16,7 @@ from pydantic import BaseModel, ValidationError
 
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete, UpdatableActivity
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
-from strava.mixins import CleanEmptyLatLngMixin, TriathlonMixin
+from strava.mixins import CleanEmptyLatLngMixin, TimeMixin, TriathlonMixin
 from strava.utils import MarkedString
 from weather.models import Weather
 
@@ -27,11 +27,11 @@ Point = tuple[float, float]
 T = TypeVar("T", bound=BaseModel)
 
 
-class SummaryActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, SummaryActivity):
+class SummaryActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, TimeMixin, SummaryActivity):
     pass
 
 
-class DetailedActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, DetailedActivity):
+class DetailedActivityTriathlon(CleanEmptyLatLngMixin, TriathlonMixin, TimeMixin, DetailedActivity):
     pass
 
 
