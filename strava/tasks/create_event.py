@@ -22,13 +22,13 @@ def create_event(**kwargs: Any) -> int:
 
     logger.info("Event created: %d", event.pk)
 
-    update_activity_weather.enqueue(event.pk)
-    logger.info("Weather update enqueued for event: %d", event.pk)
+    update_comparison.enqueue(event.owner.pk, event.object_id)
+    logger.info("Comparison update enqueued for runner: %d, activity: %d", event.owner.pk, event.object_id)
 
     update_triathlon_score.enqueue(event.owner.pk, event.object_id)
     logger.info("Triathlon score update enqueued for runner: %d, activity: %d", event.owner.pk, event.object_id)
 
-    update_comparison.enqueue(event.owner.pk, event.object_id)
-    logger.info("Comparison update enqueued for runner: %d, activity: %d", event.owner.pk, event.object_id)
+    update_activity_weather.enqueue(event.pk)
+    logger.info("Weather update enqueued for event: %d", event.pk)
 
     return event.pk
