@@ -244,8 +244,8 @@ class Activity(models.Model):
 
         data = UpdatableActivity.model_validate(
             {
-                "description": "\n\n".join(s for s in [description, weather] if s != ""),
-                "name": f"{name} {emoji}",
+                "description": description,
+                "name": name,
             }
         )
 
