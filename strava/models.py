@@ -3,7 +3,7 @@ import time
 from collections.abc import Iterable
 from http import HTTPStatus
 from math import atan2, cos, radians, sin, sqrt
-from typing import Any, ClassVar, Literal, Self, TypeVar, cast
+from typing import Any, ClassVar, Self, TypeVar, cast
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -17,7 +17,6 @@ from pydantic import BaseModel, ValidationError
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete, UpdatableActivity
 from strava.exceptions import StravaError, StravaNotAuthenticatedError, StravaNotFoundError, StravaPaidFeatureError
 from strava.mixins import CleanEmptyLatLngMixin, TimeMixin, TriathlonMixin
-from strava.utils import MarkedString
 from weather.models import Weather
 
 logger = logging.getLogger(__name__)
@@ -224,34 +223,6 @@ class Activity(models.Model):
 
     def __str__(self):
         return f"{self.strava_id} {self.type}"
-
-    def add_weather(self) -> DetailedActivity | Literal[False]:
-        """
-        Updates the activity description on Strava.
-        """
-        if not self.weather:
-            return False
-
-        data_in: DetailedActivity = self.runner.activity(self.strava_id)
-
-        description = data_in.description or ""
-        weather = MarkedString(self.weather.long(), self.MARKER_STRING)
-        description = weather.replace_or_append(description)
-
-        name = data_in.name or ""
-        emoji = MarkedString(self.weather.emoji(), self.MARKER_STRING)
-        name = emoji.replace_or_append(name)
-
-        data = UpdatableActivity.model_validate(
-            {
-                "description": "\n\n".join(s for s in [description, weather] if s != ""),
-                "name": f"{name} {emoji}",
-            }
-        )
-
-        runner = cast(Runner, self.runner)
-
-        return runner.update_activity(self.strava_id, data)
 
 
 class Event(models.Model):
