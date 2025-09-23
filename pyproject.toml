@@ -17,6 +17,7 @@ dependencies = [
   "django",
   "django-extensions",
   "django-htmx",
+  "django-structlog",
   "django-tasks",
   "granian",
   "gunicorn",
@@ -50,8 +51,8 @@ optional-dependencies.dev = [
   "ngrok",
   "pip-tools",
   "pre-commit",
+  "rich",
   "ruff",
-  "tach",
   "ty",
   "types-requests",
 ]

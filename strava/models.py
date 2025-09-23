@@ -1,4 +1,3 @@
-import logging
 import time
 from collections.abc import Iterable
 from http import HTTPStatus
@@ -12,6 +11,7 @@ from django.http import Http404
 from django.urls import reverse
 
 import requests
+import structlog
 from pydantic import BaseModel, ValidationError
 
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete, UpdatableActivity
@@ -20,7 +20,7 @@ from strava.mixins import CleanEmptyLatLngMixin, TimeMixin, TriathlonMixin
 from strava.utils import MarkedString
 from weather.models import Weather
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 Point = tuple[float, float]
 

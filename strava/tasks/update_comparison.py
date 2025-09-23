@@ -1,11 +1,10 @@
-import logging
-
+import structlog
 from django_tasks import task
 
 from strava.commands import UpdateComparison
 from strava.models import Runner
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @task

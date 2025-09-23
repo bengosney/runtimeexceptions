@@ -1,12 +1,13 @@
-import logging
 from datetime import datetime
 
 from django.utils.timezone import make_aware
 
+import structlog
+
 from strava.data_models import EventWebhook
 from strava.models import Event, Runner
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def webhook_data_to_event(event_data: EventWebhook) -> Event:

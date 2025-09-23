@@ -1,13 +1,13 @@
-import logging
 import os
 
 import dj_database_url
+import structlog
 
 from runtimeexceptions.settings.base import *  # noqa
 from runtimeexceptions.settings.base import DATABASES, LOGGING, MIDDLEWARE
 from runtimeexceptions.utils import deep_merge
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 DEBUG = False
 

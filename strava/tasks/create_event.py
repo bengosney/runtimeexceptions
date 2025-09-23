@@ -1,6 +1,6 @@
-import logging
 from typing import Any
 
+import structlog
 from django_tasks import task
 
 from strava.data_models import EventWebhook
@@ -9,7 +9,7 @@ from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
 from strava.transformers import webhook_data_to_event
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @task

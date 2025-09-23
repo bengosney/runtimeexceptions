@@ -1,14 +1,14 @@
-import logging
 from http import HTTPStatus
 
 from django.conf import settings
 from django.urls import reverse
 
 import requests
+import structlog
 
 from strava.exceptions import StravaWebhookError
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class WebhookManager:

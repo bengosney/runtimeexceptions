@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from typing import Any
 
+import structlog
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
@@ -13,6 +15,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_structlog",
     "django_tasks",
     "django_tasks.backends.database",
     "django_htmx",
@@ -32,6 +35,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "strava.middleware.NotAuthenticated",
+    "django_structlog.middlewares.RequestMiddleware",
 ]
 
 ROOT_URLCONF = "runtimeexceptions.urls"
@@ -139,3 +143,20 @@ LOGGING = {
         "level": os.getenv("LOG_LEVEL", "DEBUG"),
     },
 }
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.filter_by_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
+)

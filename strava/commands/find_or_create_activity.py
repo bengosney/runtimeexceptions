@@ -1,10 +1,11 @@
 import datetime
-import logging
 from typing import cast
+
+import structlog
 
 from strava.models import Activity, DetailedActivityTriathlon, Runner, Weather
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class FindOrCreateActivity:

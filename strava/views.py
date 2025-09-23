@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import polyline
 import svgwrite
 from PIL import Image, ImageDraw
+from structlog import get_logger
 
 from strava.data_models import SummaryActivity
 from strava.line import Line
@@ -19,9 +20,12 @@ from strava.tasks.create_event import create_event
 from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
 
+logger = get_logger(__name__)
+
 
 @login_not_required
 def index(request):
+    logger.info("Index page accessed", user=request.user.username if request.user.is_authenticated else "anonymous")
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("strava:activities"))
     return render(request, "strava/index.html")

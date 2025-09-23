@@ -13,6 +13,7 @@ asgiref==3.8.1 \
     #   -r requirements.txt
     #   django
     #   django-htmx
+    #   django-structlog
 attrs==25.3.0 \
     --hash=sha256:427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3 \
     --hash=sha256:75d7cefc7fb576747b2c81b4442d4d4a1ce0900973527c011d1030fd3bf4af1b
@@ -218,6 +219,7 @@ django==5.2.6 \
     #   dj-database-url
     #   django-extensions
     #   django-htmx
+    #   django-structlog
     #   django-stubs-ext
     #   django-tasks
     #   model-bakery
@@ -230,6 +232,18 @@ django-extensions==4.1 \
 django-htmx==1.23.2 \
     --hash=sha256:65a8c8825fcae983b94aedce26af96a70717ab185d55cdb8a7a4bb68863ab079 \
     --hash=sha256:c288fe92bdcfa7c2ed9665d6d23cc55c6693a7cc8d22cf0a01e1e38318874030
+    # via
+    #   -r requirements.txt
+    #   runtimeexceptions (pyproject.toml)
+django-ipware==7.0.1 \
+    --hash=sha256:d9ec43d2bf7cdf216fed8d494a084deb5761a54860a53b2e74346a4f384cff47 \
+    --hash=sha256:db16bbee920f661ae7f678e4270460c85850f03c6761a4eaeb489bdc91f64709
+    # via
+    #   -r requirements.txt
+    #   django-structlog
+django-structlog==9.1.1 \
+    --hash=sha256:14342c6c824581f1e063c88a8bc52314cd67995a3bd4a4fc8c27ea37ccd78947 \
+    --hash=sha256:5b6ac3abdf6549e94ccb35160b1f10266f1627c3ac77844571235a08a1ddae66
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
@@ -741,6 +755,12 @@ pytest-mock==3.14.0 \
     --hash=sha256:0b72c38033392a5f4621342fe11e9219ac11ec9d375f8e2a0c164539e0d70f6f \
     --hash=sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0
     # via runtimeexceptions (pyproject.toml)
+python-ipware==3.0.0 \
+    --hash=sha256:9117b1c4dddcb5d5ca49e6a9617de2fc66aec2ef35394563ac4eecabdf58c062 \
+    --hash=sha256:fc936e6e7ec9fcc107f9315df40658f468ac72f739482a707181742882e36b60
+    # via
+    #   -r requirements.txt
+    #   django-ipware
 requests==2.32.4 \
     --hash=sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c \
     --hash=sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422
@@ -773,6 +793,12 @@ sqlparse==0.5.3 \
     # via
     #   -r requirements.txt
     #   django
+structlog==25.4.0 \
+    --hash=sha256:186cd1b0a8ae762e29417095664adf1d6a31702160a46dacb7796ea82f7409e4 \
+    --hash=sha256:fe809ff5c27e557d14e613f45ca441aabda051d119ee5a0102aaba6ce40eed2c
+    # via
+    #   -r requirements.txt
+    #   django-structlog
 svgwrite==1.4.3 \
     --hash=sha256:a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3 \
     --hash=sha256:bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d

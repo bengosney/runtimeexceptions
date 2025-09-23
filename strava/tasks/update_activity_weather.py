@@ -1,12 +1,11 @@
-import logging
-
+import structlog
 from django_tasks import task
 
 from strava.commands.find_or_create_activity import FindOrCreateActivity
 from strava.data_models import ActivityType
 from strava.models import Event
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 valid_activity_types: list[str] = [
     ActivityType.Run.value,

@@ -1,11 +1,12 @@
-import logging
 from typing import cast
+
+import structlog
 
 from strava.data_models import UpdatableActivity
 from strava.models import Animal, DetailedActivityTriathlon, Runner
 from strava.utils import MarkedString
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class UpdateComparison:
