@@ -62,6 +62,7 @@
   --re-toggle-knob: #ffffff;
 
   --re-preview-shadow: 8px 8px 0 rgb(16 16 16 / 0.08);
+  --re-menu-shadow: 4px 4px 0 rgb(16 16 16 / 0.08);
 }
 
 /* ------------------------------------------------------------------ dark --- */
@@ -97,5 +98,6 @@
     --re-toggle-knob: #ffffff;
 
     --re-preview-shadow: 8px 8px 0 rgb(0 0 0 / 0.35);
+    --re-menu-shadow: 4px 4px 0 rgb(0 0 0 / 0.35);
   }
 }

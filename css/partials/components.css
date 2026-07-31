@@ -159,8 +159,94 @@ a {
     margin-right: 12px;
   }
 
-  .re-nav__end span:not(.re-avatar) {
+  /* The account menu stays; the name it labels is the first thing to go. */
+  .re-nav__user {
     display: none;
+  }
+}
+
+/* --------------------------------------------------------- account menu --- */
+
+/* Built on <details> so it opens without JavaScript; the script in base.html
+   only adds click-outside and Escape dismissal. */
+.re-menu {
+  position: relative;
+}
+
+.re-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--re-line);
+  border-radius: var(--re-radius);
+  color: var(--re-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Suppress the default disclosure triangle. */
+.re-menu__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.re-menu__trigger svg {
+  width: 12px;
+  height: 8px;
+  transition: transform 0.15s ease;
+}
+
+.re-menu__trigger:hover,
+.re-menu[open] .re-menu__trigger {
+  color: var(--re-text);
+  border-color: var(--re-text);
+}
+
+.re-menu[open] .re-menu__trigger svg {
+  transform: rotate(180deg);
+}
+
+.re-menu__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  min-width: 11.5rem;
+  display: flex;
+  flex-direction: column;
+  background: var(--re-surface);
+  border: 1px solid var(--re-line);
+  box-shadow: var(--re-menu-shadow);
+}
+
+.re-menu__panel > * + * {
+  border-top: 1px solid var(--re-line-soft);
+}
+
+.re-menu__item {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--re-text);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.re-menu__item:hover {
+  background: var(--re-accent-wash);
+  color: var(--re-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-menu__trigger svg {
+    transition: none;
   }
 }
 
