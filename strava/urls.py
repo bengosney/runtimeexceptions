@@ -7,6 +7,7 @@ app_name = "strava"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("settings", views.settings, name="settings"),
     path("activities", views.activities, name="activities"),
     path("activity/<int:activityid>", views.activity, name="activity"),
     path("activity/<int:activityid>/update", views.trigger_update_activity, name="trigger_update_activity"),

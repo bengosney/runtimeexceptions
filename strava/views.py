@@ -1,4 +1,5 @@
 import json
+from datetime import UTC, datetime
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
@@ -13,11 +14,24 @@ import svgwrite
 from PIL import Image, ImageDraw
 
 from strava.data_models import SummaryActivity
+from strava.forms import RunnerSettingsForm
 from strava.line import Line
 from strava.models import Runner
 from strava.tasks.create_event import create_event
 from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
+
+
+def _get_runner(request) -> Runner | None:
+    """
+    The signed-in user's runner, or None once the Strava link has gone — in
+    which case the session is cleared and the caller should send them to auth.
+    """
+    try:
+        return request.user.runner
+    except ObjectDoesNotExist:
+        logout(request)
+        return None
 
 
 @login_not_required
@@ -79,6 +93,34 @@ def activity(request, activityid):
     activity = runner.activity(activityid)
 
     return render(request, "strava/activity.html", {"activity": activity})
+
+
+def settings(request):
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
+
+    enrichment = runner.enrichment
+
+    if request.method == "POST":
+        form = RunnerSettingsForm(request.POST, instance=enrichment)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("strava:settings"))
+    else:
+        form = RunnerSettingsForm(instance=enrichment)
+
+    return render(
+        request,
+        "strava/settings.html",
+        {
+            "nav": "settings",
+            "runner": runner.get_details(),
+            "form": form,
+            "token_expires": datetime.fromtimestamp(int(runner.access_expires), tz=UTC),
+            "refreshlink": reverse("strava:refresh_token", kwargs={"strava_id": int(runner.strava_id)}),
+        },
+    )
 
 
 def trigger_update_activity(request, activityid):

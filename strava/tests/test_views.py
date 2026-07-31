@@ -11,7 +11,7 @@ from model_bakery import baker
 from pytest_django.asserts import assertInHTML
 
 from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
-from strava.models import Runner
+from strava.models import Runner, RunnerSettings
 
 
 @pytest.fixture
@@ -122,6 +122,42 @@ def test_activities(mock_get_details, mock_get_activities, auth_client, runner):
     url = reverse("strava:activity", kwargs={"activityid": activity.id})
     link = f'<a class="underline hover:text-neutral-300 transition-colors" href="{url}">{activity.name}</a>'
     assertInHTML(link, response.content.decode("utf-8"))
+
+
+@pytest.mark.django_db
+@patch("strava.views.Runner.get_details")
+def test_settings_shows_defaults(mock_get_details, auth_client, runner):
+    mock_get_details.return_value = SummaryAthlete.model_validate(
+        {"name": "Test Runner", "strava_id": runner.strava_id}
+    )
+
+    response = auth_client.get(reverse("strava:settings"))
+    assert response.status_code == HTTPStatus.OK
+
+    settings = RunnerSettings.objects.get(runner=runner)
+    assert settings.weather_report
+    assert settings.animal_comparison
+
+
+@pytest.mark.django_db
+@patch("strava.views.Runner.get_details")
+def test_settings_saves_toggles(mock_get_details, auth_client, runner):
+    mock_get_details.return_value = SummaryAthlete.model_validate(
+        {"name": "Test Runner", "strava_id": runner.strava_id}
+    )
+
+    # Unchecked boxes are absent from the POST, so only the two named stay on.
+    response = auth_client.post(
+        reverse("strava:settings"),
+        {"weather_report": "on", "triathlon_score": "on"},
+    )
+    assert response.status_code == HTTPStatus.FOUND
+
+    settings = RunnerSettings.objects.get(runner=runner)
+    assert settings.weather_report
+    assert settings.triathlon_score
+    assert not settings.weather_emoji
+    assert not settings.animal_comparison
 
 
 def test_activities_no_runner(auth_client):
