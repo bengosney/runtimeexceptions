@@ -1,0 +1,1007 @@
+/*
+ * Screen components for the Chalk redesign. Everything is expressed in the
+ * tokens from themes.css, so a component never restates a colour and light
+ * and dark stay in step automatically.
+ */
+
+/* ------------------------------------------------------------- surface --- */
+
+body {
+  background: var(--re-bg);
+  color: var(--re-text);
+  font-family: var(--re-body-font);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.re-page {
+  padding: 40px 48px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.re-section {
+  padding: 0 48px 64px;
+}
+
+@media (width < 48rem) {
+  .re-page {
+    padding: 24px 20px 40px;
+    gap: 24px;
+  }
+
+  .re-section {
+    padding: 0 20px 40px;
+  }
+}
+
+/* ----------------------------------------------------------------- nav --- */
+
+.re-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 48px;
+  border-bottom: 1px solid var(--re-line);
+}
+
+.re-nav__group {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  min-width: 0;
+}
+
+.re-logo {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  padding: 20px 0;
+  white-space: nowrap;
+}
+
+.re-logo em {
+  font-style: normal;
+  color: var(--re-accent);
+}
+
+.re-nav__links {
+  display: flex;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.re-nav__link {
+  padding: 20px 12px;
+  color: var(--re-faint);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.re-nav__link:hover {
+  color: var(--re-text);
+}
+
+.re-nav__link[aria-current="page"] {
+  color: var(--re-text);
+  box-shadow: inset 0 -3px 0 var(--re-accent);
+}
+
+.re-nav__end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--re-muted);
+}
+
+.re-avatar {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--re-radius);
+  background: var(--re-solid-bg);
+  color: var(--re-solid-fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--re-mono-font);
+  font-weight: 700;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* On narrow screens the brand and account sit on one row and the section links
+   drop to a second, so nothing has to truncate. */
+@media (width < 48rem) {
+  .re-nav {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand end"
+      "links links";
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .re-nav__group {
+    display: contents;
+  }
+
+  .re-logo {
+    grid-area: brand;
+    padding: 16px 0;
+  }
+
+  .re-nav__end {
+    grid-area: end;
+  }
+
+  .re-nav__links {
+    grid-area: links;
+    width: 100%;
+    border-top: 1px solid var(--re-line-soft);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .re-nav__link {
+    padding: 16px 12px 16px 0;
+    margin-right: 12px;
+  }
+
+  .re-nav__end span:not(.re-avatar) {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------- typography --- */
+
+.re-display {
+  margin: 0;
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: var(--re-display-tracking);
+  text-wrap: balance;
+}
+
+.re-display--hero {
+  font-size: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+  line-height: 0.9;
+}
+
+.re-display--xl {
+  font-size: clamp(2.5rem, 4vw + 1rem, 4.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.re-display--lg {
+  font-size: clamp(2.25rem, 3vw + 1rem, 3.75rem);
+}
+
+.re-display--md {
+  font-size: clamp(2rem, 2.5vw + 1rem, 3.25rem);
+}
+
+.re-display--sm {
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.re-display--xs {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.re-eyebrow {
+  font-family: var(--re-mono-font);
+  font-weight: 600;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--re-faint);
+}
+
+.re-eyebrow--accent {
+  color: var(--re-accent);
+}
+
+.re-mono {
+  font-family: var(--re-mono-font);
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--re-faint);
+}
+
+.re-lede {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--re-muted);
+  text-wrap: pretty;
+}
+
+.re-prose {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--re-text-soft);
+}
+
+.re-note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--re-faint);
+}
+
+.re-code {
+  display: block;
+  font-family: var(--re-mono-font);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--re-muted);
+  background: var(--re-code-bg);
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+}
+
+/* Chalk rules its page headers off with a heavy ink line. */
+.re-pagehead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--re-text);
+  padding-bottom: 20px;
+}
+
+.re-pagehead--plain {
+  border-bottom: 0;
+  padding-bottom: 0;
+  align-items: baseline;
+}
+
+/* -------------------------------------------------------------- buttons --- */
+
+.re-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: var(--re-radius);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.re-btn--accent {
+  background: var(--re-accent-solid);
+  color: var(--re-accent-solid-ink);
+}
+
+.re-btn--solid {
+  background: var(--re-solid-bg);
+  color: var(--re-solid-fg);
+}
+
+.re-btn--outline {
+  border-color: var(--re-text);
+  color: var(--re-text);
+  background: none;
+}
+
+.re-btn--quiet {
+  border-color: var(--re-line);
+  color: var(--re-muted);
+  background: none;
+  font-weight: 600;
+}
+
+.re-btn--lg {
+  height: 54px;
+  padding: 0 28px;
+  font-size: 1rem;
+}
+
+.re-btn--block {
+  width: 100%;
+}
+
+.re-btn:hover {
+  filter: brightness(1.08);
+}
+
+.re-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.re-chip {
+  font-family: var(--re-mono-font);
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  border-radius: var(--re-radius);
+  border: 1px solid var(--re-line);
+  color: var(--re-muted);
+}
+
+.re-chip[aria-pressed="true"] {
+  background: var(--re-solid-bg);
+  color: var(--re-solid-fg);
+  border-color: transparent;
+}
+
+/* ------------------------------------------------------------- surfaces --- */
+
+.re-card {
+  background: var(--re-surface);
+  border: 1px solid var(--re-line);
+  border-radius: var(--re-card-radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.re-card--lg {
+  padding: 26px;
+  gap: 22px;
+}
+
+.re-card--accent {
+  border-color: var(--re-accent);
+}
+
+/* The one panel per screen that inverts to pull the eye. */
+.re-feature {
+  background: var(--re-accent-solid);
+  color: var(--re-accent-solid-ink);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.re-feature .re-eyebrow {
+  color: currentcolor;
+  opacity: 0.8;
+}
+
+.re-feature__rule {
+  height: 1px;
+  background: rgb(255 255 255 / 0.35);
+}
+
+/* ------------------------------------------------------------- landing --- */
+
+.re-hero {
+  padding: 64px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (width < 48rem) {
+  .re-hero {
+    padding: 40px 20px 32px;
+    gap: 32px;
+  }
+}
+
+.re-hero__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: end;
+}
+
+@media (width < 64rem) {
+  .re-hero__grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* The mock Strava post, offset with a hard drop shadow. */
+.re-preview {
+  background: var(--re-surface);
+  border: 1px solid var(--re-line);
+  box-shadow: var(--re-preview-shadow);
+}
+
+.re-preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--re-line-soft);
+}
+
+.re-preview__body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.re-preview__title {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.re-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.re-hint {
+  font-family: var(--re-mono-font);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--re-faint);
+  max-width: 26ch;
+}
+
+/* A hairline-ruled grid: the gap is the rule. */
+.re-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--re-line);
+  border: 1px solid var(--re-line);
+}
+
+.re-feature-card {
+  background: var(--re-bg);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.re-feature-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--re-muted);
+}
+
+@media (width < 64rem) {
+  .re-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+.re-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.re-tag {
+  font-family: var(--re-mono-font);
+  font-weight: 600;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 9px;
+  background: var(--re-accent-wash);
+  color: var(--re-accent);
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- data --- */
+
+/* Figures sit in open columns, not boxes — the Chalk race-report look.
+   The track count comes from how many items there are and how much room they
+   have, so a screen can add or drop a figure without touching this file. The
+   min() guard stops the track exceeding the container on narrow screens. */
+.re-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  /* Wider row gap than column gap: once the figures wrap, a big numeral would
+     otherwise crowd the label beneath it. */
+  gap: 28px clamp(20px, 2.5vw, 32px);
+}
+
+.re-stats__item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.re-stat__value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.re-numeral {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 3.5rem;
+  line-height: 0.85;
+  letter-spacing: var(--re-numeral-tracking);
+}
+
+.re-numeral--lg {
+  font-size: 5.625rem;
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  /* Space Grotesk's "1" sits tight to its origin; keep it off the panel edge. */
+  padding-left: 0.02em;
+}
+
+.re-numeral--sm {
+  font-size: 1.625rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.re-numeral--accent {
+  color: var(--re-accent);
+}
+
+.re-unit {
+  font-family: var(--re-mono-font);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--re-faint);
+  white-space: nowrap;
+}
+
+.re-bar {
+  height: 12px;
+  background: var(--re-track);
+  border-radius: var(--re-bar-radius);
+  overflow: hidden;
+}
+
+.re-bar--sm {
+  height: 8px;
+}
+
+.re-bar__fill {
+  height: 100%;
+  background: var(--re-accent);
+}
+
+/* --------------------------------------------------------- activity rows --- */
+
+/* Activities are cards in a single column. */
+.re-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.re-row {
+  display: flex;
+  gap: 20px;
+  background: var(--re-surface);
+  border: 1px solid var(--re-line);
+  padding: 20px;
+}
+
+.re-row:hover {
+  border-color: var(--re-text);
+}
+
+.re-row__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.re-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--re-mono-font);
+  font-weight: 600;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.re-row__sport {
+  color: var(--re-text);
+}
+
+.re-row__sport--accent {
+  color: var(--re-accent);
+}
+
+.re-row__sep {
+  color: var(--re-line);
+}
+
+.re-row__date {
+  color: var(--re-faint);
+}
+
+.re-row__name {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.re-row__figures {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.re-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.re-figure__label {
+  font-family: var(--re-mono-font);
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--re-faint);
+}
+
+.re-figure__value {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.re-row__weather {
+  font-family: var(--re-mono-font);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--re-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.re-row__tri {
+  /* Wide enough for a three-digit percentage without crowding the rule. */
+  flex: 0 0 124px;
+  border-left: 1px solid var(--re-line-soft);
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.re-row__num {
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  font-size: 2.125rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--re-accent);
+}
+
+/* At full width a stacked card leaves a lot of dead space, so the figures move
+   out beside the name rather than under it, on fixed tracks so they line up
+   down the column instead of shifting with the width of each value. */
+@media (width >= 64rem) {
+  .re-row__main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "meta figures"
+      "name figures"
+      "weather figures";
+    align-items: center;
+    column-gap: 40px;
+    row-gap: 6px;
+  }
+
+  .re-row__meta {
+    grid-area: meta;
+  }
+
+  .re-row__name {
+    grid-area: name;
+  }
+
+  .re-row__weather {
+    grid-area: weather;
+  }
+
+  .re-row__figures {
+    grid-area: figures;
+    grid-row: 1 / -1;
+    display: grid;
+    grid-template-columns: 120px 150px;
+    gap: 0;
+  }
+}
+
+/* On a phone the triathlon column would eat most of the card, so it drops
+   below the figures as a single line: the percentage, then the bar. */
+@media (width < 64rem) {
+  .re-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .re-row__tri {
+    flex: 1 1 auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    border-left: 0;
+    border-top: 1px solid var(--re-line-soft);
+    padding: 14px 0 0;
+  }
+
+  .re-row__tri .re-bar {
+    flex: 1;
+  }
+}
+
+/* ------------------------------------------------------------- settings --- */
+
+.re-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.re-setting {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 22px;
+  background: var(--re-surface);
+  border: 1px solid var(--re-line);
+}
+
+.re-setting__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.re-setting__help {
+  margin: 0;
+  max-width: 58ch;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--re-muted);
+}
+
+.re-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.re-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.re-toggle__track {
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--re-toggle-off-bg);
+  padding: 3px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  transition: background 0.15s ease;
+}
+
+.re-toggle__track::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--re-toggle-knob);
+  transition: transform 0.15s ease;
+}
+
+.re-toggle input:checked + .re-toggle__track {
+  background: var(--re-accent-solid);
+}
+
+.re-toggle input:checked + .re-toggle__track::before {
+  transform: translateX(22px);
+}
+
+.re-toggle input:focus-visible + .re-toggle__track {
+  outline: 2px solid var(--re-accent);
+  outline-offset: 2px;
+}
+
+@media (width < 48rem) {
+  .re-setting {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+/* ---------------------------------------------------------------- route --- */
+
+.re-route {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--re-text);
+}
+
+.re-route path {
+  animation: re-dashdraw 6s linear forwards;
+}
+
+@keyframes re-dashdraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-route path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* On dark the ink route would disappear, so it lifts to the accent. */
+@media (prefers-color-scheme: dark) {
+  .re-route {
+    color: var(--re-accent);
+  }
+}
+
+/* -------------------------------------------------------- speed compare --- */
+
+.re-compare__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: var(--re-faint);
+}
+
+.re-compare__you {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--re-compare-bg);
+  color: var(--re-compare-fg);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------- layout --- */
+
+.re-split {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.re-split--detail {
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+.re-split--settings {
+  grid-template-columns: 1fr 360px;
+  gap: 40px;
+}
+
+@media (width < 64rem) {
+  .re-split,
+  .re-split--detail,
+  .re-split--settings {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.re-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.re-stack--lg {
+  gap: 26px;
+}
+
+.re-stack--sm {
+  gap: 10px;
+}
+
+.re-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--re-mono-font);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--re-faint);
+}
+
+.re-kv strong {
+  font-weight: 400;
+  color: var(--re-text);
+}
+
+.re-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.re-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--re-accent);
+  display: inline-block;
+}

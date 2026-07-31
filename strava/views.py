@@ -13,13 +13,19 @@ import polyline
 import svgwrite
 from PIL import Image, ImageDraw
 
+from strava import stats
 from strava.data_models import SummaryActivity
 from strava.forms import RunnerSettingsForm
 from strava.line import Line
-from strava.models import Runner
+from strava.models import Activity, Animal, Runner, SummaryActivityTriathlon
 from strava.tasks.create_event import create_event
 from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
+
+ROUTE_VIEWBOX = (640, 320)
+
+# Below this a polyline has nothing to draw.
+MIN_ROUTE_POINTS = 2
 
 
 def _get_runner(request) -> Runner | None:
@@ -34,10 +40,45 @@ def _get_runner(request) -> Runner | None:
         return None
 
 
+def _enriched_map(runner: Runner, activities: list[SummaryActivityTriathlon]) -> dict[int, Activity]:
+    """
+    The local records for these activities, keyed by Strava id.
+
+    These carry the weather we captured at upload time, which the Strava
+    activity payload itself does not include.
+    """
+    ids = [a.id for a in activities if a.id is not None]
+    records = Activity.objects.filter(runner=runner, strava_id__in=ids).select_related("weather")
+    return {record.strava_id: record for record in records}
+
+
+def _route(activity) -> dict | None:
+    """
+    The activity's route as an inline SVG path, so it takes its colour from the
+    active theme rather than being baked in as an image.
+    """
+    if not activity.map or not activity.map.polyline:
+        return None
+
+    decoded = [(float(lat), float(lng)) for lat, lng in polyline.decode(activity.map.polyline)]
+    if len(decoded) < MIN_ROUTE_POINTS:
+        return None
+
+    line = Line(decoded)
+    line.fit(ROUTE_VIEWBOX)
+
+    return {
+        "path": line.svg_path(),
+        "length": round(line.length),
+        "width": ROUTE_VIEWBOX[0],
+        "height": ROUTE_VIEWBOX[1],
+    }
+
+
 @login_not_required
 def index(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("strava:activities"))
+        return HttpResponseRedirect(reverse("strava:dashboard"))
     return render(request, "strava/index.html")
 
 
@@ -66,33 +107,84 @@ def refresh_token(request, strava_id):
     return HttpResponseRedirect(reverse("strava:activities"))
 
 
-def activities(request):
-    try:
-        runner: Runner = request.user.runner
-    except ObjectDoesNotExist:
-        logout(request)
+def dashboard(request):
+    runner = _get_runner(request)
+    if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
 
-    activities = runner.get_activities()
+    period = stats.clean_period(request.GET.get("period"))
+    in_range = stats.in_period(runner.get_activities(), period)
+    records = _enriched_map(runner, in_range)
+
+    return render(
+        request,
+        "strava/dashboard.html",
+        {
+            "nav": "overview",
+            "period": period,
+            "periods": list(stats.PERIODS),
+            "human_period": stats.HUMAN_PERIODS[period],
+            "summary": stats.summarise(in_range, set(records)),
+        },
+    )
+
+
+def activities(request):
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
+
+    all_activities = list(runner.get_activities())
+    records = _enriched_map(runner, all_activities)
+
+    sport = (request.GET.get("sport") or "").lower()
+    sports = sorted({a.type.value for a in all_activities if a.type is not None})
+    shown = all_activities
+    if sport:
+        shown = [a for a in all_activities if a.type is not None and a.type.value.lower() == sport]
+
     refreshlink = reverse("strava:refresh_token", kwargs={"strava_id": int(runner.strava_id)})
 
     return render(
         request,
         "strava/activities.html",
         {
+            "nav": "activities",
             "authlink": reverse("strava:auth"),
             "refreshlink": refreshlink,
             "runner": runner.get_details(),
-            "activities": activities,
+            "rows": [stats.ActivityRow(a, records.get(a.id)) for a in shown],
+            "sports": sports,
+            "sport": sport,
         },
     )
 
 
 def activity(request, activityid):
-    runner: Runner = request.user.runner
-    activity = runner.activity(activityid)
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
 
-    return render(request, "strava/activity.html", {"activity": activity})
+    activity = runner.activity(activityid)
+    record = Activity.objects.filter(runner=runner, strava_id=activityid).select_related("weather").first()
+    speed_kph = (activity.average_speed or 0) * 3.6
+
+    return render(
+        request,
+        "strava/activity.html",
+        {
+            "nav": "activities",
+            "activity": activity,
+            "sport": stats.sport_label(activity),
+            "weather": record.weather if record else None,
+            "route": _route(activity),
+            "speed_kph": speed_kph,
+            # The nearest animal either side, so the panel is stable — the line
+            # written to Strava picks a random pair from the same two sets.
+            "slower": Animal.objects.filter(max_speed__lt=speed_kph).order_by("-max_speed").first(),
+            "faster": Animal.objects.filter(max_speed__gt=speed_kph).order_by("max_speed").first(),
+        },
+    )
 
 
 def settings(request):

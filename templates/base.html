@@ -6,11 +6,18 @@
     <title>{% block title %}{% endblock %}</title>
 
     <meta charset="utf-8" />
-    <meta
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-      name="viewport"
-    />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    {# Chalk is a light/dark pair; the palette follows the OS via prefers-color-scheme. #}
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
     <link href="{% static 'css/main.min.css' %}" rel="stylesheet" />
 
@@ -18,51 +25,36 @@
   </head>
 
   <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-    {% if user.is_authenticated %}
-      <div class="navbar">
-        <div class="navbar-start">
-          <div class="text-xs uppercase">
-            <span class="text-sm">R</span>un<span class="text-sm">T</span>ime<span class="text-sm">E</span>xceptions
-          </div>
-        </div>
-        <div class="navbar-end">
-          <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h7"
-                />
-              </svg>
+    {% block nav %}
+      {% if user.is_authenticated %}
+        <nav class="re-nav">
+          <div class="re-nav__group">
+            <a href="{% url 'strava:dashboard' %}" class="re-logo">runtime<em>exceptions</em></a>
+            <div class="re-nav__links">
+              <a
+                href="{% url 'strava:dashboard' %}"
+                class="re-nav__link"
+                {% if nav == "overview" %}aria-current="page"{% endif %}
+              >Overview</a>
+              <a
+                href="{% url 'strava:activities' %}"
+                class="re-nav__link"
+                {% if nav == "activities" %}aria-current="page"{% endif %}
+              >Activities</a>
+              <a
+                href="{% url 'strava:settings' %}"
+                class="re-nav__link"
+                {% if nav == "settings" %}aria-current="page"{% endif %}
+              >Settings</a>
             </div>
-            <ul
-              tabindex="0"
-              class="right-0 menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-42 p-2 shadow"
-            >
-              <li>
-                <a href="{% url 'strava:activities' %}">Activities</a>
-              </li>
-              <li>
-                <form method="post" action="{% url 'strava:logout' %}" class="block">
-                  {% csrf_token %}
-                  <button type="submit" class="text-left block w-full cursor-pointer">Logout</button>
-                </form>
-              </li>
-            </ul>
           </div>
-        </div>
-      </div>
-    {% endif %}
-    <div class="mx-8 my-4">
-      {% block content %}{% endblock %}
-    </div>
+          <div class="re-nav__end">
+            <span>{{ user.get_full_name|default:user.username }}</span>
+          </div>
+        </nav>
+      {% endif %}
+    {% endblock nav %}
+
+    {% block content %}{% endblock %}
   </body>
 </html>

@@ -1,0 +1,101 @@
+/*
+ * Design tokens for Chalk — light, editorial, race-report energy.
+ *
+ * Chalk ships as a light/dark pair rather than a theme the user picks: the
+ * palette follows the operating system through prefers-color-scheme, and
+ * `color-scheme` lets the browser match form controls and scrollbars to it.
+ *
+ * The accent works differently in each mode. On paper #2f4bff is readable as
+ * text; on dark it is not, so text and hairlines lift to #8b9cff while filled
+ * blue surfaces stay #2f4bff with white on top. Hence the separate
+ * --re-accent and --re-accent-solid tokens.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --re-body-font:
+    Archivo, system-ui, -apple-system, "Segoe UI", helvetica, arial, sans-serif;
+  --re-display-font: "Space Grotesk", var(--re-body-font);
+  --re-mono-font: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --re-display-tracking: -0.035em;
+  --re-numeral-tracking: -0.045em;
+
+  --re-radius: 4px;
+  --re-bar-radius: 0;
+  --re-card-radius: 0;
+
+  /* ------------------------------------------------------------ light --- */
+
+  --re-bg: #f5f3ee;
+  --re-surface: #ffffff;
+  --re-code-bg: #f0eee8;
+
+  --re-text: #101010;
+  --re-text-soft: #4a4a45;
+  --re-muted: #5a5a55;
+  --re-faint: #7a7a72;
+
+  --re-line: rgb(0 0 0 / 0.16);
+  --re-line-soft: rgb(0 0 0 / 0.12);
+
+  /* Accent as text, hairlines and small marks. */
+  --re-accent: #2f4bff;
+  /* Accent as a filled surface, and what sits on top of it. */
+  --re-accent-solid: #2f4bff;
+  --re-accent-solid-ink: #ffffff;
+  --re-accent-wash: rgb(47 75 255 / 0.1);
+
+  --re-track: rgb(0 0 0 / 0.08);
+
+  /* The strongest available fill: ink on paper, paper on dark. Drives the
+     active filter chip and the avatar. */
+  --re-solid-bg: #101010;
+  --re-solid-fg: #f5f3ee;
+
+  /* The "you" row of the speed comparison — ink on paper, blue on dark. */
+  --re-compare-bg: #101010;
+  --re-compare-fg: #ffffff;
+
+  --re-toggle-off-bg: #c8c5bd;
+  --re-toggle-knob: #ffffff;
+
+  --re-preview-shadow: 8px 8px 0 rgb(16 16 16 / 0.08);
+}
+
+/* ------------------------------------------------------------------ dark --- */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --re-bg: #101216;
+    --re-surface: #191c22;
+    --re-code-bg: #101216;
+
+    --re-text: #ecedf1;
+    --re-text-soft: #c3c6ce;
+    --re-muted: #8e929c;
+    --re-faint: #8e929c;
+
+    --re-line: rgb(255 255 255 / 0.12);
+    --re-line-soft: rgb(255 255 255 / 0.09);
+
+    --re-accent: #8b9cff;
+    --re-accent-solid: #2f4bff;
+    --re-accent-solid-ink: #ffffff;
+    --re-accent-wash: rgb(139 156 255 / 0.14);
+
+    --re-track: rgb(255 255 255 / 0.1);
+
+    --re-solid-bg: #ecedf1;
+    --re-solid-fg: #101216;
+
+    --re-compare-bg: #2f4bff;
+    --re-compare-fg: #ffffff;
+
+    --re-toggle-off-bg: #33373f;
+    --re-toggle-knob: #ffffff;
+
+    --re-preview-shadow: 8px 8px 0 rgb(0 0 0 / 0.35);
+  }
+}

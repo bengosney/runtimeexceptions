@@ -68,6 +68,15 @@ class Weather(models.Model):
         """
         return meters_per_second * 3.6
 
+    def wind_short(self) -> str:
+        """
+        Returns the wind speed and direction without the gust detail, for
+        places that only have room for one line.
+        """
+        speed = self.mps_to_kph(self.wind_speed)
+        direction = self.degrees_to_cardinal(self.wind_direction)
+        return f"{speed:.1f} km/h {direction}"
+
     def wind(self) -> str:
         """
         Returns the wind speed and direction.

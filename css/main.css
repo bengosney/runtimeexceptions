@@ -1,5 +1,71 @@
 @import "tailwindcss" source("..");
 @plugin "daisyui";
 
+@plugin "daisyui/theme" {
+  name: "chalk";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: #f5f3ee;
+  --color-base-200: #ffffff;
+  --color-base-300: #e8e5dd;
+  --color-base-content: #101010;
+  --color-primary: #2f4bff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #101010;
+  --color-secondary-content: #f5f3ee;
+  --color-accent: #2f4bff;
+  --color-accent-content: #ffffff;
+  --color-neutral: #101010;
+  --color-neutral-content: #f5f3ee;
+  --color-info: #2f4bff;
+  --color-info-content: #ffffff;
+  --color-success: #1f8a4c;
+  --color-success-content: #ffffff;
+  --color-warning: #b06a00;
+  --color-warning-content: #ffffff;
+  --color-error: #c02626;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 4px;
+  --radius-field: 4px;
+  --radius-box: 0;
+  --border: 1px;
+}
+
+@plugin "daisyui/theme" {
+  name: "chalkdark";
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #101216;
+  --color-base-200: #191c22;
+  --color-base-300: #22262e;
+  --color-base-content: #ecedf1;
+  --color-primary: #2f4bff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #ecedf1;
+  --color-secondary-content: #101216;
+  --color-accent: #8b9cff;
+  --color-accent-content: #101216;
+  --color-neutral: #191c22;
+  --color-neutral-content: #ecedf1;
+  --color-info: #8b9cff;
+  --color-info-content: #101216;
+  --color-success: #4ade80;
+  --color-success-content: #101216;
+  --color-warning: #fbbf24;
+  --color-warning-content: #101216;
+  --color-error: #f87171;
+  --color-error-content: #101216;
+
+  --radius-selector: 4px;
+  --radius-field: 4px;
+  --radius-box: 0;
+  --border: 1px;
+}
+
 @import "./partials/typography.css";
 @import "./partials/layout.css";
+@import "./partials/themes.css";
+@import "./partials/components.css";

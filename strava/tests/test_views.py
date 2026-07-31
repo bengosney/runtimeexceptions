@@ -1,5 +1,6 @@
 import json
 import urllib.parse
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
@@ -10,8 +11,8 @@ import pytest
 from model_bakery import baker
 from pytest_django.asserts import assertInHTML
 
-from strava.data_models import DetailedActivity, SummaryActivity, SummaryAthlete
-from strava.models import Runner, RunnerSettings
+from strava.data_models import DetailedActivity, SummaryAthlete
+from strava.models import Runner, RunnerSettings, SummaryActivityTriathlon
 
 
 @pytest.fixture
@@ -48,15 +49,17 @@ def test_index(client):
 
     login_url = reverse("strava:auth")
 
-    assertInHTML(f'<a class="btn btn-primary" href="{login_url}">Login</a>', response.content.decode("utf-8"))
+    assertInHTML(
+        f'<a href="{login_url}" class="re-btn re-btn--accent re-btn--lg">Connect with Strava</a>',
+        response.content.decode("utf-8"),
+    )
 
 
 def test_index_authenticated(auth_client):
     response = auth_client.get("/")
     assert response.status_code == HTTPStatus.FOUND
 
-    activity_url = reverse("strava:activities")
-    assert response["Location"] == activity_url
+    assert response["Location"] == reverse("strava:dashboard")
 
 
 def test_auth(client):
@@ -111,7 +114,7 @@ def test_activities_no_activities(mock_get_details, mock_get_activities, auth_cl
 @patch("strava.views.Runner.get_activities")
 @patch("strava.views.Runner.get_details")
 def test_activities(mock_get_details, mock_get_activities, auth_client, runner):
-    activity = SummaryActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
+    activity = SummaryActivityTriathlon.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
     mock_get_activities.return_value = [activity]
     mock_get_details.return_value = SummaryAthlete.model_validate(
         {"name": "Test Runner", "strava_id": runner.strava_id}
@@ -119,9 +122,65 @@ def test_activities(mock_get_details, mock_get_activities, auth_client, runner):
     response = auth_client.get(reverse("strava:activities"))
     assert response.status_code == HTTPStatus.OK
 
-    url = reverse("strava:activity", kwargs={"activityid": activity.id})
-    link = f'<a class="underline hover:text-neutral-300 transition-colors" href="{url}">{activity.name}</a>'
-    assertInHTML(link, response.content.decode("utf-8"))
+    content = response.content.decode("utf-8")
+    assert reverse("strava:activity", kwargs={"activityid": activity.id}) in content
+    assertInHTML(f'<div class="re-row__name">{activity.name}</div>', content)
+
+
+@pytest.mark.django_db
+@patch("strava.views.Runner.get_activities")
+@patch("strava.views.Runner.get_details")
+def test_dashboard(mock_get_details, mock_get_activities, auth_client, runner):
+    mock_get_activities.return_value = [
+        SummaryActivityTriathlon.model_validate(
+            {
+                "id": 101,
+                "name": "Test Activity",
+                "type": "Run",
+                "distance": 5000,
+                "moving_time": 1800,
+                "start_date": datetime.now(tz=UTC),
+            }
+        )
+    ]
+    mock_get_details.return_value = SummaryAthlete.model_validate(
+        {"name": "Test Runner", "strava_id": runner.strava_id}
+    )
+
+    response = auth_client.get(reverse("strava:dashboard"))
+    assert response.status_code == HTTPStatus.OK
+
+    summary = response.context["summary"]
+    assert summary.count == 1
+    assert summary.total_distance_km == "5.00"
+    assert summary.moving_time_hours == "0:30"
+    # 5 km of the 10 km run leg.
+    assert summary.average_triathlon_percentage == pytest.approx(50.0)
+    assert summary.enriched == 0
+
+
+@pytest.mark.django_db
+@patch("strava.views.Runner.get_activities")
+@patch("strava.views.Runner.get_details")
+def test_dashboard_period_filters_by_date(mock_get_details, mock_get_activities, auth_client, runner):
+    mock_get_activities.return_value = [
+        SummaryActivityTriathlon.model_validate(
+            {
+                "id": 101,
+                "name": "Old Activity",
+                "type": "Run",
+                "distance": 5000,
+                "start_date": datetime.now(tz=UTC) - timedelta(days=20),
+            }
+        )
+    ]
+    mock_get_details.return_value = SummaryAthlete.model_validate(
+        {"name": "Test Runner", "strava_id": runner.strava_id}
+    )
+
+    assert auth_client.get(reverse("strava:dashboard"), {"period": "7d"}).context["summary"].count == 0
+    assert auth_client.get(reverse("strava:dashboard"), {"period": "30d"}).context["summary"].count == 1
+    assert auth_client.get(reverse("strava:dashboard"), {"period": "all"}).context["summary"].count == 1
 
 
 @pytest.mark.django_db

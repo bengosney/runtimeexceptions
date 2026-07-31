@@ -2,20 +2,141 @@
 
 {% load abbreviations humanize markup %}
 
-{% block title %}{{ run.name }}{% endblock %}
+{% block title %}{{ activity.name }} — RuntimeExceptions{% endblock %}
 
 {% block content %}
-  <h2>{{ activity.type.value|title }}</h2>
-  <h1>{{ activity.name }}</h1>
-  <div>
-    <a class="btn" hx-get="{% url 'strava:trigger_update_activity' activity.id %}">Update Triathlon Score</a>
+  <div class="re-page">
+    <a href="{% url 'strava:activities' %}" class="re-eyebrow">← All activities</a>
+
+    <div class="re-pagehead">
+      <div class="re-stack re-stack--sm">
+        <p class="re-eyebrow re-eyebrow--accent">
+          {{ sport }}
+          {% if activity.start_date_local %}
+            · {{ activity.start_date_local|date:"D d M · H:i"|upper }}
+          {% endif %}
+        </p>
+        <h1 class="re-display re-display--xl">{{ activity.name }}</h1>
+      </div>
+      <button
+        type="button"
+        class="re-btn re-btn--accent"
+        hx-get="{% url 'strava:trigger_update_activity' activity.id %}"
+      >
+        Re-run enrichment
+      </button>
+    </div>
+
+    <div class="re-stats">
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Distance</p>
+        <div class="re-stat__value">
+          <span class="re-numeral">{{ activity.distance|metric:"m"|nbsp }}</span>
+        </div>
+      </div>
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Moving time</p>
+        <div class="re-stat__value">
+          <span class="re-numeral">{{ activity.moving_time|precisedelta|shorten_time|nbsp }}</span>
+        </div>
+      </div>
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Total time</p>
+        <div class="re-stat__value">
+          <span class="re-numeral">{{ activity.elapsed_time|precisedelta|shorten_time|nbsp }}</span>
+        </div>
+      </div>
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Triathlon&nbsp;%</p>
+        <div class="re-stat__value">
+          <span class="re-numeral re-numeral--accent">
+            {{ activity.triathlon_percentage|default:0|floatformat:2 }}
+          </span>
+          <span class="re-unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-split re-split--detail">
+      <div class="re-stack">
+        {% if route %}
+          <div class="re-card">
+            <p class="re-eyebrow">Route</p>
+            <svg
+              class="re-route"
+              viewBox="0 0 {{ route.width }} {{ route.height }}"
+              role="img"
+              aria-label="Route of {{ activity.name }}"
+            >
+              <path
+                d="{{ route.path }}"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="stroke-dasharray: {{ route.length }}; stroke-dashoffset: {{ route.length }}"
+              />
+            </svg>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="re-stack">
+        <div class="re-card">
+          <p class="re-eyebrow re-eyebrow--accent">Written to Strava</p>
+          <p class="re-prose">{{ activity.description|default:"Nothing written back yet." }}</p>
+        </div>
+
+        {% if weather %}
+          <div class="re-card" style="gap: 18px">
+            <p class="re-eyebrow">Weather {{ weather.emoji }} {{ weather.detailed_status }}</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px">
+              <div class="re-stack re-stack--sm">
+                <span class="re-eyebrow">Temperature</span>
+                <span class="re-numeral re-numeral--sm">{{ weather.temperature|floatformat:1 }}°C</span>
+              </div>
+              <div class="re-stack re-stack--sm">
+                <span class="re-eyebrow">Feels like</span>
+                <span class="re-numeral re-numeral--sm">
+                  {{ weather.temperature_feels_like|floatformat:1 }}°C
+                </span>
+              </div>
+              <div class="re-stack re-stack--sm">
+                <span class="re-eyebrow">Humidity</span>
+                <span class="re-numeral re-numeral--sm">{{ weather.humidity|floatformat:0 }}%</span>
+              </div>
+              <div class="re-stack re-stack--sm">
+                <span class="re-eyebrow">Wind</span>
+                <span class="re-numeral re-numeral--sm">{{ weather.wind_short }}</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="re-card" style="gap: 12px">
+          <p class="re-eyebrow">Speed comparison</p>
+          {% if faster %}
+            <div class="re-compare__row">
+              <span>{{ faster.name }}</span>
+              <span class="re-mono">Faster</span>
+            </div>
+          {% endif %}
+          <div class="re-compare__you">
+            <span>You — {{ speed_kph|floatformat:1 }} km/h</span>
+          </div>
+          {% if slower %}
+            <div class="re-compare__row">
+              <span>{{ slower.name }}</span>
+              <span class="re-mono">Slower</span>
+            </div>
+          {% endif %}
+          <p class="re-note">
+            Your nearest neighbours by top speed. The line written to Strava picks at random from the
+            same two sets.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
-  <div>
-    <p>Distance: {{ activity.distance|metric:"m"|nbsp }}</p>
-    <p>Moving Time: {{ activity.moving_time|precisedelta|shorten_time|nbsp }}</p>
-    <p>Total Time: {{ activity.elapsed_time|precisedelta|shorten_time|nbsp }}</p>
-    <p>Triathlon %: {{ activity.triathlon_percentage|default:0 }}%</p>
-  </div>
-  <p>{{ activity.description|default:"No description available." }}</p>
-  <img src="{% url 'strava:activity_svg' activity.id %}" class="mx-auto max-w-full" />
 {% endblock content %}
