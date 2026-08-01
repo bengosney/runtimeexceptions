@@ -906,9 +906,9 @@ a {
 /* ------------------------------------------------------------- settings --- */
 
 .re-settings {
-  display: flex;
-  flex-direction: column;
   gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(38rem, 1fr));
 }
 
 .re-setting {
@@ -1079,7 +1079,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-width: 0;
 }
 
 .re-stack--lg {
@@ -1088,6 +1087,11 @@ a {
 
 .re-stack--sm {
   gap: 10px;
+}
+
+.re-stack--row {
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
 .re-kv {

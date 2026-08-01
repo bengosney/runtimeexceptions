@@ -6,18 +6,16 @@
 
 {% block content %}
   <div class="re-page">
-    <form method="post" class="re-split re-split--settings">
-      {% csrf_token %}
-
-      <div class="re-stack re-stack--lg">
-        <div>
-          <h1 class="re-display re-display--md">What gets added</h1>
-          <p class="re-lede" style="margin-top: 10px">
-            Each switch controls one line of the description RuntimeExceptions writes back to Strava.
-            Turning one off removes that line on the next run.
-          </p>
-        </div>
-
+    <div class="re-stack re-stack--lg">
+      <div>
+        <h1 class="re-display re-display--md">What gets added</h1>
+        <p class="re-lede" style="margin-top: 10px">
+          Each switch controls one line of the description RuntimeExceptions writes back to Strava.
+          Turning one off removes that line on the next run.
+        </p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
         <div class="re-settings">
           {% for field in form %}
             <div class="re-setting">
@@ -38,39 +36,11 @@
             </div>
           {% endfor %}
         </div>
+      </form>
 
-        <div class="re-actions">
-          <button type="submit" class="re-btn re-btn--accent">Save changes</button>
-        </div>
+      <div class="re-actions">
+        <button type="submit" class="re-btn re-btn--accent">Save changes</button>
       </div>
-
-      <div class="re-stack">
-        <div class="re-card">
-          <p class="re-eyebrow">Strava connection</p>
-          <div class="re-status">
-            <span class="re-dot"></span>
-            <span class="re-display re-display--xs">Connected</span>
-          </div>
-          <div class="re-stack" style="gap: 8px">
-            <div class="re-kv">
-              <span>Athlete</span><strong>{{ runner.firstname }} {{ runner.lastname }}</strong>
-            </div>
-            <div class="re-kv">
-              <span>Token expires</span><strong>{{ token_expires|naturaltime }}</strong>
-            </div>
-            <div class="re-kv">
-              <span>Webhook</span><strong style="color: var(--re-accent)">Active</strong>
-            </div>
-          </div>
-          <a href="{{ refreshlink }}" class="re-btn re-btn--outline re-btn--block">Refresh token</a>
-        </div>
-
-        <button type="submit" form="logout-form" class="re-btn re-btn--quiet re-btn--block">
-          Log out
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
-
-  <form method="post" action="{% url 'strava:logout' %}" id="logout-form" hidden>{% csrf_token %}</form>
 {% endblock content %}
