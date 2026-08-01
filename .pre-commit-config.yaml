@@ -70,12 +70,13 @@ repos:
   rev: v2.5.1
   hooks:
   - id: pyproject-fmt
-- repo: https://github.com/gauge-sh/tach-pre-commit
-  rev: v0.28.0
-  hooks:
-  - id: tach
 - repo: local
   hooks:
+  - id: tach
+    name: tach
+    entry: uvx tach check
+    language: python
+    pass_filenames: false
   - id: ty
     name: ty check
     entry: uvx ty check . --ignore unresolved-import
