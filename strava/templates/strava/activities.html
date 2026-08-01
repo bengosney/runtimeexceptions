@@ -8,11 +8,24 @@
   <div class="re-page">
     <div class="re-pagehead re-pagehead--plain">
       <h1 class="re-display re-display--md">Activities</h1>
-      <div class="re-chips">
-        <a href="?" class="re-chip" aria-pressed="{% if not sport %}true{% else %}false{% endif %}">All</a>
+      <div
+        class="re-chips"
+        hx-target="closest .re-page"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-indicator="closest .re-page"
+      >
+        <span class="re-spinner htmx-indicator" aria-hidden="true"></span>
+        <a
+          href="{% url 'strava:activities' %}"
+          hx-get="{% url 'strava:activities' %}"
+          class="re-chip"
+          aria-pressed="{% if not sport %}true{% else %}false{% endif %}"
+        >All</a>
         {% for option in sports %}
           <a
             href="?sport={{ option|lower }}"
+            hx-get="?sport={{ option|lower }}"
             class="re-chip"
             aria-pressed="{% if option|lower == sport %}true{% else %}false{% endif %}"
           >{{ option }}</a>

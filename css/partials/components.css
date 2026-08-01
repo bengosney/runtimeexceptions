@@ -379,6 +379,10 @@ a {
   line-height: 1;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .re-btn--accent {
@@ -414,8 +418,19 @@ a {
   width: 100%;
 }
 
-.re-btn:hover {
-  filter: brightness(1.08);
+.re-btn--accent:hover {
+  background: color-mix(in oklab, var(--re-accent-solid), black 16%);
+}
+
+.re-btn--solid:hover {
+  background: color-mix(in oklab, var(--re-solid-bg), var(--re-solid-fg) 22%);
+}
+
+.re-btn--outline:hover,
+.re-btn--quiet:hover {
+  background: var(--re-accent-wash);
+  border-color: var(--re-accent);
+  color: var(--re-accent);
 }
 
 .re-chips {
@@ -434,12 +449,24 @@ a {
   border-radius: var(--re-radius);
   border: 1px solid var(--re-line);
   color: var(--re-muted);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.re-chip:hover {
+  color: var(--re-text);
+  border-color: var(--re-text);
 }
 
 .re-chip[aria-pressed="true"] {
   background: var(--re-solid-bg);
   color: var(--re-solid-fg);
   border-color: transparent;
+}
+
+.re-chip[aria-pressed="true"]:hover {
+  opacity: 0.85;
 }
 
 /* ------------------------------------------------------------- surfaces --- */
@@ -1090,4 +1117,49 @@ a {
   border-radius: 999px;
   background: var(--re-accent);
   display: inline-block;
+}
+
+/* ----------------------------------------------------------------- busy --- */
+
+.re-spinner {
+  width: 14px;
+  height: 14px;
+  align-self: center;
+  border: 2px solid var(--re-track);
+  border-top-color: var(--re-accent);
+  border-radius: 999px;
+}
+
+.re-page.htmx-request .re-spinner {
+  animation: re-spin 0.7s linear infinite;
+}
+
+@keyframes re-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.re-page.htmx-request .re-chip {
+  pointer-events: none;
+}
+
+.re-page.htmx-request > :not(.re-pagehead) {
+  opacity: 0.4;
+}
+
+.re-page > :not(.re-pagehead) {
+  transition: opacity 0.18s ease-out;
+}
+
+@keyframes re-spinner-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-page.htmx-request .re-spinner {
+    animation: re-spinner-pulse 1.4s ease-in-out infinite;
+  }
 }
