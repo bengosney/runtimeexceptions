@@ -4,8 +4,7 @@ from io import BytesIO
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy as reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -29,14 +28,14 @@ ROUTE_VIEWBOX = (640, 320)
 MIN_ROUTE_POINTS = 2
 
 
-def _get_runner(request) -> Runner | None:
+def _get_runner(request: HttpRequest) -> Runner | None:
     """
     The signed-in user's runner, or None once the Strava link has gone — in
     which case the session is cleared and the caller should send them to auth.
     """
     try:
-        return request.user.runner
-    except ObjectDoesNotExist:
+        return Runner.objects.get(user=request.user)
+    except Runner.DoesNotExist:
         logout(request)
         return None
 
@@ -77,19 +76,19 @@ def _route(activity) -> dict | None:
 
 
 @login_not_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("strava:dashboard"))
     return render(request, "strava/index.html")
 
 
 @login_not_required
-def auth(request):
+def auth(request: HttpRequest) -> HttpResponseRedirect:
     return HttpResponseRedirect(Runner.get_auth_url(request) or "/")
 
 
 @login_not_required
-def auth_callback(request):
+def auth_callback(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     code = request.GET.get("code", "")
 
     user = Runner.auth_call_back(code)
@@ -101,14 +100,14 @@ def auth_callback(request):
     return HttpResponse(status=500)
 
 
-def refresh_token(request, strava_id):
+def refresh_token(request: HttpRequest, strava_id: int) -> HttpResponseRedirect:
     runner: Runner = get_object_or_404(Runner, strava_id=strava_id)
     runner.do_refresh_token()
 
     return HttpResponseRedirect(reverse("strava:activities"))
 
 
-def dashboard(request):
+def dashboard(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -130,7 +129,7 @@ def dashboard(request):
     )
 
 
-def activities(request):
+def activities(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -161,7 +160,7 @@ def activities(request):
     )
 
 
-def activity(request, activityid):
+def activity(request: HttpRequest, activityid) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -188,7 +187,7 @@ def activity(request, activityid):
     )
 
 
-def settings(request):
+def settings(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -216,7 +215,7 @@ def settings(request):
     )
 
 
-def trigger_update_activity(request, activityid):
+def trigger_update_activity(request: HttpRequest, activityid: int) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -229,7 +228,7 @@ def trigger_update_activity(request, activityid):
     return response
 
 
-def activity_svg(request, activityid):
+def activity_svg(request: HttpRequest, activityid: int) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     if runner is None:
         return HttpResponseRedirect(reverse("strava:auth"))
@@ -273,7 +272,7 @@ def activity_svg(request, activityid):
     return response
 
 
-def activity_png(request, activityid):
+def activity_png(request: HttpRequest, activityid: int) -> HttpResponseBadRequest | HttpResponseRedirect | HttpResponse:
     match request.GET.get("theme", "dark"):
         case "dark":
             line_colour = (255, 255, 255, 255)
@@ -318,7 +317,7 @@ def activity_png(request, activityid):
 
 @login_not_required
 @csrf_exempt
-def webhook(request):
+def webhook(request: HttpRequest) -> HttpResponse | JsonResponse:
     """
     This is the endpoint that Strava will call when there is a webhook event.
     """
