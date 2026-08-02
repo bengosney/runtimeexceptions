@@ -217,7 +217,9 @@ def settings(request):
 
 
 def trigger_update_activity(request, activityid):
-    runner: Runner = request.user.runner
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
 
     update_triathlon_score.enqueue(runner.pk, activityid)
     update_comparison.enqueue(runner.pk, activityid)
@@ -228,7 +230,10 @@ def trigger_update_activity(request, activityid):
 
 
 def activity_svg(request, activityid):
-    runner: Runner = request.user.runner
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
+
     activity: SummaryActivity = runner.activity(activityid)
     if not activity.map or not activity.map.polyline:
         raise Http404("Activity does not have a map or polyline data.")
@@ -277,7 +282,10 @@ def activity_png(request, activityid):
         case _:
             return HttpResponseBadRequest("Invalid theme specified.")
 
-    runner: Runner = request.user.runner
+    runner = _get_runner(request)
+    if runner is None:
+        return HttpResponseRedirect(reverse("strava:auth"))
+
     activity = runner.activity(activityid)
     if not activity.map or not activity.map.polyline:
         raise Http404("Activity does not have a map or polyline data.")
