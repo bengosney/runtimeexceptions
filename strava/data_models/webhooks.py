@@ -1,9 +1,11 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class EventWebhook(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     object_type: Literal["activity", "athlete"]
     object_id: int
     aspect_type: Literal["create", "update", "delete"]
@@ -11,6 +13,3 @@ class EventWebhook(BaseModel):
     owner_id: int
     subscription_id: int
     event_time: int
-
-    class Config:
-        frozen = True
