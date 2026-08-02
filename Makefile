@@ -33,6 +33,11 @@ check_command = @command -v $(1) >/dev/null 2>&1 || { echo >&2 "$(1) is not inst
 help: ## Display this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+all: init install
+
+test: all
+	pytest
+
 .git:
 	git init
 
@@ -150,7 +155,6 @@ swagger.json:
 	@curl -o $@ https://developers.strava.com/swagger/swagger.json
 
 openapi.json: swagger.json
-	@echo "Converting swagger.json to openapi.json"
 	curl -X 'POST' \
 	  'https://converter.swagger.io/api/convert' \
 	  -H 'accept: application/json' \
