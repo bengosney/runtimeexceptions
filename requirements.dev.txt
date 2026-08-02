@@ -185,10 +185,6 @@ click==8.2.1 \
     #   black
     #   granian
     #   pip-tools
-cogapp==3.4.1 \
-    --hash=sha256:1daba7b6c8bb23b733c64833de7aa3a42476c05afba19cff937e1b522216859d \
-    --hash=sha256:a806d5db9e318a1a2d3fce988008179168e7db13e5e55b19b79763f9bb9d2982
-    # via runtimeexceptions (pyproject.toml)
 colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
@@ -578,8 +574,8 @@ packaging==25.0 \
     #   black
     #   build
     #   commitizen
-    #   datamodel-code-generator
     #   gunicorn
+    #   wheel
 pathspec==0.12.1 \
     --hash=sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08 \
     --hash=sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712

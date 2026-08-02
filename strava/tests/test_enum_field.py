@@ -41,7 +41,7 @@ def test_to_python_method_on_none(enum_list_field):
 
 def test_to_python_method_on_non_list_input(enum_list_field):
     """Tests that to_python raises an error for non-list input."""
-    with pytest.raises(ValidationError, match="Value must be a list."):
+    with pytest.raises(ValidationError, match=r"Value must be a list."):
         enum_list_field.to_python("a_string")
 
 
@@ -67,5 +67,5 @@ def test_from_db_value_method_on_none(enum_list_field):
 
 def test_invalid_enum_type_on_init():
     """Tests that the field raises an error if initialized with a non-enum type."""
-    with pytest.raises(TypeError, match="enum_type must be a subclass of enum.Enum"):
+    with pytest.raises(TypeError, match=r"enum_type must be a subclass of enum.Enum"):
         EnumListField(enum_type=str)  # ty: ignore[invalid-argument-type] this is what I'm testings

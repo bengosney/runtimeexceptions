@@ -22,7 +22,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 if os.environ.get("DATABASE_URL"):
-    DATABASES["default"] = dj_database_url.config()  # type: ignore
+    DATABASES["default"] = dict(dj_database_url.config())
     DATABASES["default"].update(
         {
             "CONN_MAX_AGE": 0,

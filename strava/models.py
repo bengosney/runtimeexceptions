@@ -83,7 +83,6 @@ class Runner(models.Model):
                 "last_name": data["athlete"]["lastname"],
             },
         )
-        user = cast(User, user)
         user.set_unusable_password()
         user.save()
 
@@ -198,6 +197,14 @@ class Runner(models.Model):
         result = self.make_call(f"activities/{activity_id}", data.model_dump(), method="PUT")
         return DetailedActivityTriathlon.model_validate(result)
 
+    @property
+    def enrichment(self) -> "RunnerSettings":
+        """
+        The runner's enrichment toggles, created with defaults on first access.
+        """
+        settings, _ = RunnerSettings.objects.get_or_create(runner=self)
+        return settings
+
     @staticmethod
     def get_distance(point1: Point, point2: Point) -> float:
         r = 6373.0
@@ -214,6 +221,29 @@ class Runner(models.Model):
         return r * c
 
 
+class RunnerSettings(models.Model):
+    """
+    Which lines RuntimeExceptions writes back to Strava for this runner.
+
+    Each field maps to exactly one marked segment of the activity name or
+    description, so turning one off removes that segment on the next run
+    without disturbing the others.
+    """
+
+    runner = models.OneToOneField(Runner, on_delete=models.CASCADE, related_name="enrichment_settings")
+
+    weather_report = models.BooleanField(default=True)
+    weather_emoji = models.BooleanField(default=True)
+    triathlon_score = models.BooleanField(default=True)
+    animal_comparison = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = "runner settings"
+
+    def __str__(self):
+        return f"Settings for {self.runner}"
+
+
 class Activity(models.Model):
     MARKER_STRING = "\ufe00\ufe01"
 
@@ -228,19 +258,34 @@ class Activity(models.Model):
     def add_weather(self) -> DetailedActivity | Literal[False]:
         """
         Updates the activity description on Strava.
+
+        The report and the title emoji are controlled independently, and a
+        disabled one is stripped rather than left behind from an earlier run.
         """
         if not self.weather:
             return False
 
-        data_in: DetailedActivity = self.runner.activity(self.strava_id)
+        runner = cast(Runner, self.runner)
+        settings = runner.enrichment
 
-        description = data_in.description or ""
+        data_in: DetailedActivity = runner.activity(self.strava_id)
+
+        original_description = data_in.description or ""
         weather = MarkedString(self.weather.long(), self.MARKER_STRING)
-        description = weather.replace_or_append(description)
+        description = (
+            weather.replace_or_append(original_description)
+            if settings.weather_report
+            else weather.remove_from_text(original_description)
+        )
 
-        name = data_in.name or ""
+        original_name = data_in.name or ""
         emoji = MarkedString(self.weather.emoji(), self.MARKER_STRING)
-        name = emoji.replace_or_append(name)
+        name = (
+            emoji.replace_or_append(original_name) if settings.weather_emoji else emoji.remove_from_text(original_name)
+        )
+
+        if description == original_description and name == original_name:
+            return False
 
         data = UpdatableActivity.model_validate(
             {
@@ -248,8 +293,6 @@ class Activity(models.Model):
                 "name": name,
             }
         )
-
-        runner = cast(Runner, self.runner)
 
         return runner.update_activity(self.strava_id, data)
 

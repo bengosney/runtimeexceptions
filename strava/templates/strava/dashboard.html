@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Overview — RuntimeExceptions{% endblock %}
+
+{% block content %}
+  <div class="re-page">
+    <div class="re-pagehead">
+      <div>
+        <p class="re-eyebrow">
+          Last {{ summary.count }} activit{{ summary.count|pluralize:"y,ies" }}
+        </p>
+        <h1 class="re-display re-display--lg" style="margin-top: 8px">
+          Your {{ human_period }}.
+        </h1>
+      </div>
+      <div
+        class="re-chips"
+        hx-target="closest .re-page"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-indicator="closest .re-page"
+      >
+        <span class="re-spinner htmx-indicator" aria-hidden="true"></span>
+        {% for option in periods %}
+          <a
+            href="?period={{ option }}"
+            hx-get="?period={{ option }}"
+            class="re-chip"
+            aria-pressed="{% if option == period %}true{% else %}false{% endif %}"
+          >{{ option|upper }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="re-stats">
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Distance</p>
+        <div class="re-stat__value">
+          <span class="re-numeral">{{ summary.total_distance_km }}</span>
+          <span class="re-unit">km</span>
+        </div>
+        <p class="re-note">{{ summary.count }} activit{{ summary.count|pluralize:"y,ies" }}</p>
+      </div>
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Moving time</p>
+        <div class="re-stat__value">
+          <span class="re-numeral">{{ summary.moving_time_hours }}</span>
+          <span class="re-unit">hh:mm</span>
+        </div>
+        <p class="re-note">{{ summary.disciplines }}</p>
+      </div>
+      <div class="re-stats__item">
+        <p class="re-eyebrow">Avg triathlon&nbsp;%</p>
+        <div class="re-stat__value">
+          <span class="re-numeral re-numeral--accent">
+            {{ summary.average_triathlon_percentage|floatformat:1 }}
+          </span>
+          <span class="re-unit">%</span>
+        </div>
+        <p class="re-note">Against a full-distance leg</p>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

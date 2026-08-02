@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from strava.data_models import ActivityType
 
 SWIM_DISTANCE: int = 1500
@@ -12,7 +14,13 @@ TRIATHLON_DISTANCES = {
 
 
 class TriathlonMixin:
+    if TYPE_CHECKING:
+        distance: float | None = None
+        type: ActivityType | None = None
+
     def triathlon_percentage(self, precision: int = 2) -> float:
+        if self.type is None:
+            return 0
         try:
             return round(((self.distance or 0) / TRIATHLON_DISTANCES[self.type]) * 100, precision)
         except KeyError:

@@ -15,4 +15,4 @@ class NotAuthenticated:
     def process_exception(self, request, exception):
         if isinstance(exception, StravaNotAuthenticatedError):
             logout(request)
-            return HttpResponseRedirect(reverse_lazy("strava:login"))
+            return HttpResponseRedirect(reverse_lazy("strava:auth"))

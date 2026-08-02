@@ -3,26 +3,14 @@ html {
 }
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    blinkmacsystemfont,
-    "Segoe UI",
-    helvetica,
-    arial,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol";
+  font-family: var(--re-body-font);
   font-weight: 400;
   line-height: 1.45;
 }
 
 p,
 li {
-  line-height: 1.5em;
-  font-size: 1.2rem;
-  font-size: clamp(1.2rem, -0.25vw + 1.25rem, 1.1rem);
+  line-height: 1.55;
   letter-spacing: 0.005em;
 }
 
@@ -30,64 +18,37 @@ li + li {
   margin-top: 0.75em;
 }
 
+/*
+ * Headings default to the display face. Screen-level sizing is set by the
+ * .re-display--* modifiers rather than by tag, so a heading can sit at any
+ * level of the outline without changing how it looks.
+ */
 h1,
 h2,
 h3,
 h4 {
-  font-family:
-    system-ui,
-    -apple-system,
-    blinkmacsystemfont,
-    "Segoe UI",
-    helvetica,
-    arial,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol";
-  font-weight: inherit;
-  line-height: 1.25;
-  word-wrap: break-word;
+  margin-top: 0;
+  font-family: var(--re-display-font);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: var(--re-display-tracking);
   overflow-wrap: break-word;
-  hyphens: auto;
-  hyphenate-limit-chars: 10 3 4;
-}
-h1.alt,
-h2.alt,
-h3.alt,
-h4.alt {
-  font-family:
-    system-ui,
-    -apple-system,
-    blinkmacsystemfont,
-    "Segoe UI",
-    helvetica,
-    arial,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol";
 }
 
 h1 {
-  margin-top: 0;
-  font-size: 2.331112rem;
-  font-size: clamp(2.331112rem, 4.16722vw + 1.497668rem, 3.998rem);
+  font-size: clamp(2rem, 2.5vw + 1rem, 3.25rem);
 }
 
 h2 {
-  font-size: 1.722388rem;
-  font-size: clamp(1.722388rem, 2.26153vw + 1.270082rem, 2.627rem);
+  font-size: clamp(1.75rem, 1.5vw + 1rem, 2.5rem);
 }
 
 h3 {
-  font-size: 1.443556rem;
-  font-size: clamp(1.443556rem, 1.38861vw + 1.165834rem, 1.999rem);
+  font-size: 1.75rem;
 }
 
 h4 {
-  font-size: 1.183816rem;
-  font-size: clamp(1.183816rem, 0.57546vw + 1.068724rem, 1.414rem);
+  font-size: 1.375rem;
 }
 
 small,

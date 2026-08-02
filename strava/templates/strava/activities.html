@@ -2,42 +2,88 @@
 
 {% load abbreviations humanize markup %}
 
-{% block title %}{{ runner.firstname }} {{ runner.lastname }}{% endblock %}
+{% block title %}Activities — {{ runner.firstname }} {{ runner.lastname }}{% endblock %}
 
 {% block content %}
+  <div class="re-page">
+    <div class="re-pagehead re-pagehead--plain">
+      <h1 class="re-display re-display--md">Activities</h1>
+      <div
+        class="re-chips"
+        hx-target="closest .re-page"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-indicator="closest .re-page"
+      >
+        <span class="re-spinner htmx-indicator" aria-hidden="true"></span>
+        <a
+          href="{% url 'strava:activities' %}"
+          hx-get="{% url 'strava:activities' %}"
+          class="re-chip"
+          aria-pressed="{% if not sport %}true{% else %}false{% endif %}"
+        >All</a>
+        {% for option in sports %}
+          <a
+            href="?sport={{ option|lower }}"
+            hx-get="?sport={{ option|lower }}"
+            class="re-chip"
+            aria-pressed="{% if option|lower == sport %}true{% else %}false{% endif %}"
+          >{{ option }}</a>
+        {% endfor %}
+      </div>
+    </div>
 
-    <h2>Activities</h2>
-    <h1>{{ runner.firstname }} {{ runner.lastname }}</h1>
+    <div class="re-rows">
+      {% for row in rows %}
+        <a href="{% url 'strava:activity' row.activity.id %}" class="re-row">
+          <div class="re-row__main">
+            <div class="re-row__meta">
+              <span class="re-row__sport">
+                {{ row.sport }}
+              </span>
+              <span class="re-row__sep">/</span>
+              <span class="re-row__date">{{ row.activity.start_date_local|date:"D d M"|upper }}</span>
+            </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Distance</th>
-                <th>Moving Time</th>
-                <th>Total Time</th>
-                <th>Triathlon %</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for activity in activities %}
-                <tr>
-                    <td>{{ activity.sport_type.root }}</td>
-                    <td><a class="underline hover:text-neutral-300 transition-colors" href="{% url 'strava:activity' activity.id %}">{{ activity.name }}</a></td>
-                    <td>{{ activity.distance|metric:"m"|nbsp }}</td>
-                    <td>{{ activity.moving_time|precisedelta|shorten_time|nbsp }}</td>
-                    <td>{{ activity.elapsed_time|precisedelta|shorten_time|nbsp }}</td>
-                    <td>{{ activity.triathlon_percentage|default:0 }}%</td>
-                    <td><a class="btn btn-primary" href="{% url 'strava:activity' activity.id %}">Details</a></td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="3">No activities found</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <div class="re-row__name">{{ row.activity.name }}</div>
 
+            <div class="re-row__figures">
+              <div class="re-figure">
+                <span class="re-figure__label">Distance</span>
+                <span class="re-figure__value">{{ row.activity.distance|metric:"m"|nbsp }}</span>
+              </div>
+              <div class="re-figure">
+                <span class="re-figure__label">Moving</span>
+                <span class="re-figure__value">
+                  {{ row.activity.moving_time|precisedelta|shorten_time|nbsp }}
+                </span>
+              </div>
+            </div>
+
+            {% if row.weather_short %}
+              <div class="re-row__weather">{{ row.weather_short }}</div>
+            {% endif %}
+          </div>
+
+          <div class="re-row__tri">
+            <div class="re-figure">
+              <span class="re-figure__label">Tri&nbsp;%</span>
+              <span class="re-row__num">{{ row.triathlon_percentage|floatformat:2 }}</span>
+            </div>
+            <div class="re-bar re-bar--sm">
+              <div class="re-bar__fill" style="width: {{ row.bar_width }}"></div>
+            </div>
+          </div>
+        </a>
+      {% empty %}
+        <p class="re-lede">
+          {% if sport %}
+            No {{ sport }} activities yet. <a href="?" style="color: var(--re-accent)">Show all</a>.
+          {% else %}
+            No activities found
+          {% endif %}
+        </p>
+      {% endfor %}
+    </div>
+  </div>
 {% endblock content %}

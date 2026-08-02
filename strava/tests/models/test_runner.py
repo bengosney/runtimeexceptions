@@ -1,5 +1,5 @@
+import time
 from http import HTTPStatus
-from typing import cast
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
@@ -10,7 +10,7 @@ import pytest
 from model_bakery import baker
 from pydantic import ValidationError
 
-from strava.data_models import DetailedActivity, SummaryAthlete
+from strava.data_models import DetailedActivity, SummaryAthlete, UpdatableActivity
 from strava.exceptions import (
     StravaError,
     StravaNotAuthenticatedError,
@@ -88,7 +88,6 @@ def test_auth_call_back_existing_user(mock_make_call):
 @pytest.mark.django_db
 def test_make_call_calls__make_call():
     runner = baker.make(Runner, access_expires="9999999999")
-    from unittest.mock import patch
 
     with patch.object(Runner, "_make_call", return_value={"result": "ok"}) as mock_make_call:
         result = runner.make_call("some/path", {"foo": "bar"}, method="POST")
@@ -131,8 +130,6 @@ def test_do_refresh_token(mock_make_call, settings):
 @pytest.mark.django_db
 @patch.object(Runner, "do_refresh_token")
 def test_auth_code_does_not_refresh_if_expired(mock_refresh):
-    import time
-
     runner = baker.make(
         Runner,
         strava_id="12345",
@@ -148,8 +145,6 @@ def test_auth_code_does_not_refresh_if_expired(mock_refresh):
 @pytest.mark.django_db
 @patch.object(Runner, "do_refresh_token")
 def test_auth_code_does_not_refresh_if_not_expired(mock_refresh):
-    import time
-
     runner = baker.make(
         Runner,
         strava_id="12345",
@@ -268,7 +263,7 @@ def test_activity(mock_strava_request):
     data = {"name": "Test Activity"}
     mock_strava_request.return_value.json.return_value = data
     mock_strava_request.return_value.status_code = HTTPStatus.OK
-    runner: Runner = cast(Runner, baker.make(Runner, access_expires="9999999999"))
+    runner: Runner = baker.make(Runner, access_expires="9999999999")
     activity = runner.activity(1)
     assert activity == DetailedActivityTriathlon.model_validate(data)
     assert activity.name == data["name"]
@@ -290,8 +285,8 @@ def test_activity_invalid(mock_strava_request):
 @patch("strava.models.Runner.make_call")
 def test_update_activity(mock_make_call):
     id = 1
-    data = DetailedActivity(name="New Activity")
-    mock_make_call.return_value = data
+    data = UpdatableActivity(name="New Activity")
+    mock_make_call.return_value = DetailedActivity(name="New Activity")
     runner: Runner = baker.make(Runner, access_expires="9999999999")
     runner.update_activity(id, data)
     mock_make_call.assert_called_once_with(

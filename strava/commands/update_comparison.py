@@ -1,5 +1,4 @@
 import logging
-from typing import cast
 
 from strava.data_models import UpdatableActivity
 from strava.models import Animal, DetailedActivityTriathlon, Runner
@@ -19,10 +18,20 @@ class UpdateComparison:
         self.activity_id = activity_id
 
     def __call__(self):
-        runner = cast(Runner, self.runner)
+        runner = self.runner
         logger.info("Updating comparison for activity: %d", self.activity_id)
         activity = runner.activity(self.activity_id)
         logger.debug("Activity data: %s", activity)
+
+        original_description = activity.description or ""
+
+        if not runner.enrichment.animal_comparison:
+            description = MarkedString("", self.MARKER_STRING).remove_from_text(original_description)
+            if description == original_description:
+                return
+            runner.update_activity(self.activity_id, UpdatableActivity(description=description))
+            logger.info("Removed comparison for activity: %d", self.activity_id)
+            return
 
         slower = self.get_slower(activity)
         faster = self.get_faster(activity)
@@ -36,7 +45,7 @@ class UpdateComparison:
         )
         logger.debug("Score string: %s", score_string)
         update = UpdatableActivity(
-            description=score_string.replace_or_append(activity.description or ""),
+            description=score_string.replace_or_append(original_description),
         )
         runner.update_activity(self.activity_id, update)
         logger.info("Updated comparison for activity: %d", self.activity_id)

@@ -89,7 +89,7 @@ def test_from_lat_long_invalid_observation(mock_owm_class):
     mock_owm_instance.weather_manager.return_value = mock_weather_manager
     mock_owm_class.return_value = mock_owm_instance
 
-    with pytest.raises(ValueError, match="No weather data found for coordinates: 0.0, 0.0"):
+    with pytest.raises(ValueError, match=r"No weather data found for coordinates: 0.0, 0.0"):
         Weather.from_lat_long(0.0, 0.0)
 
 

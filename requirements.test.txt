@@ -684,6 +684,10 @@ pydantic-core==2.33.2 \
     # via
     #   -r requirements.txt
     #   pydantic
+pygments==2.20.0 \
+    --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
+    --hash=sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176
+    # via pytest
 pyowm==3.3.0 \
     --hash=sha256:8196f77c91eac680676ed5ee484aae8a165408055e3e2b28025cbf60b8681e03 \
     --hash=sha256:86463108e7613171531ba306040b43c972b3fc0b0acf73b12c50910cdd2107ab

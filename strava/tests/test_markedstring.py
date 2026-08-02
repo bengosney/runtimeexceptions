@@ -5,13 +5,16 @@ def test_marked_string_str():
     ms = MarkedString("hello", "*")
     assert str(ms) == "*hello*"
 
+
 def test_marked_string_empty_string():
     ms = MarkedString("", "*")
     assert str(ms) == "**"
 
+
 def test_marked_string_empty_marker():
     ms = MarkedString("hello", "")
     assert str(ms) == "hello"
+
 
 def test_marked_string_empty_string_and_marker():
     ms = MarkedString("", "")

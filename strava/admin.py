@@ -10,6 +10,13 @@ class RunnerAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 
+@admin.register(models.RunnerSettings)
+class RunnerSettingsAdmin(admin.ModelAdmin):
+    model = models.RunnerSettings
+    list_display = ("runner", "weather_report", "weather_emoji", "triathlon_score", "animal_comparison")
+    list_per_page = 25
+
+
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
     model = models.Event

@@ -1,15 +1,76 @@
 {% extends "base.html" %}
 
-{% block title %}Runtime Exceptions{% endblock %}
+{% block title %}RuntimeExceptions — Strava, annotated{% endblock %}
+
+{% block nav %}
+  <nav class="re-nav">
+    <a href="{% url 'strava:index' %}" class="re-logo">runtime<em>exceptions</em></a>
+    <div class="re-nav__end">
+      <a href="#what-it-adds" class="re-nav__link">What it adds</a>
+      <a href="{% url 'strava:auth' %}" class="re-btn re-btn--solid">Connect Strava</a>
+    </div>
+  </nav>
+{% endblock nav %}
 
 {% block content %}
-  <div class="p-3 flex gap-5 flex-col items-center justify-center h-full">
-    <h1 class="uppercase">
-      <span class="text-7xl">R</span>un<span class="text-7xl">T</span>ime<span class="text-7xl">E</span>xceptions
-    </h1>
-    <p>Add stuff to your Strava</p>
-    <div>
-      <a class="btn btn-primary" href="{% url 'strava:auth' %}">Login</a>
+  <div class="re-hero">
+    <div class="re-hero__grid">
+      <div class="re-stack re-stack--lg">
+        <p class="re-eyebrow re-eyebrow--accent">Strava, annotated</p>
+        <h1 class="re-display re-display--hero">Ran it.<br />Now know it.</h1>
+        <p class="re-lede">
+          Every upload gets read, measured and written back: the weather you fought, the slice of a
+          triathlon leg you covered, and the animal you just outpaced.
+        </p>
+        <div class="re-actions">
+          <a href="{% url 'strava:auth' %}" class="re-btn re-btn--accent re-btn--lg">Connect with Strava</a>
+          <span class="re-hint">Read + write. Only the name and description change.</span>
+        </div>
+      </div>
+
+      <div class="re-preview">
+        <div class="re-preview__head">
+          <span class="re-eyebrow">Your Strava post</span>
+          <span class="re-eyebrow re-eyebrow--accent">Automatic</span>
+        </div>
+        <div class="re-preview__body">
+          <div class="re-preview__title">Afternoon Run ☁</div>
+          <p class="re-prose">
+            Broken clouds, 14.2°C feels like 13.1°C, Humidity 78%, Wind 18.4km/h from SW, gusting up to
+            31.7km/h
+          </p>
+          <p class="re-prose">
+            tri%: 0.50. This was faster than a Leaf-tailed Gecko but slower than a Humpback Whale.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="what-it-adds" class="re-features">
+      <div class="re-feature-card">
+        <p class="re-eyebrow re-eyebrow--accent">Weather</p>
+        <h2 class="re-display re-display--sm">The conditions you actually trained in</h2>
+        <p>
+          Temperature, feels-like, humidity, wind and gusts, pulled for the exact place and moment you
+          set off.
+        </p>
+      </div>
+      <div class="re-feature-card">
+        <p class="re-eyebrow re-eyebrow--accent">Triathlon&nbsp;%</p>
+        <h2 class="re-display re-display--sm">One number, every discipline</h2>
+        <p>
+          Measured against 1.5 km swim, 40 km ride and 10 km run — so a swim and a run can finally be
+          compared.
+        </p>
+      </div>
+      <div class="re-feature-card">
+        <p class="re-eyebrow re-eyebrow--accent">Animal</p>
+        <h2 class="re-display re-display--sm">Who you just outran</h2>
+        <p>
+          Your average speed placed between the fastest animal you beat and the one that still beat
+          you.
+        </p>
+      </div>
     </div>
   </div>
 {% endblock content %}

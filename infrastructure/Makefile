@@ -4,12 +4,17 @@
 
 CMD=$(shell which tofu || which terraform)
 ECHO=$(shell which figlet || which echo)
+GITIGNORE_URL=https://www.toptal.com/developers/gitignore/api/terraform,visualstudiocode,direnv
 
 .gitignore:
-	curl https://www.toptal.com/developers/gitignore/api/terraform,visualstudiocode,direnv > $@
+	curl $(GITIGNORE_URL) > $@
 
 .git: .gitignore
 	git init
+
+all: init download apply
+
+test: init download plan
 
 init: check .terraform ## Fetch files from S3 and init
 

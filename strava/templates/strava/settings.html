@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block title %}Settings — RuntimeExceptions{% endblock %}
+
+{% block content %}
+  <div class="re-page">
+    <div class="re-stack re-stack--lg">
+      <div>
+        <h1 class="re-display re-display--md">What gets added</h1>
+        <p class="re-lede" style="margin-top: 10px">
+          Each switch controls one line of the description RuntimeExceptions writes back to Strava.
+          Turning one off removes that line on the next run.
+        </p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="re-settings">
+          {% for field, example in form.toggles %}
+            <div class="re-setting">
+              <div class="re-setting__body">
+                <h2 class="re-display re-display--xs">{{ field.label }}</h2>
+                <p class="re-setting__help">{{ field.help_text }}</p>
+                <code class="re-code">{{ example }}</code>
+              </div>
+              <label class="re-toggle">
+                <input
+                  type="checkbox"
+                  name="{{ field.html_name }}"
+                  {% if field.value %}checked{% endif %}
+                  aria-label="{{ field.label }}"
+                />
+                <span class="re-toggle__track"></span>
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="re-actions">
+          <button type="submit" class="re-btn re-btn--accent">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}
