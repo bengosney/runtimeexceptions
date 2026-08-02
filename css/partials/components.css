@@ -130,6 +130,7 @@ a {
       "brand end"
       "links links";
     align-items: center;
+    row-gap: 0;
     padding: 0 20px;
   }
 
@@ -139,6 +140,7 @@ a {
 
   .re-logo {
     grid-area: brand;
+    justify-self: start;
     padding: 16px 0;
   }
 
@@ -148,20 +150,30 @@ a {
 
   .re-nav__links {
     grid-area: links;
-    width: 100%;
+    margin-inline: -20px;
+    padding-inline: 8px;
     border-top: 1px solid var(--re-line-soft);
     overflow-x: auto;
     scrollbar-width: none;
   }
 
   .re-nav__link {
-    padding: 16px 12px 16px 0;
-    margin-right: 12px;
+    padding: 16px 12px;
   }
 
   /* The account menu stays; the name it labels is the first thing to go. */
   .re-nav__user {
     display: none;
+  }
+
+  .re-nav__end .re-nav__link {
+    display: none;
+  }
+
+  .re-nav .re-btn {
+    height: 35px;
+    padding: 0 12px;
+    font-size: 0.875rem;
   }
 }
 
@@ -242,6 +254,18 @@ a {
 .re-menu__item:hover {
   background: var(--re-accent-wash);
   color: var(--re-accent);
+}
+
+@media (width < 48rem) {
+  .re-menu__trigger {
+    position: relative;
+  }
+
+  .re-menu__trigger::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
