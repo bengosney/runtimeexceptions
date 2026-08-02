@@ -1,8 +1,7 @@
 import datetime
 import logging
-from typing import cast
 
-from strava.models import Activity, DetailedActivityTriathlon, Runner, Weather
+from strava.models import Activity, Runner, Weather
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class FindOrCreateActivity:
         except Activity.DoesNotExist:
             logger.info(f"Activity not found, fetching from Strava API: strava_id={self.activity_id}")
 
-            activity_data = cast(DetailedActivityTriathlon, self.runner.activity(self.activity_id))
+            activity_data = self.runner.activity(self.activity_id)
             assert activity_data.id is not None, "Activity data should not be None"
 
             weather: Weather | None = None
@@ -45,11 +44,13 @@ class FindOrCreateActivity:
                 logger.info(f"Fetching weather for lat={lat}, lng={lng}")
                 weather = Weather.from_lat_long(lat, lng)
             else:
+                start_date = activity_data.start_date
+                diff = abs((now - start_date).total_seconds()) if start_date else None
                 logger.info(
                     f"Not setting weather strava_id={self.activity_id}, "
                     f"end_latlng: {activity_data.end_latlng}, "
-                    f"start_date: {activity_data.start_date}, "
-                    f"diff: {abs((now - activity_data.start_date).total_seconds())}"
+                    f"start_date: {start_date}, "
+                    f"diff: {diff}"
                 )
 
             activity = Activity.objects.create(

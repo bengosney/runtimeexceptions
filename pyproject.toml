@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [ "setuptools", "wheel" ]
+requires = [ "setuptools" ]
 
 [project]
 name = "runtimeexceptions"
@@ -11,6 +11,7 @@ requires-python = ">=3.13"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
   "dj-database-url",
@@ -33,7 +34,6 @@ dependencies = [
   "svgwrite",
   "whitenoise",
 ]
-
 optional-dependencies.dev = [
   "cogapp",
   "commitizen",
@@ -55,7 +55,6 @@ optional-dependencies.dev = [
   "ty",
   "types-requests",
 ]
-
 optional-dependencies.test = [
   "model-bakery",
   "pytest",
@@ -68,22 +67,19 @@ optional-dependencies.test = [
 license-files = [ "LICENSE" ]
 
 [tool.black]
-line-length = 120
 target-version = [ "py313" ]
+line-length = 120
 
 [tool.ruff]
 target-version = "py313"
 line-length = 120
 exclude = [ "migrations" ]
 extend-exclude = [ "strava/data_models/openapi.py" ]
-
 format.indent-style = "space"
 format.quote-style = "double"
 format.docstring-code-format = true
-
 lint.select = [ "C90", "DJ", "E", "ERA", "F", "FURB", "I", "N", "PERF", "PL", "RUF", "TRY", "UP" ]
 lint.ignore = [ "TRY003" ]
-
 lint.isort.section-order = [
   "future",
   "standard-library",
@@ -92,26 +88,11 @@ lint.isort.section-order = [
   "first-party",
   "local-folder",
 ]
-
 lint.isort.sections.django = [ "django" ]
 lint.isort.sections.wagtail = [ "wagtail" ]
 
 [tool.pycln]
 all = true
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.test"
-python_files = [ "tests.py", "test_*.py", "*_tests.py" ]
-
-[tool.coverage.run]
-omit = [
-  "*/migrations/*",
-  "asgi.py",
-  "wsgi.py",
-  "runtimeexceptions/settings/*.py",
-  "manage.py",
-  "*/urls.py",
-]
 
 [tool.mypy]
 plugins = [ "mypy_django_plugin.main" ]
@@ -119,11 +100,25 @@ plugins = [ "mypy_django_plugin.main" ]
 [tool.django-stubs]
 django_settings_module = "runtimeexceptions.settings.dev"
 
+[tool.pytest]
+ini_options.python_files = [ "*_tests.py", "test_*.py", "tests.py" ]
+ini_options.DJANGO_SETTINGS_MODULE = "runtimeexceptions.settings.test"
+
+[tool.coverage]
+run.omit = [
+  "*/migrations/*",
+  "*/urls.py",
+  "asgi.py",
+  "manage.py",
+  "runtimeexceptions/settings/*.py",
+  "wsgi.py",
+]
+
 [tool.commitizen]
 name = "cz_conventional_commits"
-tag_format = "$version"
 version_scheme = "pep440"
 version_provider = "pep621"
+tag_format = "$version"
 update_changelog_on_bump = true
 
 [tool.datamodel-codegen]

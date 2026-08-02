@@ -83,7 +83,6 @@ class Runner(models.Model):
                 "last_name": data["athlete"]["lastname"],
             },
         )
-        user = cast(User, user)
         user.set_unusable_password()
         user.save()
 

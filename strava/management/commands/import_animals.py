@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 with transaction.atomic():
                     for row in reader:
                         try:
-                            name = row.get("Animal").strip()
+                            name = (row.get("Animal") or "").strip()
                             avg_speed = clean_speed(row.get("Average Speed (km/h)", 0))
                             max_speed = clean_speed(row.get("Top Speed (km/h)", 0))
                             max_speed = max(avg_speed, max_speed)

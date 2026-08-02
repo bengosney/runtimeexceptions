@@ -17,12 +17,12 @@
       <form method="post">
         {% csrf_token %}
         <div class="re-settings">
-          {% for field in form %}
+          {% for field, example in form.toggles %}
             <div class="re-setting">
               <div class="re-setting__body">
                 <h2 class="re-display re-display--xs">{{ field.label }}</h2>
                 <p class="re-setting__help">{{ field.help_text }}</p>
-                <code class="re-code">{{ field.field.example }}</code>
+                <code class="re-code">{{ example }}</code>
               </div>
               <label class="re-toggle">
                 <input

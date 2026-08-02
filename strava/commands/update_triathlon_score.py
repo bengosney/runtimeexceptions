@@ -1,5 +1,4 @@
 import logging
-from typing import cast
 
 from strava.data_models import UpdatableActivity
 from strava.models import Runner
@@ -19,7 +18,7 @@ class UpdateTriathlonScore:
         self.activity_id = activity_id
 
     def __call__(self):
-        runner = cast(Runner, self.runner)
+        runner = self.runner
         logger.info("Updating triathlon score for activity: %d", self.activity_id)
         activity = runner.activity(self.activity_id)
         logger.debug("Activity data: %s", activity)

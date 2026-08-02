@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime
+from io import BytesIO
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
@@ -218,8 +219,8 @@ def settings(request):
 def trigger_update_activity(request, activityid):
     runner: Runner = request.user.runner
 
-    update_triathlon_score.enqueue(runner.id, activityid)
-    update_comparison.enqueue(runner.id, activityid)
+    update_triathlon_score.enqueue(runner.pk, activityid)
+    update_comparison.enqueue(runner.pk, activityid)
 
     response = HttpResponse(status=204)
     response["HX-Refresh"] = "true"
@@ -299,12 +300,12 @@ def activity_png(request, activityid):
             draw.line(prev + p, fill=line_colour, width=scale)
         prev = p
 
-    im = im.resize(base_size, resample=Image.LANCZOS)  # type: ignore
+    im = im.resize(base_size, resample=Image.Resampling.LANCZOS)
 
-    response = HttpResponse(content_type="image/png")
-    im.save(response, "PNG")  # type: ignore
+    buffer = BytesIO()
+    im.save(buffer, "PNG")
 
-    return response
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 
 @login_not_required

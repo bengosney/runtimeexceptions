@@ -1,9 +1,21 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 
+import asyncio
 import atexit
 import os
 import sys
+from collections.abc import Awaitable
+from typing import cast
+
+try:
+    from django.core.management import execute_from_command_line
+except ImportError as exc:
+    raise ImportError(
+        "Couldn't import Django. Are you sure it's installed and "
+        "available on your PYTHONPATH environment variable? Did you "
+        "forget to activate a virtual environment?"
+    ) from exc
 
 
 def exit_handler():
@@ -21,12 +33,12 @@ def main():
         and sys.argv[1] == "runserver"
     ):
         os.environ["NGROK_LISTENER_RUNNING"] = "true"
-        import asyncio, ngrok  # noqa: E401, I001
+        import ngrok  # noqa: PLC0415
 
         async def setup():
             listen = sys.argv[2] if len(sys.argv) > 2 else "localhost:8000"  # noqa: PLR2004
             try:
-                listener = await ngrok.default()
+                listener = await cast("Awaitable[ngrok.Listener]", ngrok.default())
                 print(f"Forwarding to {listen} from ingress url: {listener.url()}")
                 listener.forward(listen)
                 with open(".ngrok", "w") as f:
@@ -39,14 +51,6 @@ def main():
 
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "runtimeexceptions.settings.dev")
-    try:
-        from django.core.management import execute_from_command_line
-    except ImportError as exc:
-        raise ImportError(
-            "Couldn't import Django. Are you sure it's installed and "
-            "available on your PYTHONPATH environment variable? Did you "
-            "forget to activate a virtual environment?"
-        ) from exc
     execute_from_command_line(sys.argv)
 
 

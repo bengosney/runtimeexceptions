@@ -234,6 +234,7 @@ def test_activity(mock_activity, auth_client, runner):
     response = auth_client.get(reverse("strava:activity", kwargs={"activityid": 101}))
     assert response.status_code == HTTPStatus.OK
 
+    assert activity.name is not None
     assertInHTML(activity.name, response.content.decode("utf-8"))
 
 

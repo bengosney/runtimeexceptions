@@ -40,8 +40,11 @@ class RunnerSettingsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for name, field in self.fields.items():
+        for field in self.fields.values():
             # Unchecked boxes are simply absent from the POST, so none of these
             # can be required.
             field.required = False
-            field.example = self.EXAMPLES[name]
+
+    @property
+    def toggles(self):
+        return [(field, self.EXAMPLES[field.name]) for field in self]

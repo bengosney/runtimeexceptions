@@ -1,37 +1,44 @@
+from pydantic import BaseModel
+
 from strava.mixins import CleanEmptyLatLngMixin
 
 
+class LatLngModel(CleanEmptyLatLngMixin, BaseModel):
+    start_latlng: list[float] | None = None
+    end_latlng: list[float] | None = None
+
+
 def test_clean_empty_latlng_mixin_empty():
-    data = {
-        "start_latlng": [],
-        "end_latlng": [],
-    }
+    model = LatLngModel.model_validate(
+        {
+            "start_latlng": [],
+            "end_latlng": [],
+        }
+    )
 
-    data = CleanEmptyLatLngMixin.clean_empty_latlng(data)  # ty: ignore[call-non-callable]
-
-    assert data["start_latlng"] is None
-    assert data["end_latlng"] is None
+    assert model.start_latlng is None
+    assert model.end_latlng is None
 
 
 def test_clean_empty_latlng_mixin_none():
-    data = {
-        "start_latlng": None,
-        "end_latlng": None,
-    }
+    model = LatLngModel.model_validate(
+        {
+            "start_latlng": None,
+            "end_latlng": None,
+        }
+    )
 
-    data = CleanEmptyLatLngMixin.clean_empty_latlng(data)  # ty: ignore[call-non-callable]
-
-    assert data["start_latlng"] is None
-    assert data["end_latlng"] is None
+    assert model.start_latlng is None
+    assert model.end_latlng is None
 
 
 def test_clean_empty_latlng_mixin():
-    data = {
-        "start_latlng": [1, 2],
-        "end_latlng": [1, 2],
-    }
+    model = LatLngModel.model_validate(
+        {
+            "start_latlng": [1, 2],
+            "end_latlng": [1, 2],
+        }
+    )
 
-    data = CleanEmptyLatLngMixin.clean_empty_latlng(data)  # ty: ignore[call-non-callable]
-
-    assert data["start_latlng"] == [1, 2]
-    assert data["end_latlng"] == [1, 2]
+    assert model.start_latlng == [1, 2]
+    assert model.end_latlng == [1, 2]

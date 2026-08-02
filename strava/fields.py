@@ -3,7 +3,7 @@ from enum import Enum
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models.expressions import BaseExpression
+from django.db.models.expressions import Expression
 
 
 class EnumListField(models.JSONField):
@@ -32,9 +32,7 @@ class EnumListField(models.JSONField):
 
         return value
 
-    def from_db_value(
-        self, value: str | None, expression: BaseExpression, connection: BaseDatabaseWrapper
-    ) -> list[str]:
+    def from_db_value(self, value: str | None, expression: Expression, connection: BaseDatabaseWrapper) -> list[str]:
         if value is None:
             return []
         return super().from_db_value(value, expression, connection)
