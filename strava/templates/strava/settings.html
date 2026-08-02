@@ -14,7 +14,7 @@
           Turning one off removes that line on the next run.
         </p>
       </div>
-      <form method="post">
+      <form method="post" class="re-stack re-stack--sm">
         {% csrf_token %}
         <div class="re-settings">
           {% for field, example in form.toggles %}
