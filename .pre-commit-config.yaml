@@ -1,10 +1,5 @@
 exclude: migrations/.*\.py|Procfile|[aw]sgi\.py|node_modules|.git|\.polar|inputs/.*
 repos:
-- repo: https://github.com/nialov/cog
-  rev: 6d73562c5cb38753bd94414a6e7612b263bc278d
-  hooks:
-  - id: cog
-    files: (.python-version|.circleci/config.yml|.pre-commit-config.yaml|pyproject.toml)
 - repo: https://github.com/adamchainz/django-upgrade
   rev: 1.31.1
   hooks:

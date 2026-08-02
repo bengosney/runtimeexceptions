@@ -35,7 +35,6 @@ dependencies = [
   "whitenoise",
 ]
 optional-dependencies.dev = [
-  "cogapp",
   "commitizen",
   "datamodel-code-generator",
   "django-browser-reload",
