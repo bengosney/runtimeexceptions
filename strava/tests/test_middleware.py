@@ -32,7 +32,7 @@ def test_redirect_to_login_on_strava_not_authenticated(mocker, request_factory):
     request.user = AnonymousUser()
 
     mock_logout = mocker.patch("strava.middleware.logout")
-    mock_reverse = mocker.patch("strava.middleware.reverse_lazy", return_value="/login/")
+    mock_reverse = mocker.patch("strava.middleware.reverse_lazy", return_value="/auth")
 
     middleware = NotAuthenticated(get_response)
     response = middleware.process_exception(request, StravaNotAuthenticatedError("Not authenticated"))
@@ -40,7 +40,7 @@ def test_redirect_to_login_on_strava_not_authenticated(mocker, request_factory):
     assert response.status_code == HttpResponseRedirect.status_code
     assert response.url == mock_reverse.return_value
     mock_logout.assert_called_once_with(request)
-    mock_reverse.assert_called_once_with("strava:login")
+    mock_reverse.assert_called_once_with("strava:auth")
 
 
 def test_process_exception_ignores_other_exceptions(request_factory, mocker):
