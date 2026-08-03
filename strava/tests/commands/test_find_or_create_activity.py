@@ -4,104 +4,97 @@ from unittest.mock import patch
 import pytest
 from model_bakery import baker
 
-from strava.client import StravaClient
 from strava.commands.find_or_create_activity import FindOrCreateActivity
-from strava.data_models import ActivityType, DetailedActivity, LatLng
-from strava.data_models.triathlon import DetailedActivityTriathlon
-from strava.mixins import TimeMixin
-from strava.models import Activity, Runner
+from strava.models import Activity
+from strava.tests.strava_api import activity as activity_payload
+from strava.tests.strava_api import strava_url
 from weather.models import Weather
 
+pytestmark = pytest.mark.django_db
 
-class DetailedActivityTime(DetailedActivity, TimeMixin):
-    pass
-
-
-@pytest.fixture
-def runner():
-    return baker.make(Runner)
+ACTIVITY_ID = 101
 
 
 @pytest.fixture
-def activity_data():
-    return DetailedActivityTime(
-        id=12345,
-        type=ActivityType.Run,
-        end_latlng=LatLng([51.5, -0.1]),
-        name="Morning Run",
-        description="",
-        start_date=datetime.datetime.now(tz=datetime.UTC),
-        elapsed_time=1,
-    )
-
-
-@pytest.fixture
-def weather():
+def weather() -> Weather:
     return baker.make(Weather)
 
 
-CALLED_ONCE = "assert_called_once"
-NOT_CALLED = "assert_not_called"
+@pytest.fixture
+def owm(weather):
+    """
+    OpenWeatherMap sits behind pyowm rather than requests, so it is the one
+    thing here that stays a mock.
+    """
+    with patch("strava.models.Weather.from_lat_long", return_value=weather) as mock:
+        yield mock
+
+
+def finished(seconds_ago: int) -> str:
+    """
+    A start date placing the end of the activity this many seconds back.
+    """
+    ended = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=seconds_ago)
+    return (ended - datetime.timedelta(seconds=1900)).isoformat()
 
 
 @pytest.mark.parametrize(
-    "delta,assertion_method",
+    "seconds_ago, expected_weather",
     [
-        (datetime.timedelta(seconds=0), CALLED_ONCE),
-        (datetime.timedelta(seconds=899), CALLED_ONCE),
-        (datetime.timedelta(seconds=901), NOT_CALLED),
-        (datetime.timedelta(seconds=1800), NOT_CALLED),
+        (0, True),
+        (899, True),
+        (901, False),
+        (1800, False),
     ],
 )
-@pytest.mark.django_db
-@patch("strava.models.Weather.from_lat_long")
-@patch("strava.client.StravaClient.activity")
-def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, assertion_method):
-    now = datetime.datetime.now(tz=datetime.UTC)
-    start_date = now - delta
+def test_weather_is_only_fetched_for_a_recent_activity(runner, strava_api, owm, seconds_ago, expected_weather):
+    strava_api.get(strava_url(f"activities/{ACTIVITY_ID}"), json=activity_payload(start_date=finished(seconds_ago)))
 
-    mock_activity.return_value = DetailedActivityTriathlon(
-        id=123,
-        start_date=start_date,
-        end_latlng=LatLng([1.0, 2.0]),
-        elapsed_time=1,
+    activity = FindOrCreateActivity(runner, ACTIVITY_ID)()
+
+    assert (activity.weather is not None) == expected_weather
+    assert owm.called == expected_weather
+
+
+def test_existing_activity_is_returned_untouched(runner, strava_api):
+    """
+    Strava is not asked for an activity we already hold; an unregistered GET
+    would fail the test.
+    """
+    existing = baker.make(Activity, runner=runner, strava_id=ACTIVITY_ID)
+
+    assert FindOrCreateActivity(runner, ACTIVITY_ID)() == existing
+
+
+def test_creates_the_activity_from_what_strava_sends(runner, strava_api, owm, weather):
+    strava_api.get(strava_url(f"activities/{ACTIVITY_ID}"), json=activity_payload(start_date=finished(0)))
+
+    result = FindOrCreateActivity(runner, ACTIVITY_ID)()
+
+    created = Activity.objects.get(strava_id=ACTIVITY_ID, runner=runner)
+    assert result == created
+    assert created.type == "Run"
+    assert created.weather == weather
+
+
+def test_weather_is_taken_from_where_the_activity_ended(runner, strava_api, owm):
+    strava_api.get(
+        strava_url(f"activities/{ACTIVITY_ID}"),
+        json=activity_payload(start_date=finished(0), end_latlng=[51.51, -0.12]),
     )
-    mock_weather.return_value = baker.make(Weather)
 
-    runner = baker.make(Runner)
-    find_or_create = FindOrCreateActivity(runner, 123)
-    find_or_create()
-    getattr(mock_weather, assertion_method)()
+    FindOrCreateActivity(runner, ACTIVITY_ID)()
+
+    owm.assert_called_once_with(51.51, -0.12)
 
 
-@pytest.mark.django_db
-def test_find_or_create_existing_activity(runner):
-    activity = baker.make(Activity, runner=runner, strava_id=12345)
-    find_or_create_activity = FindOrCreateActivity(runner, 12345)
+def test_no_weather_without_an_end_point(runner, strava_api):
+    strava_api.get(
+        strava_url(f"activities/{ACTIVITY_ID}"),
+        json=activity_payload(start_date=finished(0), end_latlng=None),
+    )
 
-    result = find_or_create_activity()
-    assert result == activity
+    result = FindOrCreateActivity(runner, ACTIVITY_ID)()
 
-
-@pytest.mark.django_db
-@patch("strava.models.Weather.from_lat_long")
-def test_find_or_create_creates_new_activity(mock_weather, runner, activity_data, weather):
-    mock_weather.return_value = weather
-    with patch.object(StravaClient, "activity", return_value=activity_data):
-        result = FindOrCreateActivity(runner, 12345)()
-    created = Activity.objects.get(strava_id=12345, runner=runner)
-    assert result == created
-    assert created.weather == weather  # type: ignore[attr-defined]
-    assert created.type == activity_data.type.value  # type: ignore[attr-defined]
-    mock_weather.assert_called_once_with(51.5, -0.1)
-
-
-@pytest.mark.django_db
-def test_find_or_create_no_end_latlng(runner, activity_data):
-    activity_data.end_latlng = None
-    with patch.object(StravaClient, "activity", return_value=activity_data):
-        result = FindOrCreateActivity(runner, 12345)()
-    created = Activity.objects.get(strava_id=12345, runner=runner)
-    assert result == created
-    assert created.weather is None  # type: ignore[attr-defined]
-    assert created.type == activity_data.type.value  # type: ignore[attr-defined]
+    assert result.weather is None
+    assert result.type == "Run"

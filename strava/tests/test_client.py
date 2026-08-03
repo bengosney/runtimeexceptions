@@ -1,18 +1,18 @@
 from http import HTTPStatus
-from unittest.mock import MagicMock, patch
+from urllib.parse import parse_qs
 
 import pytest
 from pydantic import ValidationError
 
-from strava.client import TIMEOUT, StravaClient, api_request, api_url
-from strava.data_models import SummaryAthlete, UpdatableActivity
-from strava.data_models.triathlon import DetailedActivityTriathlon, SummaryActivityTriathlon
+from strava.client import StravaClient
+from strava.data_models import UpdatableActivity
 from strava.exceptions import (
     StravaError,
     StravaNotAuthenticatedError,
     StravaNotFoundError,
     StravaPaidFeatureError,
 )
+from strava.tests.strava_api import ACTIVITY_DISTANCE_M, ACTIVITY_ID, ATHLETE, activity, strava_url
 
 
 @pytest.fixture
@@ -20,48 +20,33 @@ def client() -> StravaClient:
     return StravaClient(lambda: "token")
 
 
-def invalid_data() -> ValidationError:
-    return ValidationError.from_exception_data(title="Invalid data", line_errors=[])
+def test_calls_the_documented_url(client, strava_api):
+    strava_api.get(strava_url("athlete"), json=ATHLETE)
+
+    client.athlete()
+
+    assert strava_api.calls[0].request.url == strava_url("athlete")
 
 
-def test_api_url():
-    assert api_url("athlete") == "https://www.strava.com/api/v3/athlete"
+def test_sends_the_token_as_a_bearer_header(client, strava_api):
+    strava_api.get(strava_url("athlete"), json=ATHLETE)
+
+    client.athlete()
+
+    assert strava_api.calls[0].request.headers["Authorization"] == "Bearer token"
+    assert strava_api.calls[0].request.headers["Accept"] == "application/json"
 
 
-def test_api_request(mock_strava_request):
-    mock_strava_request.return_value = MagicMock()
-    mock_strava_request.return_value.json.return_value = {"key": "value"}
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_the_token_is_read_once_per_call(strava_api):
+    tokens = iter(["first", "second"])
+    client = StravaClient(lambda: next(tokens))
+    strava_api.get(strava_url("athlete"), json=ATHLETE)
 
-    assert api_request("test") == {"key": "value"}
+    client.athlete()
+    client.athlete()
 
-
-def test_api_request_without_a_token_is_unauthenticated(mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-
-    api_request("test")
-
-    assert "Authorization" not in mock_strava_request.call_args.kwargs["headers"]
-
-
-def test_api_request_authorized(mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-
-    api_request("test", token="token")
-
-    mock_strava_request.assert_called_once_with(
-        "GET",
-        api_url("test"),
-        headers={
-            "Accept": "application/json",
-            "Cache-Control": "no-cache",
-            "Accept-Encoding": "gzip, deflate",
-            "Connection": "keep-alive",
-            "Authorization": "Bearer token",
-        },
-        data={},
-        timeout=TIMEOUT,
-    )
+    sent = [call.request.headers["Authorization"] for call in strava_api.calls]
+    assert sent == ["Bearer first", "Bearer second"]
 
 
 @pytest.mark.parametrize(
@@ -73,107 +58,88 @@ def test_api_request_authorized(mock_strava_request):
         (HTTPStatus.INTERNAL_SERVER_ERROR, StravaError),
     ],
 )
-def test_api_request_errors(mock_strava_request, status_code, exception_type):
-    mock_strava_request.return_value.status_code = status_code
+def test_errors(client, strava_api, status_code, exception_type):
+    strava_api.get(strava_url("athlete"), status=status_code)
 
     with pytest.raises(exception_type):
-        api_request("test")
-
-
-def test_request_sends_the_current_token(client, mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-
-    client.request("test")
-
-    assert mock_strava_request.call_args.kwargs["headers"]["Authorization"] == "Bearer token"
-
-
-def test_token_is_fetched_per_call(mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-    tokens = iter(["first", "second"])
-    client = StravaClient(lambda: next(tokens))
-
-    client.request("test")
-    client.request("test")
-
-    sent = [call.kwargs["headers"]["Authorization"] for call in mock_strava_request.call_args_list]
-    assert sent == ["Bearer first", "Bearer second"]
-
-
-def test_athlete(client, mock_strava_request):
-    data = {"key": "value"}
-    mock_strava_request.return_value.json.return_value = data
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-
-    assert client.athlete() == SummaryAthlete.model_validate(data)
-
-
-def test_athlete_not_found(client, mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.NOT_FOUND
-
-    with pytest.raises(StravaNotFoundError):
         client.athlete()
 
 
-def test_athlete_invalid(client, mock_strava_request):
-    mock_strava_request.return_value.json.return_value = {"key": "value"}
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_athlete(client, strava_api):
+    strava_api.get(strava_url("athlete"), json=ATHLETE)
 
-    with (
-        patch("strava.client.SummaryAthlete.model_validate", side_effect=invalid_data()),
-        pytest.raises(ValidationError),
-    ):
+    athlete = client.athlete()
+
+    assert athlete.id == ATHLETE["id"]
+    assert athlete.firstname == ATHLETE["firstname"]
+    assert athlete.city == ATHLETE["city"]
+
+
+def test_athlete_unreadable(client, strava_api):
+    strava_api.get(strava_url("athlete"), json={"id": "not an id"})
+
+    with pytest.raises(ValidationError):
         client.athlete()
 
 
-def test_activities(client, mock_strava_request):
-    data = [{"key": "value"}]
-    mock_strava_request.return_value.json.return_value = data
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_activities(client, strava_api):
+    strava_api.get(strava_url("athlete/activities"), json=[activity(), activity(id=102, name="Evening Ride")])
 
-    assert list(client.activities()) == [SummaryActivityTriathlon.model_validate(item) for item in data]
+    activities = list(client.activities())
 
-
-def test_activities_skips_the_unreadable(client, mock_strava_request):
-    mock_strava_request.return_value.json.return_value = [{"key": "value"}]
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
-
-    with patch("strava.client.SummaryActivityTriathlon.model_validate", side_effect=invalid_data()):
-        assert list(client.activities()) == []
+    assert [a.name for a in activities] == ["Morning Run", "Evening Ride"]
+    assert activities[0].distance == ACTIVITY_DISTANCE_M
+    assert activities[0].triathlon_percentage() == pytest.approx(50.0)
 
 
-def test_activity(client, mock_strava_request):
-    data = {"name": "Test Activity"}
-    mock_strava_request.return_value.json.return_value = data
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_activities_skips_the_unreadable(client, strava_api):
+    strava_api.get(strava_url("athlete/activities"), json=[activity(distance="not a distance"), activity(id=102)])
 
-    activity = client.activity(1)
+    activities = list(client.activities())
 
-    assert activity == DetailedActivityTriathlon.model_validate(data)
-    assert activity.name == data["name"]
+    assert [a.id for a in activities] == [102]
 
 
-def test_activity_invalid(client, mock_strava_request):
-    mock_strava_request.return_value.json.return_value = {"key": "value"}
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_activity(client, strava_api):
+    strava_api.get(strava_url("activities/101"), json=activity(description="A good one"))
 
-    with (
-        patch("strava.client.DetailedActivityTriathlon.model_validate", side_effect=invalid_data()),
-        pytest.raises(ValidationError),
-    ):
-        client.activity(1)
+    detail = client.activity(101)
+
+    assert detail.id == ACTIVITY_ID
+    assert detail.description == "A good one"
+    assert detail.end_date is not None
 
 
-def test_update_activity(client):
-    activity_id = 1
-    data = UpdatableActivity(name="New Activity")
+def test_activity_unreadable(client, strava_api):
+    strava_api.get(strava_url("activities/101"), json=activity(distance="not a distance"))
 
-    with patch.object(StravaClient, "request", return_value={"name": "New Activity"}) as mock_request:
-        updated = client.update_activity(activity_id, data)
+    with pytest.raises(ValidationError):
+        client.activity(101)
 
-    mock_request.assert_called_once_with(
-        f"activities/{activity_id}",
-        data.model_dump(),
-        method="PUT",
-    )
-    assert updated.name == "New Activity"
+
+def test_update_activity(client, strava_api):
+    strava_api.put(strava_url("activities/101"), json=activity(name="Renamed", description="Rewritten"))
+
+    updated = client.update_activity(101, UpdatableActivity(name="Renamed", description="Rewritten"))
+
+    assert updated.name == "Renamed"
+    request = strava_api.calls[0].request
+    assert request.method == "PUT"
+    assert parse_qs(request.body) == {"description": ["Rewritten"], "name": ["Renamed"]}
+
+
+def test_update_activity_sends_only_what_was_set(client, strava_api):
+    strava_api.put(strava_url("activities/101"), json=activity(name="Renamed"))
+
+    client.update_activity(101, UpdatableActivity(name="Renamed"))
+
+    assert parse_qs(strava_api.calls[0].request.body) == {"name": ["Renamed"]}
+
+
+def test_empty_latlng_is_cleaned_away(client, strava_api):
+    strava_api.get(strava_url("activities/101"), json=activity(start_latlng=[], end_latlng=[]))
+
+    detail = client.activity(101)
+
+    assert detail.start_latlng is None
+    assert detail.end_latlng is None

@@ -5,71 +5,83 @@ import pytest
 
 from strava.auth import StravaOAuth
 from strava.exceptions import StravaNotAuthenticatedError
+from strava.tests.strava_api import ATHLETE, AUTHORIZATION, TOKENS, strava_url
 
-ATHLETE_ID = 12345
-
-TOKEN_RESPONSE = {
-    "access_token": "token",
-    "refresh_token": "refresh",
-    "expires_at": 1234567890,
-}
-
-AUTHORIZATION_RESPONSE = TOKEN_RESPONSE | {
-    "athlete": {"id": ATHLETE_ID, "username": "testuser", "firstname": "Test", "lastname": "User"}
-}
+REDIRECT_URI = "https://example.com/strava/callback"
 
 
 def test_authorization_url(settings):
-    url = StravaOAuth().authorization_url("http://example.com/callback")
+    url = StravaOAuth().authorization_url(REDIRECT_URI)
 
     assert url is not None
+    assert url.startswith(strava_url("oauth/authorize"))
+
     query = parse_qs(urlparse(url).query)
-    assert query["redirect_uri"] == ["http://example.com/callback"]
     assert query["client_id"] == [settings.STRAVA_CLIENT_ID]
-    assert query["scope"] == [StravaOAuth.SCOPES]
+    assert query["redirect_uri"] == [REDIRECT_URI]
     assert query["response_type"] == ["code"]
+    assert query["approval_prompt"] == ["auto"]
 
 
-def test_exchange_code(mock_strava_request, settings):
-    mock_strava_request.return_value.json.return_value = AUTHORIZATION_RESPONSE
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_authorization_url_asks_for_the_scopes_the_app_needs():
+    url = StravaOAuth().authorization_url(REDIRECT_URI)
 
-    authorization = StravaOAuth().exchange_code("code")
+    assert url is not None
+    scopes = set(parse_qs(urlparse(url).query)["scope"][0].split(","))
 
-    assert authorization.access_token == "token"
-    assert authorization.refresh_token == "refresh"
-    assert authorization.expires_at == AUTHORIZATION_RESPONSE["expires_at"]
-    assert authorization.athlete.id == ATHLETE_ID
-    assert authorization.athlete.username == "testuser"
+    # Reading activities to enrich them, writing the enrichment back.
+    assert {"activity:read_all", "activity:write"} <= scopes
 
-    assert mock_strava_request.call_args.kwargs["data"] == {
-        "client_id": settings.STRAVA_CLIENT_ID,
-        "client_secret": settings.STRAVA_SECRET,
-        "code": "code",
-        "grant_type": "authorization_code",
+
+def test_exchange_code(strava_api, settings):
+    strava_api.post(strava_url("oauth/token"), json=AUTHORIZATION)
+
+    authorization = StravaOAuth().exchange_code("a_code")
+
+    assert authorization.access_token == TOKENS["access_token"]
+    assert authorization.refresh_token == TOKENS["refresh_token"]
+    assert authorization.expires_at == TOKENS["expires_at"]
+    assert authorization.athlete.id == ATHLETE["id"]
+    assert authorization.athlete.username == ATHLETE["username"]
+
+    assert parse_qs(strava_api.calls[0].request.body) == {
+        "client_id": [settings.STRAVA_CLIENT_ID],
+        "client_secret": [settings.STRAVA_SECRET],
+        "code": ["a_code"],
+        "grant_type": ["authorization_code"],
     }
 
 
-def test_refresh(mock_strava_request, settings):
-    mock_strava_request.return_value.json.return_value = TOKEN_RESPONSE
-    mock_strava_request.return_value.status_code = HTTPStatus.OK
+def test_exchange_code_is_unauthenticated(strava_api):
+    """
+    The code is the credential at this point, so no bearer token is sent.
+    """
+    strava_api.post(strava_url("oauth/token"), json=AUTHORIZATION)
 
-    tokens = StravaOAuth().refresh("old_refresh")
+    StravaOAuth().exchange_code("a_code")
 
-    assert tokens.access_token == "token"
-    assert tokens.refresh_token == "refresh"
-    assert tokens.expires_at == TOKEN_RESPONSE["expires_at"]
+    assert "Authorization" not in strava_api.calls[0].request.headers
 
-    assert mock_strava_request.call_args.kwargs["data"] == {
-        "client_id": settings.STRAVA_CLIENT_ID,
-        "client_secret": settings.STRAVA_SECRET,
-        "refresh_token": "old_refresh",
-        "grant_type": "refresh_token",
+
+def test_refresh(strava_api, settings):
+    strava_api.post(strava_url("oauth/token"), json=TOKENS)
+
+    tokens = StravaOAuth().refresh("old_refresh_token")
+
+    assert tokens.access_token == TOKENS["access_token"]
+    assert tokens.refresh_token == TOKENS["refresh_token"]
+    assert tokens.expires_at == TOKENS["expires_at"]
+
+    assert parse_qs(strava_api.calls[0].request.body) == {
+        "client_id": [settings.STRAVA_CLIENT_ID],
+        "client_secret": [settings.STRAVA_SECRET],
+        "refresh_token": ["old_refresh_token"],
+        "grant_type": ["refresh_token"],
     }
 
 
-def test_refresh_rejected(mock_strava_request):
-    mock_strava_request.return_value.status_code = HTTPStatus.UNAUTHORIZED
+def test_refresh_rejected(strava_api):
+    strava_api.post(strava_url("oauth/token"), status=HTTPStatus.UNAUTHORIZED)
 
     with pytest.raises(StravaNotAuthenticatedError):
-        StravaOAuth().refresh("old_refresh")
+        StravaOAuth().refresh("stale_refresh_token")

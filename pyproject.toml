@@ -49,10 +49,11 @@ optional-dependencies.dev = [
   "ngrok",
   "pip-tools",
   "pre-commit",
+  "pyyaml==6.0.3",
   "ruff",
   "tach",
   "ty",
-  "types-requests",
+  "types-requests"
 ]
 optional-dependencies.test = [
   "model-bakery",
@@ -60,6 +61,7 @@ optional-dependencies.test = [
   "pytest-cov",
   "pytest-django",
   "pytest-mock",
+  "responses",
 ]
 
 [tool.setuptools]

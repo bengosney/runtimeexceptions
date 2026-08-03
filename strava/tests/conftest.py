@@ -1,12 +1,20 @@
 from collections.abc import Generator
 from io import StringIO
 from unittest import mock
-from unittest.mock import MagicMock
 
 from django.core.management import call_command as _call_command
 from django.test import override_settings
 
 import pytest
+import requests_cache
+import responses
+from model_bakery import baker
+
+from strava.models import Runner
+from strava.tests.strava_api import ATHLETE_ID
+
+# Far enough out that the access token never expires mid-test.
+NEVER_EXPIRES = "9999999999"
 
 
 @pytest.fixture
@@ -91,7 +99,47 @@ def mock_delete_exception(scope="module") -> Generator[mock.Mock]:
         yield mock_delete
 
 
+@pytest.fixture(autouse=True, scope="session")
+def uninstall_request_cache() -> Generator[None]:
+    """
+    The app installs a global requests cache on startup, which in tests would
+    serve one test's response to another.
+    """
+    requests_cache.uninstall_cache()
+    yield
+
+
 @pytest.fixture
-def mock_strava_request(scope="module") -> Generator[mock.Mock]:
-    with mock.patch("strava.client.requests.request", return_value=MagicMock()) as mock_request:
-        yield mock_request
+def strava_api() -> Generator[responses.RequestsMock]:
+    """
+    Strava, faked at the socket and nowhere else.
+
+    Tests register urls and payloads, so everything from our url building down
+    to the json decoding runs for real. A request to an unregistered url fails,
+    and a registered response that goes unused fails on the way out.
+    """
+    with responses.RequestsMock() as mock_api:
+        yield mock_api
+
+
+@pytest.fixture
+def user(django_user_model):
+    return django_user_model.objects.create_user(username="testuser", password="testpass")
+
+
+@pytest.fixture
+def auth_client(client, user):
+    client.force_login(user)
+    return client
+
+
+@pytest.fixture
+def runner(user) -> Runner:
+    return baker.make(
+        Runner,
+        user=user,
+        strava_id=str(ATHLETE_ID),
+        access_token="access_token",
+        refresh_token="refresh_token",
+        access_expires=NEVER_EXPIRES,
+    )
