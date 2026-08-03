@@ -12,13 +12,17 @@ from django.views.decorators.csrf import csrf_exempt
 import polyline
 import svgwrite
 from PIL import Image, ImageDraw
+from pydantic import ValidationError
 
 from strava import stats
-from strava.data_models import SummaryActivity
+from strava.auth import StravaOAuth
+from strava.commands import ConnectStravaAccount
+from strava.data_models import SummaryAthlete
+from strava.data_models.triathlon import DetailedActivityTriathlon, SummaryActivityTriathlon
 from strava.exceptions import StravaNotAuthenticatedError
 from strava.forms import RunnerSettingsForm
 from strava.line import Line
-from strava.models import Activity, Animal, Runner, SummaryActivityTriathlon
+from strava.models import Activity, Animal, Runner
 from strava.tasks.create_event import create_event
 from strava.tasks.update_comparison import update_comparison
 from strava.tasks.update_triathlon_score import update_triathlon_score
@@ -56,6 +60,26 @@ def _enriched_map(runner: Runner, activities: list[SummaryActivityTriathlon]) ->
     return {record.strava_id: record for record in records}
 
 
+def _athlete(runner: Runner) -> SummaryAthlete:
+    """
+    The runner's Strava profile.
+
+    The client reports unreadable payloads as a ValidationError; from a view
+    that is a 404 rather than a crash.
+    """
+    try:
+        return runner.client.athlete()
+    except ValidationError as exc:
+        raise Http404("Strava athlete not found or invalid data") from exc
+
+
+def _activity(runner: Runner, activity_id: int) -> DetailedActivityTriathlon:
+    try:
+        return runner.client.activity(activity_id)
+    except ValidationError as exc:
+        raise Http404("Strava activity not found or invalid data") from exc
+
+
 def _route(activity) -> dict | None:
     """
     The activity's route as an inline SVG path, so it takes its colour from the
@@ -88,14 +112,16 @@ def index(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
 
 @login_not_required
 def auth(request: HttpRequest) -> HttpResponseRedirect:
-    return HttpResponseRedirect(Runner.get_auth_url(request) or "/")
+    redirect_uri = request.build_absolute_uri(str(reverse("strava:auth_callback")))
+
+    return HttpResponseRedirect(StravaOAuth().authorization_url(redirect_uri) or "/")
 
 
 @login_not_required
 def auth_callback(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     code = request.GET.get("code", "")
 
-    user = Runner.auth_call_back(code)
+    user = ConnectStravaAccount(code)()
 
     if user is not None:
         login(request, user)
@@ -114,7 +140,7 @@ def refresh_token(request: HttpRequest, strava_id: int) -> HttpResponseRedirect:
 def dashboard(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
     period = stats.clean_period(request.GET.get("period"))
-    in_range = stats.in_period(runner.get_activities(), period)
+    in_range = stats.in_period(runner.client.activities(), period)
     records = _enriched_map(runner, in_range)
 
     return render(
@@ -132,7 +158,7 @@ def dashboard(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
 
 def activities(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
-    all_activities = list(runner.get_activities())
+    all_activities = list(runner.client.activities())
     records = _enriched_map(runner, all_activities)
 
     sport = (request.GET.get("sport") or "").lower()
@@ -150,7 +176,7 @@ def activities(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
             "nav": "activities",
             "authlink": reverse("strava:auth"),
             "refreshlink": refreshlink,
-            "runner": runner.get_details(),
+            "runner": _athlete(runner),
             "rows": [stats.ActivityRow(a, records.get(a.id)) for a in shown],
             "sports": sports,
             "sport": sport,
@@ -160,7 +186,7 @@ def activities(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
 
 def activity(request: HttpRequest, activityid) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
-    activity = runner.activity(activityid)
+    activity = _activity(runner, activityid)
     record = Activity.objects.filter(runner=runner, strava_id=activityid).select_related("weather").first()
     speed_kph = (activity.average_speed or 0) * 3.6
 
@@ -199,7 +225,7 @@ def settings(request: HttpRequest) -> HttpResponseRedirect | HttpResponse:
         "strava/settings.html",
         {
             "nav": "settings",
-            "runner": runner.get_details(),
+            "runner": _athlete(runner),
             "form": form,
             "token_expires": datetime.fromtimestamp(int(runner.access_expires), tz=UTC),
             "refreshlink": reverse("strava:refresh_token", kwargs={"strava_id": int(runner.strava_id)}),
@@ -219,7 +245,7 @@ def trigger_update_activity(request: HttpRequest, activityid: int) -> HttpRespon
 
 def activity_svg(request: HttpRequest, activityid: int) -> HttpResponseRedirect | HttpResponse:
     runner = _get_runner(request)
-    activity: SummaryActivity = runner.activity(activityid)
+    activity = _activity(runner, activityid)
     if not activity.map or not activity.map.polyline:
         raise Http404("Activity does not have a map or polyline data.")
 
@@ -268,7 +294,7 @@ def activity_png(request: HttpRequest, activityid: int) -> HttpResponseBadReques
             return HttpResponseBadRequest("Invalid theme specified.")
 
     runner = _get_runner(request)
-    activity = runner.activity(activityid)
+    activity = _activity(runner, activityid)
     if not activity.map or not activity.map.polyline:
         raise Http404("Activity does not have a map or polyline data.")
 

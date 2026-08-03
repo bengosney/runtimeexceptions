@@ -20,7 +20,7 @@ class UpdateTriathlonScore:
     def __call__(self):
         runner = self.runner
         logger.info("Updating triathlon score for activity: %d", self.activity_id)
-        activity = runner.activity(self.activity_id)
+        activity = runner.client.activity(self.activity_id)
         logger.debug("Activity data: %s", activity)
 
         score: float = activity.triathlon_percentage() / 100
@@ -42,5 +42,5 @@ class UpdateTriathlonScore:
             return
 
         update = UpdatableActivity(name=name, description=description)
-        runner.update_activity(self.activity_id, update)
+        runner.client.update_activity(self.activity_id, update)
         logger.info("Updated triathlon score for activity: %d", self.activity_id)

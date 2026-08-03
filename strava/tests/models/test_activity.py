@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from model_bakery import baker
 
+from strava.client import StravaClient
 from strava.data_models import DetailedActivity
 from strava.models import Activity
 from weather.models import Weather
@@ -21,8 +22,8 @@ def test_add_weather_integration():
     activity = baker.make(Activity, weather=weather, runner=runner)
 
     with (
-        patch.object(runner, "update_activity", return_value="updated") as mock_update,
-        patch.object(runner, "activity") as mock_activity,
+        patch.object(StravaClient, "update_activity", return_value="updated") as mock_update,
+        patch.object(StravaClient, "activity") as mock_activity,
     ):
         mock_data_in = DetailedActivity.model_validate({"description": "Old description", "name": "Morning Run"})
         mock_activity.return_value = mock_data_in

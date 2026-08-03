@@ -25,7 +25,7 @@ class FindOrCreateActivity:
         except Activity.DoesNotExist:
             logger.info(f"Activity not found, fetching from Strava API: strava_id={self.activity_id}")
 
-            activity_data = self.runner.activity(self.activity_id)
+            activity_data = self.runner.client.activity(self.activity_id)
             assert activity_data.id is not None, "Activity data should not be None"
 
             weather: Weather | None = None

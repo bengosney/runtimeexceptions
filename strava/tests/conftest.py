@@ -93,5 +93,5 @@ def mock_delete_exception(scope="module") -> Generator[mock.Mock]:
 
 @pytest.fixture
 def mock_strava_request(scope="module") -> Generator[mock.Mock]:
-    with mock.patch("strava.models.requests.request", return_value=MagicMock()) as mock_request:
+    with mock.patch("strava.client.requests.request", return_value=MagicMock()) as mock_request:
         yield mock_request

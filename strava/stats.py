@@ -11,7 +11,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from strava.data_models import ActivityType
-from strava.models import SummaryActivityTriathlon
+from strava.data_models.triathlon import SummaryActivityTriathlon
 
 Period = Literal["7d", "30d"]
 

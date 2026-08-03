@@ -4,10 +4,12 @@ from unittest.mock import patch
 import pytest
 from model_bakery import baker
 
+from strava.client import StravaClient
 from strava.commands.find_or_create_activity import FindOrCreateActivity
 from strava.data_models import ActivityType, DetailedActivity, LatLng
+from strava.data_models.triathlon import DetailedActivityTriathlon
 from strava.mixins import TimeMixin
-from strava.models import Activity, DetailedActivityTriathlon, Runner
+from strava.models import Activity, Runner
 from weather.models import Weather
 
 
@@ -53,7 +55,7 @@ NOT_CALLED = "assert_not_called"
 )
 @pytest.mark.django_db
 @patch("strava.models.Weather.from_lat_long")
-@patch("strava.models.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_time_checking(mock_activity, mock_weather, monkeypatch, delta, assertion_method):
     now = datetime.datetime.now(tz=datetime.UTC)
     start_date = now - delta
@@ -85,10 +87,8 @@ def test_find_or_create_existing_activity(runner):
 @patch("strava.models.Weather.from_lat_long")
 def test_find_or_create_creates_new_activity(mock_weather, runner, activity_data, weather):
     mock_weather.return_value = weather
-    # Patch runner.activity to return our dummy activity_data
-    runner.activity = lambda activity_id: activity_data
-    find_or_create_activity = FindOrCreateActivity(runner, 12345)
-    result = find_or_create_activity()
+    with patch.object(StravaClient, "activity", return_value=activity_data):
+        result = FindOrCreateActivity(runner, 12345)()
     created = Activity.objects.get(strava_id=12345, runner=runner)
     assert result == created
     assert created.weather == weather  # type: ignore[attr-defined]
@@ -99,9 +99,8 @@ def test_find_or_create_creates_new_activity(mock_weather, runner, activity_data
 @pytest.mark.django_db
 def test_find_or_create_no_end_latlng(runner, activity_data):
     activity_data.end_latlng = None
-    runner.activity = lambda activity_id: activity_data
-    find_or_create_activity = FindOrCreateActivity(runner, 12345)
-    result = find_or_create_activity()
+    with patch.object(StravaClient, "activity", return_value=activity_data):
+        result = FindOrCreateActivity(runner, 12345)()
     created = Activity.objects.get(strava_id=12345, runner=runner)
     assert result == created
     assert created.weather is None  # type: ignore[attr-defined]

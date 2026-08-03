@@ -1,7 +1,8 @@
 import logging
 
 from strava.data_models import UpdatableActivity
-from strava.models import Animal, DetailedActivityTriathlon, Runner
+from strava.data_models.triathlon import DetailedActivityTriathlon
+from strava.models import Animal, Runner
 from strava.utils import MarkedString
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class UpdateComparison:
     def __call__(self):
         runner = self.runner
         logger.info("Updating comparison for activity: %d", self.activity_id)
-        activity = runner.activity(self.activity_id)
+        activity = runner.client.activity(self.activity_id)
         logger.debug("Activity data: %s", activity)
 
         original_description = activity.description or ""
@@ -29,7 +30,7 @@ class UpdateComparison:
             description = MarkedString("", self.MARKER_STRING).remove_from_text(original_description)
             if description == original_description:
                 return
-            runner.update_activity(self.activity_id, UpdatableActivity(description=description))
+            runner.client.update_activity(self.activity_id, UpdatableActivity(description=description))
             logger.info("Removed comparison for activity: %d", self.activity_id)
             return
 
@@ -47,7 +48,7 @@ class UpdateComparison:
         update = UpdatableActivity(
             description=score_string.replace_or_append(original_description),
         )
-        runner.update_activity(self.activity_id, update)
+        runner.client.update_activity(self.activity_id, update)
         logger.info("Updated comparison for activity: %d", self.activity_id)
 
     def get_faster(self, activity: DetailedActivityTriathlon) -> Animal | None:

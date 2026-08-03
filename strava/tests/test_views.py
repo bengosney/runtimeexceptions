@@ -4,15 +4,16 @@ from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
-from django.http import Http404
 from django.urls import reverse
 
 import pytest
 from model_bakery import baker
+from pydantic import ValidationError
 from pytest_django.asserts import assertInHTML
 
 from strava.data_models import DetailedActivity, SummaryAthlete
-from strava.models import Runner, RunnerSettings, SummaryActivityTriathlon
+from strava.data_models.triathlon import SummaryActivityTriathlon
+from strava.models import Runner, RunnerSettings
 
 
 @pytest.fixture
@@ -70,19 +71,19 @@ def test_auth(client):
     assert expected in response["Location"]
 
 
-@patch("strava.views.Runner.auth_call_back")
-def test_auth_callback(mock_auth_callback, client, user):
-    mock_auth_callback.return_value = user
+@patch("strava.views.ConnectStravaAccount")
+def test_auth_callback(mock_connect, client, user):
+    mock_connect.return_value.return_value = user
     response = client.get(reverse("strava:auth_callback"), query_params={"code": "test_code"})
 
     assert response.status_code == HTTPStatus.FOUND
     assert response["Location"] == reverse("strava:activities")
-    mock_auth_callback.assert_called_once_with("test_code")
+    mock_connect.assert_called_once_with("test_code")
 
 
-@patch("strava.views.Runner.auth_call_back")
-def test_auth_callback_error(mock_auth_callback, client, user):
-    mock_auth_callback.return_value = None
+@patch("strava.views.ConnectStravaAccount")
+def test_auth_callback_error(mock_connect, client, user):
+    mock_connect.return_value.return_value = None
     response = client.get(reverse("strava:auth_callback"), query_params={"code": "test_code"})
 
     assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
@@ -97,13 +98,11 @@ def test_refresh_token(mock_do_refresh_token, auth_client, runner):
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_activities")
-@patch("strava.views.Runner.get_details")
-def test_activities_no_activities(mock_get_details, mock_get_activities, auth_client, runner):
-    mock_get_activities.return_value = []
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+@patch("strava.client.StravaClient.activities")
+@patch("strava.client.StravaClient.athlete")
+def test_activities_no_activities(mock_athlete, mock_activities, auth_client, runner):
+    mock_activities.return_value = []
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
     response = auth_client.get(reverse("strava:activities"))
     assert response.status_code == HTTPStatus.OK
 
@@ -111,14 +110,12 @@ def test_activities_no_activities(mock_get_details, mock_get_activities, auth_cl
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_activities")
-@patch("strava.views.Runner.get_details")
-def test_activities(mock_get_details, mock_get_activities, auth_client, runner):
+@patch("strava.client.StravaClient.activities")
+@patch("strava.client.StravaClient.athlete")
+def test_activities(mock_athlete, mock_activities, auth_client, runner):
     activity = SummaryActivityTriathlon.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
-    mock_get_activities.return_value = [activity]
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+    mock_activities.return_value = [activity]
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
     response = auth_client.get(reverse("strava:activities"))
     assert response.status_code == HTTPStatus.OK
 
@@ -128,10 +125,10 @@ def test_activities(mock_get_details, mock_get_activities, auth_client, runner):
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_activities")
-@patch("strava.views.Runner.get_details")
-def test_dashboard(mock_get_details, mock_get_activities, auth_client, runner):
-    mock_get_activities.return_value = [
+@patch("strava.client.StravaClient.activities")
+@patch("strava.client.StravaClient.athlete")
+def test_dashboard(mock_athlete, mock_activities, auth_client, runner):
+    mock_activities.return_value = [
         SummaryActivityTriathlon.model_validate(
             {
                 "id": 101,
@@ -143,9 +140,7 @@ def test_dashboard(mock_get_details, mock_get_activities, auth_client, runner):
             }
         )
     ]
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
 
     response = auth_client.get(reverse("strava:dashboard"))
     assert response.status_code == HTTPStatus.OK
@@ -160,10 +155,10 @@ def test_dashboard(mock_get_details, mock_get_activities, auth_client, runner):
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_activities")
-@patch("strava.views.Runner.get_details")
-def test_dashboard_period_filters_by_date(mock_get_details, mock_get_activities, auth_client, runner):
-    mock_get_activities.return_value = [
+@patch("strava.client.StravaClient.activities")
+@patch("strava.client.StravaClient.athlete")
+def test_dashboard_period_filters_by_date(mock_athlete, mock_activities, auth_client, runner):
+    mock_activities.return_value = [
         SummaryActivityTriathlon.model_validate(
             {
                 "id": 101,
@@ -174,9 +169,7 @@ def test_dashboard_period_filters_by_date(mock_get_details, mock_get_activities,
             }
         )
     ]
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
 
     assert auth_client.get(reverse("strava:dashboard"), {"period": "7d"}).context["summary"].count == 0
     assert auth_client.get(reverse("strava:dashboard"), {"period": "30d"}).context["summary"].count == 1
@@ -184,11 +177,9 @@ def test_dashboard_period_filters_by_date(mock_get_details, mock_get_activities,
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_details")
-def test_settings_shows_defaults(mock_get_details, auth_client, runner):
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+@patch("strava.client.StravaClient.athlete")
+def test_settings_shows_defaults(mock_athlete, auth_client, runner):
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
 
     response = auth_client.get(reverse("strava:settings"))
     assert response.status_code == HTTPStatus.OK
@@ -199,11 +190,9 @@ def test_settings_shows_defaults(mock_get_details, auth_client, runner):
 
 
 @pytest.mark.django_db
-@patch("strava.views.Runner.get_details")
-def test_settings_saves_toggles(mock_get_details, auth_client, runner):
-    mock_get_details.return_value = SummaryAthlete.model_validate(
-        {"name": "Test Runner", "strava_id": runner.strava_id}
-    )
+@patch("strava.client.StravaClient.athlete")
+def test_settings_saves_toggles(mock_athlete, auth_client, runner):
+    mock_athlete.return_value = SummaryAthlete.model_validate({"name": "Test Runner", "strava_id": runner.strava_id})
 
     # Unchecked boxes are absent from the POST, so only the two named stay on.
     response = auth_client.post(
@@ -227,7 +216,7 @@ def test_activities_no_runner(auth_client):
     assert response["Location"] == login_url
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity(mock_activity, auth_client, runner):
     activity = DetailedActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
     mock_activity.return_value = activity
@@ -238,14 +227,14 @@ def test_activity(mock_activity, auth_client, runner):
     assertInHTML(activity.name, response.content.decode("utf-8"))
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_not_found(mock_activity, auth_client, runner):
-    mock_activity.side_effect = Http404("Activity not found")
+    mock_activity.side_effect = ValidationError.from_exception_data(title="Invalid data", line_errors=[])
     response = auth_client.get(reverse("strava:activity", kwargs={"activityid": 101}))
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_svg_no_path(mock_activity, auth_client, runner):
     activity = DetailedActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000})
     mock_activity.return_value = activity
@@ -253,7 +242,7 @@ def test_activity_svg_no_path(mock_activity, auth_client, runner):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_svg(mock_activity, auth_client, runner):
     activity = DetailedActivity.model_validate(
         {
@@ -274,7 +263,7 @@ def test_activity_svg(mock_activity, auth_client, runner):
 
 
 # Tests for activity_png view
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_png_dark(mock_activity, auth_client, runner, detailed_activity):
     mock_activity.return_value = detailed_activity
     url = reverse("strava:activity_png", kwargs={"activityid": 101})
@@ -284,7 +273,7 @@ def test_activity_png_dark(mock_activity, auth_client, runner, detailed_activity
     assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_png_light(mock_activity, auth_client, runner, detailed_activity):
     mock_activity.return_value = detailed_activity
     url = reverse("strava:activity_png", kwargs={"activityid": 101})
@@ -294,7 +283,7 @@ def test_activity_png_light(mock_activity, auth_client, runner, detailed_activit
     assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_png_invalid_theme(mock_activity, auth_client, runner, detailed_activity):
     mock_activity.return_value = detailed_activity
     url = reverse("strava:activity_png", kwargs={"activityid": 101})
@@ -303,7 +292,7 @@ def test_activity_png_invalid_theme(mock_activity, auth_client, runner, detailed
     assert b"Invalid theme specified." in response.content
 
 
-@patch("strava.views.Runner.activity")
+@patch("strava.client.StravaClient.activity")
 def test_activity_png_no_polyline(mock_activity, auth_client, runner):
     activity = DetailedActivity.model_validate({"id": 101, "name": "Test Activity", "distance": 1000, "map": None})
     mock_activity.return_value = activity
