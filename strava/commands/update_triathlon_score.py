@@ -24,6 +24,8 @@ class UpdateTriathlonScore:
         logger.debug("Activity data: %s", activity)
 
         score: float = activity.triathlon_percentage() / 100
+        if score == 0:
+            return
         score_string = MarkedString(f"tri%: {score:.2f}.", self.MARKER_STRING)
         logger.debug("Score string: %s", score_string)
 
