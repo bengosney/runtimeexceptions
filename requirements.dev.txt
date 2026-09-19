@@ -6,9 +6,9 @@ annotated-types==0.7.0 \
     # via
     #   -r requirements.txt
     #   pydantic
-anyio==4.9.0 \
-    --hash=sha256:673c0c244e15788651a4ff38710fea9675823028a6f08a5eda409e0c9840a028 \
-    --hash=sha256:9f76d541cad6e36af7beb62e978876f3b41e3e04f2c1fbf0884604c0a9c4d93c
+anyio==4.14.2 \
+    --hash=sha256:9f505dda5ac9f0c8309b5e8bd445a8c2bf7246f3ce950121e45ea15bc41d1494 \
+    --hash=sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f
     # via watchfiles
 argcomplete==3.6.2 \
     --hash=sha256:65b3133a29ad53fb42c48cf5114752c7ab66c1c38544fdf6460f450c09b42591 \
