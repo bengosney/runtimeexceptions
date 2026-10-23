@@ -1198,9 +1198,9 @@ urllib3==2.8.0 \
     #   requests
     #   requests-cache
     #   types-requests
-virtualenv==20.36.1 \
-    --hash=sha256:575a8d6b124ef88f6f51d56d656132389f961062a9177016a50e4f507bbcc19f \
-    --hash=sha256:8befb5c81842c641f8ee658481e42641c68b5eab3521d8e092d18320902466ba
+virtualenv==21.14.9 \
+    --hash=sha256:4d1bee354cd81c820da3bee56e38be3426490f8d1fc54e10ea5b2072ebad8ef8 \
+    --hash=sha256:ac51744da66ae56ff814b087d65096c94de698ec520adc624b108b679655809b
     # via pre-commit
 watchfiles==1.0.5 \
     --hash=sha256:0125f91f70e0732a9f8ee01e49515c35d38ba48db507a50c5bdcad9503af5827 \
