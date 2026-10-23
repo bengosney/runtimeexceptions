@@ -195,9 +195,9 @@ commitizen==4.8.2 \
     --hash=sha256:4fc73126c7300f715f11b85242550677722c57767b579100e869ccd45143e2c5 \
     --hash=sha256:86cae0bd8e1da889389d828b30a5acb79b62f9290f9274b127ee9d8c189eb16c
     # via runtimeexceptions (pyproject.toml)
-datamodel-code-generator==0.64.0 \
-    --hash=sha256:9c592900a00b20e416494273c22435f5a9aef6ea8c7b9190747522a60497a1cb \
-    --hash=sha256:b7cd8bd41a312aa997aec6150670bad781847c5b674f17e4d70e78208a0fb990
+datamodel-code-generator==0.81.0 \
+    --hash=sha256:3b4d1639cc7430f7e34fddc3827fb5d3eb0a4f5394750890c46ba2a9d56e3ee2 \
+    --hash=sha256:82ff0c295685065a83c530ce42ec03fc75b7ca01e72083eb8232d68f7637013a
     # via runtimeexceptions (pyproject.toml)
 decli==0.6.2 \
     --hash=sha256:2fc84106ce9a8f523ed501ca543bdb7e416c064917c12a59ebdc7f311a97b7ed \
