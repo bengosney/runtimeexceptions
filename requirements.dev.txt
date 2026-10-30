@@ -1039,9 +1039,9 @@ ruff==0.11.11 \
     --hash=sha256:dcec2d50756463d9df075a26a85a6affbc1b0148873da3997286caf1ce03cae1 \
     --hash=sha256:e231ff3132c1119ece836487a02785f099a43992b95c2f62847d29bace3c75ac
     # via runtimeexceptions (pyproject.toml)
-setuptools==80.9.0 \
-    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
-    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
+setuptools==84.1.0 \
+    --hash=sha256:23657205b63d4d31395ab917815247f694aafad28cd21316bf5fd45a51048ea0 \
+    --hash=sha256:5231689c6ac8156cd155cfb98c3fd6fb252c3e7e9bd3d78b64d3c55f132624c9
     # via
     #   -r requirements.txt
     #   runtimeexceptions (pyproject.toml)
